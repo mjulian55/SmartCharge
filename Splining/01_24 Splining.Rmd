@@ -23,7 +23,7 @@ rm(list = ls()) #This clears the workspace
 
 #setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
-X01<- read.csv("~/github/Splining/01.csv") %>%
+X01<- read.csv("~/github/SmartCharge/Splining/01.csv") %>%
   mutate(Hour24 = ifelse(Hour<=24,Hour,Hour-24))
 Y = spline(x=X01$Hour,y=X01$Elasticity,xout=seq(min(X01$Hour),max(X01$Hour)))
 HR = Y$x
