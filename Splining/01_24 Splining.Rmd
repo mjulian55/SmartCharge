@@ -23,7 +23,7 @@ rm(list = ls()) #This clears the workspace
 
 #setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
-X01<- read.csv("~/github/SmartCharge/Splining/01.csv") %>%
+X01<- read.csv("01.csv") %>%
   mutate(Hour24 = ifelse(Hour<=24,Hour,Hour-24))
 Y = spline(x=X01$Hour,y=X01$Elasticity,xout=seq(min(X01$Hour),max(X01$Hour)))
 HR = Y$x
@@ -41,15 +41,12 @@ P1
 
 HOUR 2
 ```{r  echo=FALSE, message=FALSE}
-library(ggplot2)
-library(dplyr)
-library(readr)
 
 rm(list = ls()) #This clears the workspace
 
 #setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
-X02<- read.csv("~/github/Splining/02.csv") %>%
+X02<- read.csv("02.csv") %>%
   mutate(Hour24 = ifelse(Hour<=24,Hour,Hour-24))
 Y = spline(x=X02$Hour,y=X02$Elasticity,xout=seq(min(X02$Hour),max(X02$Hour)))
 HR = Y$x
@@ -66,15 +63,13 @@ P1
 
 HOUR 3
 ```{r  echo=FALSE, message=FALSE}
-library(ggplot2)
-library(dplyr)
-library(readr)
+
 
 rm(list = ls()) #This clears the workspace
 
 #setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
-X03<- read.csv("~/github/Splining/03.csv") %>%
+X03<- read.csv("03.csv") %>%
   mutate(Hour24 = ifelse(Hour<=24,Hour,Hour-24))
 Y = spline(x=X03$Hour,y=X03$Elasticity,xout=seq(min(X03$Hour),max(X03$Hour)))
 HR = Y$x
@@ -91,15 +86,12 @@ P1
 
 HOUR 4
 ```{r  echo=FALSE, message=FALSE}
-library(ggplot2)
-library(dplyr)
-library(readr)
 
 rm(list = ls()) #This clears the workspace
 
 #setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
-X04<- read.csv("~/github/Splining/04.csv") %>%
+X04<- read.csv("04.csv") %>%
   mutate(Hour24 = ifelse(Hour<=24,Hour,Hour-24))
 Y = spline(x=X04$Hour,y=X04$Elasticity,xout=seq(min(X04$Hour),max(X04$Hour)))
 HR = Y$x
@@ -115,15 +107,12 @@ P1
 ```
 HOUR 5
 ```{r  echo=FALSE, message=FALSE}
-library(ggplot2)
-library(dplyr)
-library(readr)
 
 rm(list = ls()) #This clears the workspace
 
 #setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
-X05<- read.csv("~/github/Splining/05.csv") %>%
+X05<- read.csv("05.csv") %>%
   mutate(Hour24 = ifelse(Hour<=24,Hour,Hour-24))
 Y = spline(x=X05$Hour,y=X05$Elasticity,xout=seq(min(X05$Hour),max(X05$Hour)))
 HR = Y$x
@@ -140,15 +129,12 @@ P1
 
 HOUR 6
 ```{r  echo=FALSE, message=FALSE}
-library(ggplot2)
-library(dplyr)
-library(readr)
 
 rm(list = ls()) #This clears the workspace
 
 #setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
-X06<- read.csv("~/github/Splining/06.csv") %>%
+X06<- read.csv("06.csv") %>%
   mutate(Hour24 = ifelse(Hour<=24,Hour,Hour-24))
 Y = spline(x=X06$Hour,y=X06$Elasticity,xout=seq(min(X06$Hour),max(X06$Hour)))
 HR = Y$x
@@ -165,15 +151,12 @@ P1
 
 HOUR 7
 ```{r echo=FALSE, message=FALSE}
-library(ggplot2)
-library(dplyr)
-library(readr)
 
 rm(list = ls()) #This clears the workspace
 
 #setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
-X07 <- read_csv("~/github/Splining/07.csv") %>%
+X07 <- read_csv("07.csv") %>%
   mutate(Hour24 = ifelse(Hour<=24,Hour,Hour-24))
 Y = spline(x=X07$Hour,y=X07$Elasticity,xout=seq(min(X07$Hour),max(X07$Hour)))
 HR = Y$x
@@ -191,15 +174,12 @@ P1
 
 HOUR 8
 ```{r  echo=FALSE, message=FALSE}
-library(ggplot2)
-library(dplyr)
-library(readr)
 
 rm(list = ls()) #This clears the workspace
 
 #setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
-X08 <- read_csv("~/github/Splining/08.csv") %>%
+X08 <- read_csv("08.csv") %>%
   mutate(Hour24 = ifelse(Hour<=24,Hour,Hour-24))
 Y = spline(x=X08$Hour,y=X08$Elasticity,xout=seq(min(X08$Hour),max(X08$Hour)))
 HR = Y$x
@@ -217,15 +197,12 @@ P1
 
 HOUR 9
 ```{r echo=FALSE, message=FALSE}
-library(ggplot2)
-library(dplyr)
-library(readr)
 
 rm(list = ls()) #This clears the workspace
 
 #setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
-X09 <- read_csv("~/github/Splining/09.csv") %>%
+X09 <- read_csv("09.csv") %>%
   mutate(Hour24 = ifelse(Hour<=24,Hour,Hour-24))
 Y = spline(x=X09$Hour,y=X09$Elasticity,xout=seq(min(X09$Hour),max(X09$Hour)))
 HR = Y$x
@@ -242,15 +219,12 @@ P1
 
 HOUR 10
 ```{r echo=FALSE, message=FALSE}
-library(ggplot2)
-library(dplyr)
-library(readr)
 
 rm(list = ls()) #This clears the workspace
 
 #setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
-X10 <- read_csv("~/github/Splining/10.csv") %>%
+X10 <- read_csv("10.csv") %>%
   mutate(Hour24 = ifelse(Hour<=24,Hour,Hour-24))
 Y = spline(x=X10$Hour,y=X10$Elasticity,xout=seq(min(X10$Hour),max(X10$Hour)))
 HR = Y$x
@@ -267,15 +241,12 @@ P1
 
 HOUR 11
 ```{r echo=FALSE, message=FALSE}
-library(ggplot2)
-library(dplyr)
-library(readr)
 
 rm(list = ls()) #This clears the workspace
 
 #setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
-X11<- read.csv("~/github/Splining/11.csv") %>%
+X11<- read.csv("11.csv") %>%
   mutate(Hour24 = ifelse(Hour<=24,Hour,Hour-24))
 Y = spline(x=X11$Hour,y=X11$Elasticity,xout=seq(min(X11$Hour),max(X11$Hour)))
 HR = Y$x
@@ -292,15 +263,12 @@ P1
 ```
 HOUR 12
 ```{r echo=FALSE, message=FALSE}
-library(ggplot2)
-library(dplyr)
-library(readr)
 
 rm(list = ls()) #This clears the workspace
 
 #setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
-X12<- read.csv("~/github/Splining/12.csv") %>%
+X12<- read.csv("12.csv") %>%
   mutate(Hour24 = ifelse(Hour<=24,Hour,Hour-24))
 Y = spline(x=X12$Hour,y=X12$Elasticity,xout=seq(min(X12$Hour),max(X12$Hour)))
 HR = Y$x
@@ -318,15 +286,12 @@ P1
 
 HOUR 13
 ```{r echo=FALSE, message=FALSE}
-library(ggplot2)
-library(dplyr)
-library(readr)
 
 rm(list = ls()) #This clears the workspace
 
 #setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
-X13<- read.csv("~/github/Splining/13.csv") %>%
+X13<- read.csv("13.csv") %>%
   mutate(Hour24 = ifelse(Hour<=24,Hour,Hour-24))
 Y = spline(x=X13$Hour,y=X13$Elasticity,xout=seq(min(X13$Hour),max(X13$Hour)))
 HR = Y$x
@@ -343,15 +308,12 @@ P1
 ```
 HOUR 14
 ```{r echo=FALSE, message=FALSE}
-library(ggplot2)
-library(dplyr)
-library(readr)
 
 rm(list = ls()) #This clears the workspace
 
 #setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
-X14<- read.csv("~/github/Splining/14.csv") %>%
+X14<- read.csv("14.csv") %>%
   mutate(Hour24 = ifelse(Hour<=24,Hour,Hour-24))
 Y = spline(x=X14$Hour,y=X14$Elasticity,xout=seq(min(X14$Hour),max(X14$Hour)))
 HR = Y$x
@@ -369,15 +331,12 @@ P1
 
 HOUR 15
 ```{r  echo=FALSE, message=FALSE}
-library(ggplot2)
-library(dplyr)
-library(readr)
 
 rm(list = ls()) #This clears the workspace
 
 #setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
-X15<- read.csv("~/github/Splining/15.csv") %>%
+X15<- read.csv("15.csv") %>%
   mutate(Hour24 = ifelse(Hour<=24,Hour,Hour-24))
 Y = spline(x=X15$Hour,y=X15$Elasticity,xout=seq(min(X15$Hour),max(X15$Hour)))
 HR = Y$x
@@ -395,15 +354,12 @@ P1
 
 HOUR 16
 ```{r echo=FALSE, message=FALSE}
-library(ggplot2)
-library(dplyr)
-library(readr)
 
 rm(list = ls()) #This clears the workspace
 
 #setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
-X16<- read.csv("~/github/Splining/16.csv") %>%
+X16<- read.csv("16.csv") %>%
   mutate(Hour24 = ifelse(Hour<=24,Hour,Hour-24))
 Y = spline(x=X16$Hour,y=X16$Elasticity,xout=seq(min(X16$Hour),max(X16$Hour)))
 HR = Y$x
@@ -421,15 +377,12 @@ P1
 
 HOUR 17
 ```{r echo=FALSE, message=FALSE}
-library(ggplot2)
-library(dplyr)
-library(readr)
 
 rm(list = ls()) #This clears the workspace
 
 #setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
-X17<- read.csv("~/github/Splining/17.csv") %>%
+X17<- read.csv("17.csv") %>%
   mutate(Hour24 = ifelse(Hour<=24,Hour,Hour-24))
 Y = spline(x=X17$Hour,y=X17$Elasticity,xout=seq(min(X17$Hour),max(X17$Hour)))
 HR = Y$x
@@ -447,15 +400,12 @@ P1
 
 HOUR 18
 ```{r echo=FALSE, message=FALSE}
-library(ggplot2)
-library(dplyr)
-library(readr)
 
 rm(list = ls()) #This clears the workspace
 
 #setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
-X18<- read.csv("~/github/Splining/18.csv") %>%
+X18<- read.csv("18.csv") %>%
   mutate(Hour24 = ifelse(Hour<=24,Hour,Hour-24))
 Y = spline(x=X18$Hour,y=X18$Elasticity,xout=seq(min(X18$Hour),max(X18$Hour)))
 HR = Y$x
@@ -473,15 +423,12 @@ P1
 
 HOUR 19
 ```{r echo=FALSE, message=FALSE}
-library(ggplot2)
-library(dplyr)
-library(readr)
 
 rm(list = ls()) #This clears the workspace
 
 #setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
-X19<- read.csv("~/github/Splining/19.csv") %>%
+X19<- read.csv("19.csv") %>%
   mutate(Hour24 = ifelse(Hour<=24,Hour,Hour-24))
 Y = spline(x=X19$Hour,y=X19$Elasticity,xout=seq(min(X19$Hour),max(X19$Hour)))
 HR = Y$x
@@ -500,15 +447,12 @@ P1
 
 HOUR 20
 ```{r echo=FALSE, message=FALSE}
-library(ggplot2)
-library(dplyr)
-library(readr)
 
 rm(list = ls()) #This clears the workspace
 
 #setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
-X20<- read.csv("~/github/Splining/20.csv") %>%
+X20<- read.csv("20.csv") %>%
   mutate(Hour24 = ifelse(Hour<=24,Hour,Hour-24))
 Y = spline(x=X20$Hour,y=X20$Elasticity,xout=seq(min(X20$Hour),max(X20$Hour)))
 HR = Y$x
@@ -526,15 +470,13 @@ P1
 
 HOUR 21
 ```{r echo=FALSE, message=FALSE}
-library(ggplot2)
-library(dplyr)
-library(readr)
+
 
 rm(list = ls()) #This clears the workspace
 
 #setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
-X21<- read.csv("~/github/Splining/21.csv") %>%
+X21<- read.csv("21.csv") %>%
   mutate(Hour24 = ifelse(Hour<=24,Hour,Hour-24))
 Y = spline(x=X21$Hour,y=X21$Elasticity,xout=seq(min(X21$Hour),max(X21$Hour)))
 HR = Y$x
@@ -552,15 +494,12 @@ P1
 
 HOUR 22
 ```{r echo=FALSE, message=FALSE}
-library(ggplot2)
-library(dplyr)
-library(readr)
 
 rm(list = ls()) #This clears the workspace
 
 #setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
-X22<- read.csv("~/github/Splining/22.csv") %>%
+X22<- read.csv("22.csv") %>%
   mutate(Hour24 = ifelse(Hour<=24,Hour,Hour-24))
 Y = spline(x=X22$Hour,y=X22$Elasticity,xout=seq(min(X22$Hour),max(X22$Hour)))
 HR = Y$x
@@ -578,15 +517,12 @@ P1
 
 HOUR 23
 ```{r echo=FALSE, message=FALSE}
-library(ggplot2)
-library(dplyr)
-library(readr)
 
 rm(list = ls()) #This clears the workspace
 
 #setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
-X23<- read.csv("~/github/Splining/23.csv") %>%
+X23<- read.csv("23.csv") %>%
   mutate(Hour24 = ifelse(Hour<=24,Hour,Hour-24))
 Y = spline(x=X23$Hour,y=X23$Elasticity,xout=seq(min(X23$Hour),max(X23$Hour)))
 HR = Y$x
@@ -604,15 +540,12 @@ P1
 
 HOUR 24
 ```{r echo=FALSE, message=FALSE}
-library(ggplot2)
-library(dplyr)
-library(readr)
 
 rm(list = ls()) #This clears the workspace
 
 #setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
-X24<- read.csv("~/github/Spline1/24.csv") %>%
+X24<- read.csv("24.csv") %>%
   mutate(Hour24 = ifelse(Hour<=24,Hour,Hour-24))
 Y = spline(x=X24$Hour,y=X24$Elasticity,xout=seq(min(X24$Hour),max(X24$Hour)))
 HR = Y$x
