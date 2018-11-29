@@ -13,15 +13,32 @@ knitr::opts_chunk$set(echo = TRUE)
 
 #load libraries
 library(tidyverse)
+library(dplyr)
+
 
 #load data
+#Price Schedule
+Winter_TOU_2018 <- read.csv("Model_Map/2018_Winter_TOU_EV_D.csv")
+Baseline_03_18_WP <- read.csv("Model_Map/03-18_WP_Avg.csv")
+Chargers <- read.csv("Model_Map/Chargers_Installed_03-18.csv")
 
 ```
 
 
-```{r price_schedule}
+```{r context}
 
-price_schedule <- data.frame(Hr = c(1:24), Time_Range = "*price_schedule$Hr-1* - *price_schedule$Hr*")
+#Price Schedule
+price_schedule <- data.frame(Hr = c(1:24)) %>% 
+  mutate(P0 = Winter_TOU_2018$P0)
+
+#Baseline
+WP_Chargers <- Chargers$Workplace #This is our variable C
+Baseline <- mutate(price_schedule, Xi = Baseline_03_18_WP$Xi, X0 = Baseline_03_18_WP$Xi/340*WP_Chargers ) #340 here comes from the number of chargers installed for the baseline
+
+
+```
+
+```{r intervention}
 
 ```
 
