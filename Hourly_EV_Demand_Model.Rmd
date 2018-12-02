@@ -33,12 +33,21 @@ price_schedule <- data.frame(Hr = c(1:24)) %>%
 
 #Baseline
 WP_Chargers <- Chargers$Workplace #This is our variable C
-Baseline <- mutate(price_schedule, Xi = Baseline_03_18_WP$Xi, X0 = Baseline_03_18_WP$Xi/340*WP_Chargers ) #340 here comes from the number of chargers installed for the baseline
+EV_Demand <- mutate(price_schedule, Xi = Baseline_03_18_WP$Xi, X0 = Baseline_03_18_WP$Xi/340*WP_Chargers ) #340 here comes from the number of chargers installed for the baseline
 
 
 ```
 
+
 ```{r intervention}
+
+price_change <- -0.05
+intervention_hours <- c(12:15)
+EV_Demand <- mutate(EV_Demand, P1 = price_schedule$P0) #add P1: price schedule with intervention
+
+EV_Demand$P1[intervention_hours] <-EV_Demand$P1[intervention_hours] + price_change #updates intervention column to implement intervention
+
+EV_Demand <- mutate(EV_Demand, P1p = (P1-P0)/P0)
 
 ```
 
