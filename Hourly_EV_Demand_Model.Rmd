@@ -39,6 +39,27 @@ EV_Demand <- mutate(price_schedule, Xi = Baseline_03_18_WP$Xi, X0 = Baseline_03_
 ```
 
 
+```{r matrix}
+
+#creates our matrix based on the 24 elasticity .csv files.
+#uses a for loop to call files rather than individually
+#NOTE this matrix has each COLUMN to be used for each hour. Our excel used each ROW if trying to compare.
+
+x <- c(1:24)
+count <- 0
+matrix <- data.frame(Hr = c(1:24))
+for (val in x) {
+  El <- read_csv(sub("XX", val, "Model_Map/Elasticities_XX.csv")) 
+  El <- El[-1,]
+  El <- El[order(El$HR24),]
+  matrix <- cbind(matrix, El$ELAST)
+}
+
+colnames(matrix) <- c("Hour", 1:24)
+```
+
+
+
 ```{r intervention}
 
 price_change <- -0.05
@@ -48,6 +69,8 @@ EV_Demand <- mutate(EV_Demand, P1 = price_schedule$P0) #add P1: price schedule w
 EV_Demand$P1[intervention_hours] <-EV_Demand$P1[intervention_hours] + price_change #updates intervention column to implement intervention
 
 EV_Demand <- mutate(EV_Demand, P1p = (P1-P0)/P0)
+
+
 
 ```
 
