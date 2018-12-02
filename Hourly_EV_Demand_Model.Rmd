@@ -25,28 +25,27 @@ Chargers <- read.csv("Model_Map/Chargers_Installed_03-18.csv")
 ```
 
 
-```{r context}
+```{r Context}
 
 #Price Schedule
 price_schedule <- data.frame(Hr = c(1:24)) %>% 
   mutate(P0 = Winter_TOU_2018$P0)
 
 #Baseline
-WP_Chargers <- Chargers$Workplace #This is our variable C
+WP_Chargers <- Chargers$Workplace #Number of Chargers (C)
 EV_Demand <- mutate(price_schedule, Xi = Baseline_03_18_WP$Xi, X0 = Baseline_03_18_WP$Xi/340*WP_Chargers ) #340 here comes from the number of chargers installed for the baseline
 
 
 ```
 
 
-```{r matrix}
+```{r Matrix}
 
 #creates our matrix based on the 24 elasticity .csv files.
 #uses a for loop to call files rather than individually
 #NOTE this matrix has each COLUMN to be used for each hour. Our excel used each ROW if trying to compare.
 
 x <- c(1:24)
-count <- 0
 matrix <- data.frame(Hr = c(1:24))
 for (val in x) {
   El <- read_csv(sub("XX", val, "Model_Map/Elasticities_XX.csv")) 
@@ -60,17 +59,33 @@ colnames(matrix) <- c("Hour", 1:24)
 
 
 
-```{r intervention}
+```{r Intervention}
 
 price_change <- -0.05
 intervention_hours <- c(12:15)
-EV_Demand <- mutate(EV_Demand, P1 = price_schedule$P0) #add P1: price schedule with intervention
+EV_Demand <- mutate(EV_Demand, P1 = price_schedule$P0) #Adds price schedule with intervention (P1)
 
 EV_Demand$P1[intervention_hours] <-EV_Demand$P1[intervention_hours] + price_change #updates intervention column to implement intervention
 
-EV_Demand <- mutate(EV_Demand, P1p = (P1-P0)/P0)
+EV_Demand <- mutate(EV_Demand, P1p = (P1-P0)/P0) #Adds percentage change in price (P1p)
+
+X1p <- as.vector(0)
+for (val in x) {
+  mat <- sub("XX",val, "matrix$`XX`")
+  sum_prod <- crossprod(EV_Demand$P1p,eval(parse(text = mat)))
+  X1p<- append(X1p,sum_prod)
+  
+} #crossprod() multiplies sumproduct of the percent change in price with each column in the matrix. This is done 24 time by the for loop rather than 24 individual times
+
+X1p <- X1p[-1] # gets rid of the first dummy entry to the variable
+EV_Demand <- mutate(EV_Demand, X1p = X1p) #add percent change in demand due to price onto EV_Demand (X1p)
+
+EV_Demand <- mutate(EV_Demand, X1 = (1+X1p)*X0) #adds new demand in kW variable (X1)
 
 
+```
+
+```{r Throttling}
 
 ```
 
