@@ -45,7 +45,7 @@ EV_Demand <- mutate(price_schedule, Xi = Baseline_03_18_WP$Xi, X0 = Baseline_03_
 #uses a for loop to call files rather than individually
 #NOTE this matrix has each COLUMN to be used for each hour. Our excel used each ROW if trying to compare.
 
-x <- c(1:24)
+x <- c(1:24) #used for the 24 hours in for loops (24 elasticity columns)
 matrix <- data.frame(Hr = c(1:24))
 for (val in x) {
   El <- read_csv(sub("XX", val, "Model_Map/Elasticities_XX.csv")) 
@@ -53,8 +53,8 @@ for (val in x) {
   El <- El[order(El$HR24),]
   matrix <- cbind(matrix, El$ELAST)
 }
-
-colnames(matrix) <- c("Hour", 1:24)
+matrix<-matrix[,-1]
+colnames(matrix) <- c(1:24)
 ```
 
 
@@ -86,6 +86,34 @@ EV_Demand <- mutate(EV_Demand, X1 = (1+X1p)*X0) #adds new demand in kW variable 
 ```
 
 ```{r Throttling}
+
+throttle_amount <- -0.5 #throttling amount -0.5 - 50%
+Tp <- rep(0,24)
+throttle_hours <- c(7:11) #hours that throttling occurs
+Tp[throttle_hours] <- throttle_amount #Assigns each hour a throttling percentage
+EV_Demand <- mutate(EV_Demand, Tp=Tp) #Adds throttling percentage to each hour (Tp)
+
+E <- as.vector(0) #dummy for self-elasticities (E)
+
+for (val in x) {
+  self <- matrix[val,val]
+  E <- append(E,self)
+} #checks the matrix for the self elasticity and adds it to a vector, repeated 24 times as a for loop rather than 24 times
+
+E <- E[-1] #removing dummy
+
+EV_Demand <- mutate(EV_Demand, Ptp = Tp/E, Pt = (1+Ptp)*P1)#Creates an equivalent change in price during that hour that would be required to see the drop in demand due to throttling
+
+Xtp <- as.vector(0) #Dummy for change in demand due to throttling (Xtp)
+
+for (val in x) {
+  mat <- sub("XX",val, "matrix$`XX`")
+  sum_prod <- crossprod(EV_Demand$Ptp,eval(parse(text = mat)))
+  Xtp<- append(Xtp,sum_prod)
+} #uses new price equivalent sumproduct with each hour's elasticities to find percent change in demand due to throttling
+Xtp <- Xtp[-1] #gets rid of dummy
+
+EV_Demand <- mutate(EV_Demand, Xtp = Xtp, Xt = (Xtp+1)*X1) #adds (Xtp) and the new demand in kW due to throttling (Xt)
 
 ```
 
