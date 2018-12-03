@@ -75,7 +75,7 @@ for (val in x) {
   sum_prod <- crossprod(EV_Demand$P1p,eval(parse(text = mat)))
   X1p<- append(X1p,sum_prod)
   
-} #crossprod() multiplies sumproduct of the percent change in price with each column in the matrix. This is done 24 time by the for loop rather than 24 individual times
+} #crossprod() multiplies sumproduct of the percent change in price with each column in the matrix. This is done 24 times by the for loop rather than 24 individual times
 
 X1p <- X1p[-1] # gets rid of the first dummy entry to the variable
 EV_Demand <- mutate(EV_Demand, X1p = X1p) #add percent change in demand due to price onto EV_Demand (X1p)
@@ -117,7 +117,7 @@ EV_Demand <- mutate(EV_Demand, Xtp = Xtp, Xt = (Xtp+1)*X1) #adds (Xtp) and the n
 
 ```
 
-```{r Communcation}
+```{r Communication}
 
 #to be completed...
 
