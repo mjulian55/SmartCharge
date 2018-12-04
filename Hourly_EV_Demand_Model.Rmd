@@ -2,7 +2,9 @@
 title: "Hourly EV Charging Demand Model"
 author: "Danny Ettelson"
 date: "11/27/2018"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -127,22 +129,31 @@ EV_Demand <- mutate(EV_Demand, Xtp = Xtp, Xt = (Xtp+1)*X1) #adds (Xtp) and the n
 
 ```{r Figures}
 
-Demand_Graph <- ggplot(data = EV_Demand, aes(x = Hr)) +
-  geom_line(aes(y = Xt), color = "blue") +
-  geom_line(aes(y = X0), color = "green") +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+#need to stack both demand curves in one data frame for a legend
+
+graph_table <- EV_Demand[c(1,4,13)] %>% 
+  gather(condition,value,X0:Xt)
+
+
+
+Demand_Graph <- ggplot(data = graph_table, aes(x = Hr)) +
+  geom_line(aes(y = value, color=condition)) +
+ theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black")) +
   labs(title="Hourly Demand Forecast", 
        subtitle="$0.05 Discount 11 AM - 3 PM \n 50% Throttling 6 AM - 11 AM",
        y="EV Charging Demand (kW)",
        x="Hour",
        color=NULL) +
-  scale_x_continuous(breaks = 1:24, limits = c(0,24), expand = c(0, 0)) +
-  geom_rect(aes(xmin=11,xmax=15,ymin=-Inf,ymax=Inf),alpha=0.0075,fill="green") +
-  geom_rect(aes(xmin=6,xmax=11,ymin=-Inf,ymax=Inf),alpha=0.0075,fill="yellow") +
-  theme_bw() + # theme_bw() gives grid lines, could remove
+  scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
+  scale_color_manual(labels=c("Baseline Demand","Demand with Intervention"), values = c("blue", "red")) +
+  geom_rect(aes(xmin=6,xmax=11,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
+  geom_rect(aes(xmin=11,xmax=15,ymin=-Inf,ymax=Inf, fill = "Discount"),alpha=0.0075) +
+  #theme_bw() + # theme_bw() gives grid lines, could remove
   theme(plot.title = element_text(hjust = 0.5)) + 
-  theme(plot.subtitle = element_text(hjust = 0.5))
+  theme(plot.subtitle = element_text(hjust = 0.5))+
+ theme(legend.position="bottom") +
+  scale_fill_manual('Interventions',values = c('green','yellow'),  guide = guide_legend(override.aes = list(alpha = 0.15)))
 
 
 # Aesthetic Notes:
