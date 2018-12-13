@@ -118,6 +118,15 @@ Xtp <- Xtp[-1] #gets rid of dummy
 
 EV_Demand <- mutate(EV_Demand, Xtp = Xtp, Xt = (Xtp+1)*X1) #adds (Xtp) and the new demand in kW due to throttling (Xt)
 
+
+#The variables below quantify the shift and net change in demand as a result of interventions, and need to be adjusted based on intervention (does not count throttling)
+Total_x0 <- sum(EV_Demand$X0)
+Total_xt <-sum(EV_Demand$Xt)
+
+Net_Change <- Total_xt-Total_x0
+Change_intervention <- sum(EV_Demand$Xt[intervention_hours]) - sum(EV_Demand$X0[intervention_hours])
+Change_outside_intervention <- sum(EV_Demand$Xt[-intervention_hours])- sum(EV_Demand$X0[-intervention_hours])
+
 ```
 
 ```{r Communication}
