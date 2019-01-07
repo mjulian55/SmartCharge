@@ -21,10 +21,14 @@ library(RColorBrewer)
 
 #load data
 #Price Schedule
-Winter_TOU_2018 <- read.csv("Model_Map/2018_Winter_TOU_EV_D.csv")
+rates <- read.csv("Model_Map/2018_Winter_TOU_EV_D.csv")
 Baseline_03_18_WP <- read.csv("Model_Map/03-18_WP_Avg.csv")
 Chargers <- read.csv("Model_Map/Chargers_Installed_03-18.csv")
 
+
+Elasticities <- read.csv("Elasticities_Dong2015.csv")
+row.names(Elasticities) <- Elasticities[c(1:3),1]
+Elasticities<- Elasticities[,-1]
 ```
 
 
@@ -32,11 +36,32 @@ Chargers <- read.csv("Model_Map/Chargers_Installed_03-18.csv")
 
 #Price Schedule
 price_schedule <- data.frame(Hr = c(1:24)) %>% 
-  mutate(P0 = Winter_TOU_2018$P0)
+  mutate(P0 = rates$P0) %>% 
+  mutate(period = rates$Period)
+
+price_schedule$period <- factor(price_schedule$period, levels = c("P","MP","OP"))
 
 #Baseline
 WP_Chargers <- Chargers$Workplace #Number of Chargers (C)
 EV_Demand <- mutate(price_schedule, Xi = Baseline_03_18_WP$Xi, X0 = Baseline_03_18_WP$Xi/340*WP_Chargers ) #340 here comes from the number of chargers installed for the baseline
+
+
+```
+
+
+```{r Splining}
+
+x <- c(1:24) #used for the 24 hours in for loops (24 elasticity columns)
+#template <- data.frame()
+
+for(i in x) {
+    nam <- paste("X", i, sep = ".")
+    periods <- price_schedule$period[c(sort(c(i,3.5,10,15,20.5)),i)]
+    own_period <- price_schedule$period[i]
+    elastic <- Elasticities[own_period,periods] 
+    assign(nam,data.frame(Hour=sort(c(i,3.5,10,15,20.5,i+24)),Period=price_schedule$period[c(sort(c(i,3.5,10,15,20.5)),i)],Elasticity = as.numeric(elastic)))
+    
+}
 
 
 ```
@@ -48,7 +73,6 @@ EV_Demand <- mutate(price_schedule, Xi = Baseline_03_18_WP$Xi, X0 = Baseline_03_
 #uses a for loop to call files rather than individually
 #NOTE this matrix has each COLUMN to be used for each hour. Our excel used each ROW if trying to compare.
 
-x <- c(1:24) #used for the 24 hours in for loops (24 elasticity columns)
 matrix <- data.frame(Hr = c(1:24))
 for (val in x) {
   El <- read_csv(sub("XX", val, "Model_Map/Elasticities_XX.csv")) 
