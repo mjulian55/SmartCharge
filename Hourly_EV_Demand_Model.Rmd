@@ -56,18 +56,43 @@ x <- c(1:24) #used for the 24 hours in for loops (24 elasticity columns)
 
 for(i in x) {
     nam <- paste("X", i, sep = ".")
-    periods <- price_schedule$period[c(sort(c(i,3.5,10,15,20.5)),i)]
+    if(between(i,9,12)) {
+  Hrs <- sort(c(i,3.5,15,20.5))
+} else if (between(i,13,18)) {
+  Hrs <- sort(c(i,3.5,10,20.5))
+} else if (between(i,19,23)) {
+  Hrs <- sort(c(i,3.5,10,15))
+} else
+  Hrs <- sort(c(i,10,15,20.5))
+    periods <- price_schedule$period[c(Hrs,i)]
     own_period <- price_schedule$period[i]
     elastic <- Elasticities[own_period,periods] 
-    assign(nam,data.frame(Hour=sort(c(i,3.5,10,15,20.5,i+24)),Period=price_schedule$period[c(sort(c(i,3.5,10,15,20.5)),i)],Elasticity = as.numeric(elastic)))
+    assign(nam,data.frame(Hour=c(Hrs,i+24),Period=periods,Elasticity = as.numeric(elastic)))
     
+}
+
+for (i in x) {
+  current_hr <- eval(parse(text = sub("XX", i, "X.XX")))
+  current_hr <- mutate(current_hr, Hour24 = ifelse(Hour<=24,Hour,Hour-24))
+  Y = spline(x=current_hr$Hour,y=current_hr$Elasticity,xout=seq(min(current_hr$Hour),max(current_hr$Hour)))
+  HR = Y$x
+  ELAST = Y$y
+  nam <- paste("XX", i, sep = ".")
+  assign(nam,data.frame(HR=HR,ELAST=ELAST,HR24 = ifelse(HR<=24,HR,HR-24)))
 }
 
 
 ```
 
 
+
 ```{r Matrix}
+
+#for (i in x){
+#  El<-
+#}
+
+
 
 #creates our matrix based on the 24 elasticity .csv files.
 #uses a for loop to call files rather than individually
