@@ -25,7 +25,7 @@ rates <- read.csv("Model_Map/2018_Winter_TOU_EV_D.csv")
 Baseline_03_18_WP <- read.csv("Model_Map/03-18_WP_Avg.csv")
 Chargers <- read.csv("Model_Map/Chargers_Installed_03-18.csv")
 
-
+#Elasticities with format 3X3 and in order Peak, Mid-Peak, Off-Peak
 Elasticities <- read.csv("Elasticities_Dong2015.csv")
 row.names(Elasticities) <- Elasticities[c(1:3),1]
 Elasticities<- Elasticities[,-1]
@@ -54,8 +54,10 @@ EV_Demand <- mutate(price_schedule, Xi = Baseline_03_18_WP$Xi, X0 = Baseline_03_
 x <- c(1:24) #used for the 24 hours in for loops (24 elasticity columns)
 #template <- data.frame()
 
+
+#This makes a table for each hour that lists the midpoint hours that will be splined, hours as <24, rate period, and elasticity relative to the hour.
 for(i in x) {
-    nam <- paste("X", i, sep = ".")
+    nam <- paste("Midpoints", i, sep = ".")
     if(between(i,9,12)) {
   Hrs <- sort(c(i,3.5,15,20.5))
 } else if (between(i,13,18)) {
@@ -64,6 +66,7 @@ for(i in x) {
   Hrs <- sort(c(i,3.5,10,15))
 } else
   Hrs <- sort(c(i,10,15,20.5))
+#The loop above selects a set of midpoints that leaves out one midpoint based on the hour that a table is being made for (it excludes the midpoint that is in the same period as the hour of the table)
     Hrs24 <- append(Hrs,i)
     Hrs <- ifelse(Hrs<i,Hrs+24,Hrs) %>% 
       append(i+24)
@@ -75,11 +78,11 @@ for(i in x) {
 }
 
 for (i in x) {
-  current_hr <- eval(parse(text = sub("XX", i, "X.XX")))
+  current_hr <- eval(parse(text = sub("XX", i, "Midpoints.XX")))
   Y = spline(x=current_hr$Hour,y=current_hr$Elasticity,xout=seq(min(current_hr$Hour),max(current_hr$Hour)))
   HR = Y$x
   ELAST = Y$y
-  nam <- paste("XX", i, sep = ".")
+  nam <- paste("Elasticities", i, sep = ".")
   assign(nam,data.frame(HR=HR,ELAST=ELAST,HR24 = ifelse(HR<=24,HR,HR-24)))
 }
 
@@ -102,7 +105,7 @@ for (i in x) {
 
 matrix <- data.frame(Hr = c(1:24))
 for (i in x) {
-  El <- eval(parse(text = sub("YY", i, "XX.YY")))
+  El <- eval(parse(text = sub("YY", i, "Elasticities.YY")))
   El <- El[-1,]
   El <- El[order(El$HR24),]
   matrix <- cbind(matrix, El$ELAST)
@@ -191,8 +194,8 @@ Change_outside_intervention <- sum(EV_Demand$Xt[-intervention_hours])- sum(EV_De
 
 #need to stack both demand curves in one data frame for a legend
 
-graph_table <- EV_Demand[c(1,4,13)] %>% 
-  gather(condition,value,EV_Demand$X0:EV_Demand$Xt)
+graph_table <- EV_Demand[c(1,5,14)] %>% 
+  gather(condition,value,X0:Xt)
 
 
 
