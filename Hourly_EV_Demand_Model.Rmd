@@ -192,7 +192,7 @@ Change_outside_intervention <- sum(EV_Demand$Xt[-intervention_hours])- sum(EV_De
 #need to stack both demand curves in one data frame for a legend
 
 graph_table <- EV_Demand[c(1,4,13)] %>% 
-  gather(condition,value,X0:Xt)
+  gather(condition,value,EV_Demand$X0:EV_Demand$Xt)
 
 
 
