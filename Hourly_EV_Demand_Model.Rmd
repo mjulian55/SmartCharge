@@ -93,13 +93,8 @@ for (i in x) {
 
 ```{r Matrix}
 
-#for (i in x){
-#  El<-
-#}
 
-
-
-#creates our matrix based on the 24 elasticity .csv files.
+#creates our matrix based on the 24 smoothed elasticities for each hour.
 #uses a for loop to call files rather than individually
 #NOTE this matrix has each COLUMN to be used for each hour. Our excel used each ROW if trying to compare.
 
