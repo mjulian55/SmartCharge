@@ -48,6 +48,18 @@ EV_Demand <- mutate(price_schedule, Xi = Baseline_03_18_WP$Xi, X0 = Baseline_03_
 
 ```
 
+```{r Max_Theoretical}
+
+#Theoretical max is based on the current number of chargers in the SCE Charge Ready pilot program, multiplied by the average power rating of Level 2 EV chargers (6.6 kW), multiplied by 1 hour.  This gives us the total number of kWh for each hour that could be achieved if every charger were utilized during the target load shift window of 11 AM - 3 PM.
+
+Number_Chargers <- 1020
+Charger_Power_Rating <- 6.6
+Max_Theory <- Number_Chargers*Charger_Power_Rating
+
+Max_Theory_df <- data.frame(Hour=c(12:15), kWh=Max_Theory)
+
+```
+
 
 ```{r Splining}
 
@@ -92,7 +104,6 @@ for (i in x) {
 
 
 ```{r Matrix}
-
 
 #creates our matrix based on the 24 smoothed elasticities for each hour.
 #uses a for loop to call files rather than individually
@@ -190,13 +201,13 @@ Change_outside_intervention <- sum(EV_Demand$Xt[-intervention_hours])- sum(EV_De
 #need to stack both demand curves in one data frame for a legend
 
 graph_table <- EV_Demand[c(1,5,14)] %>% 
-  gather(condition,value,X0:Xt)
-
+  gather(condition,value,X0:Xt) %>% 
+  mutate(Theoretical_Max=Max_Theory)
 
 
 Demand_Graph <- ggplot(data = graph_table, aes(x = Hr)) +
   geom_line(aes(y = value, color=condition)) +
- theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black")) +
   labs(title="Hourly Demand Forecast", 
        subtitle="$0.05 Discount 11 AM - 3 PM \n 50% Throttling 6 AM - 11 AM",
@@ -213,14 +224,21 @@ Demand_Graph <- ggplot(data = graph_table, aes(x = Hr)) +
  theme(legend.position="bottom") +
   scale_fill_manual('Interventions',values = c('green','yellow'),  guide = guide_legend(override.aes = list(alpha = 0.15)))
 
+Potential_Graph <- Demand_Graph +
+  geom_segment(aes(y=Theoretical_Max, yend=Theoretical_Max, x=11, xend=15))
 
 # Aesthetic Notes:
 # might try to remove space b/w Y-axis and hr0, as well as past hr24
 # bold axis titles
 # color brewer
-# Midnight to 1AM is missing!
+# geom_line(aes(y=Theoretical_Max, x=11:15)) +
+
+# If we want to graph the Max Theoretical Segment, we can use this:
+# geom_segment(aes(y=Theoretical_Max, yend=Theoretical_Max, x=11, xend=15))
+
 
 Demand_Graph
+Potential_Graph
 
 ```
 
