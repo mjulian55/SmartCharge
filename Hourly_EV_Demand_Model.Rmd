@@ -64,38 +64,64 @@ Max_Theory_df <- data.frame(Hour=c(12:15), kWh=Max_Theory)
 ```{r Splining}
 
 x <- c(1:24) #used for the 24 hours in for loops (24 elasticity columns)
-#template <- data.frame()
 
 
 #This makes a table for each hour that lists the midpoint hours that will be splined, hours as <24, rate period, and elasticity relative to the hour.
+
 for(i in x) {
     nam <- paste("Midpoints", i, sep = ".")
+    
     if(between(i,9,12)) {
+      
   Hrs <- sort(c(i,3.5,15,20.5))
+  
 } else if (between(i,13,18)) {
+  
   Hrs <- sort(c(i,3.5,10,20.5))
+  
 } else if (between(i,19,23)) {
+  
   Hrs <- sort(c(i,3.5,10,15))
+  
 } else
   Hrs <- sort(c(i,10,15,20.5))
+
 #The loop above selects a set of midpoints that leaves out one midpoint based on the hour that a table is being made for (it excludes the midpoint that is in the same period as the hour of the table)
-    Hrs24 <- append(Hrs,i)
+
+    Hrs24 <- append(Hrs,i) #adds the end point (the starting hour 24 hours later)
     Hrs <- ifelse(Hrs<i,Hrs+24,Hrs) %>% 
       append(i+24)
-    periods <- price_schedule$period[c(Hrs24)]
+    #lists "real hours" from the starting point, adding 24 to any hours before the start point
+    
+    periods <- price_schedule$period[c(Hrs24)] 
+    #retrieves the rate periods of each hour listed
+    
     own_period <- price_schedule$period[i]
+    #retrieves rate period of the current hour
+    
     elastic <- Elasticities[own_period,periods] 
+    #retrieves elasticities of the listed hours based on their rate periods
+    
     assign(nam,data.frame(Hour=Hrs,Hrs24=Hrs24, Period=periods,Elasticity = as.numeric(elastic)))
+    #makes a data frame named after the current hour with each of the above variables
     
 }
 
 for (i in x) {
   current_hr <- eval(parse(text = sub("XX", i, "Midpoints.XX")))
+  #calls current hours midpoint table
+  
   Y = spline(x=current_hr$Hour,y=current_hr$Elasticity,xout=seq(min(current_hr$Hour),max(current_hr$Hour)))
+  #splines elasticities to smoooth
+  
   HR = Y$x
+  
   ELAST = Y$y
+  
   nam <- paste("Elasticities", i, sep = ".")
+  
   assign(nam,data.frame(HR=HR,ELAST=ELAST,HR24 = ifelse(HR<=24,HR,HR-24)))
+  #makes a data frame with above variables: Hours, smoothed elasticities
 }
 
 
