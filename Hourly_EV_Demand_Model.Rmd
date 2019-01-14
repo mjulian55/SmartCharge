@@ -21,13 +21,13 @@ library(RColorBrewer)
 
 #load data
 #Price Schedule
-rates <- read_csv("Model_Map/2018_Winter_TOU_EV_D.csv")
+rates <- read_csv("Model_Map/2019_Winter_TOU_EV_8.csv")
 Baseline_03_18_WP <- read_csv("Model_Map/03-18_WP_Avg.csv")
 Chargers <- read_csv("Model_Map/Chargers_Installed_03-18.csv")
 
 #Elasticities with format 9X3 with columns Base_Hr, Changed_Hr, and Elasticity
 #Changed_Hr is the Hour where the price change occurs, Base_Hr is the hour in which demand changes
-Elasticities <- read_csv("Elasticities_Dong2015.csv")
+Elasticities <- read_csv("SDGE_NonPV_Winter_Weekday_EPEV_H.csv")
 ```
 
 
@@ -38,7 +38,7 @@ price_schedule <- data.frame(Hr = c(1:24)) %>%
   mutate(P0 = rates$P0) %>% 
   mutate(period = rates$Period)
 
-price_schedule$period <- factor(price_schedule$period, levels = c("P","MP","OP"))
+#price_schedule$period <- factor(price_schedule$period, levels = c("P","MP","OP"))
 
 #Baseline
 WP_Chargers <- Chargers$Workplace #Number of Chargers (C)
