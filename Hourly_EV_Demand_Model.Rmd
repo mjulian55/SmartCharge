@@ -21,14 +21,13 @@ library(RColorBrewer)
 
 #load data
 #Price Schedule
-rates <- read.csv("Model_Map/2018_Winter_TOU_EV_D.csv")
-Baseline_03_18_WP <- read.csv("Model_Map/03-18_WP_Avg.csv")
-Chargers <- read.csv("Model_Map/Chargers_Installed_03-18.csv")
+rates <- read_csv("Model_Map/2018_Winter_TOU_EV_D.csv")
+Baseline_03_18_WP <- read_csv("Model_Map/03-18_WP_Avg.csv")
+Chargers <- read_csv("Model_Map/Chargers_Installed_03-18.csv")
 
-#Elasticities with format 3X3 and in order Peak, Mid-Peak, Off-Peak
-Elasticities <- read.csv("Elasticities_Dong2015.csv")
-row.names(Elasticities) <- Elasticities[c(1:3),1]
-Elasticities<- Elasticities[,-1]
+#Elasticities with format 9X3 with columns Base_Hr, Changed_Hr, and Elasticity
+#Changed_Hr is the Hour where the price change occurs, Base_Hr is the hour in which demand changes
+Elasticities <- read_csv("Elasticities_Dong2015.csv")
 ```
 
 
@@ -99,10 +98,11 @@ for(i in x) {
     own_period <- price_schedule$period[i]
     #retrieves rate period of the current hour
     
-    elastic <- Elasticities[own_period,periods] 
-    #retrieves elasticities of the listed hours based on their rate periods
+    own_period_elasticities <- filter(Elasticities, Base_Hr == own_period)
+    midpoint_elasticities <- own_period_elasticities$Elasticity[match(periods, Elasticities$Changed_Hr)]
+
     
-    assign(nam,data.frame(Hour=Hrs,Hrs24=Hrs24, Period=periods,Elasticity = as.numeric(elastic)))
+    assign(nam,data.frame(Hour=Hrs,Hrs24=Hrs24, Period=periods,Elasticity = midpoint_elasticities))
     #makes a data frame named after the current hour with each of the above variables
     
 }
@@ -218,6 +218,17 @@ Change_outside_intervention <- sum(EV_Demand$Xt[-intervention_hours])- sum(EV_De
 ```{r Communication}
 
 #to be completed...
+
+```
+
+
+```{r Outputs}
+
+#GHG emissions avoided
+#NOx emissions avoided
+#curtailment
+#summary table of outputs
+
 
 ```
 
