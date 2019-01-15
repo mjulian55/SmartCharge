@@ -1,0 +1,13 @@
+Rate_Schedule,P_SOP_Ratio
+NonPV_Summer_Weekday_EPEV_L,2.02
+NonPV_Summer_Weekday_EPEV_M,3.83
+NonPV_Summer_Weekday_EPEV_H,5.71
+NonPV_Winter_Weekday_EPEV_L,1.24
+NonPV_Winter_Weekday_EPEV_M,3.03
+NonPV_Winter_Weekday_EPEV_H,4.83
+NonPV_Summer_Weekend_EPEV_L,2.02
+NonPV_Summer_Weekend_EPEV_M,3.83
+NonPV_Summer_Weekend_EPEV_H,5.71
+NonPV_Winter_Weekend_EPEV_L,1.24
+NonPV_Winter_Weekend_EPEV_M,3.03
+NonPV_Winter_Weekend_EPEV_H,4.83
