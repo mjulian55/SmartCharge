@@ -27,7 +27,8 @@ Chargers <- read_csv("Model_Map/Chargers_Installed_03-18.csv")
 
 #Elasticities with format 9X3 with columns Base_Hr, Changed_Hr, and Elasticity
 #Changed_Hr is the Hour where the price change occurs, Base_Hr is the hour in which demand changes
-Elasticities <- read_csv("SDGE_NonPV_Winter_Weekday_EPEV_H.csv")
+Elasticities <- read_csv("SDGE_Elasticities.csv")
+SDGE_P_SOP_Ratios <- read_csv("SDGE_P_SOP_Ratios.csv")
 ```
 
 
@@ -37,6 +38,12 @@ Elasticities <- read_csv("SDGE_NonPV_Winter_Weekday_EPEV_H.csv")
 price_schedule <- data.frame(Hr = c(1:24)) %>% 
   mutate(P0 = rates$P0) %>% 
   mutate(period = rates$Period)
+
+P_SOP_Ratio <- max(price_schedule$P0)/min(price_schedule$P0)
+
+closest_schedule <- SDGE_P_SOP_Ratios$Rate_Schedule[which.min(abs(SDGE_P_SOP_Ratios$P_SOP_Ratio - P_SOP_Ratio))]
+
+Best_Elasticities <- select(Elasticities, Base_Hr = Base_Hr, Changed_Hr = Changed_Hr, Elasticity = closest_schedule)
 
 #price_schedule$period <- factor(price_schedule$period, levels = c("P","MP","OP"))
 
@@ -98,7 +105,7 @@ for(i in x) {
     own_period <- price_schedule$period[i]
     #retrieves rate period of the current hour
     
-    own_period_elasticities <- filter(Elasticities, Base_Hr == own_period)
+    own_period_elasticities <- filter(Best_Elasticities, Base_Hr == own_period)
     midpoint_elasticities <- own_period_elasticities$Elasticity[match(periods, Elasticities$Changed_Hr)]
 
     
