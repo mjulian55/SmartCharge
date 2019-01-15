@@ -55,9 +55,13 @@ ui <- fluidPage(
       radioButtons("disp", "Display",
                    choices = c(Head = "head",
                                All = "all"),
-                   selected = "head")
+                   selected = "head"),
       
-    ),
+      numericInput("num", label = h3("Numeric input"), value = 1),
+      
+      hr(),
+      fluidRow(column(3, verbatimTextOutput("value")))
+      ),
     
     # Main panel for displaying outputs ----
     mainPanel(
