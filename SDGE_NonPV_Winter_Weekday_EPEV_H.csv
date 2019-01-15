@@ -1,4 +1,10 @@
-Period,P,MP,OP
-P,-0.36,-0.24,0.6
-MP,-0.37,-0.41,0.78
-OP,0.15,0.13,-0.28
+Base_Hr,Changed_Hr,Elasticity
+P,P,-0.36
+OP,OP,-0.41
+SOP,SOP,-0.28
+P,OP,-0.24
+OP,P,-0.37
+P,SOP,0.6
+SOP,P,0.15
+OP,SOP,0.78
+SOP,OP,0.13
