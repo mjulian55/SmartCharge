@@ -234,10 +234,38 @@ Change_outside_intervention <- sum(EV_Demand$Xt[-intervention_hours])- sum(EV_De
 
 ```{r Outputs}
 
-#GHG emissions avoided
-#NOx emissions avoided
-#curtailment
-#summary table of outputs
+#Load Emissions Factors
+Hourly_EF <- read_csv("Hrly_EF.csv")
+# Current hourly EF csv is fake. Numbers will be in lbs/kwh for both CO2 and NOX.
+
+#Create Date Frame for Emissions Outputs
+
+Emissions <- data.frame(Hr = c(1:24)) %>% 
+  mutate(CO2EF = Hourly_EF$CO2) %>% 
+  mutate(NOXEF = Hourly_EF$NOX) %>% 
+  mutate(X0 = EV_Demand$X0) %>% # column for initial demand at each hour
+  mutate(Xf = EV_Demand$Xt)  # column for new demand at each hour. we'll need to update "Xt" to reflect the new column post comms/all interventions
+
+#calculate change in Xf and relevant change in emissions
+Emissions <- Emissions %>%
+  mutate(Xchange = Xf - X0) %>% 
+  mutate (CO2 = Xchange*CO2EF) %>% 
+  mutate (NOX = Xchange*NOXEF)
+
+#Sum emissions by period (all, 11-3, 3pm-11am)
+CO2All <- sum(Emissions$CO2)
+NOXAll <- sum(Emissions$NOX)
+
+CO2peak <- sum(Emissions$CO2[12:15])
+NOXpeak <- sum(Emissions$NOX[12:15])
+CO2other <- sum(Emissions$CO2[16:24], Emissions$CO2[1:11])
+NOXother <- sum(Emissions$NOX[16:24], Emissions$NOX[1:11])
+
+#Final Emissions Table
+Emissions_Table <- data.frame("Time"= c("11am-3pm", "3pm-11am", "All"), "CO2lbs" = c(CO2peak,CO2other,CO2All), "NOXlbs" = c(NOXpeak, NOXother, NOXAll)) 
+
+
+#curtailment cost: to be added
 
 
 ```
