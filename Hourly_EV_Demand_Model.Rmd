@@ -74,6 +74,12 @@ x <- c(1:24) #used for the 24 hours in for loops (24 elasticity columns)
 
 #This makes a table for each hour that lists the midpoint hours that will be splined, hours as <24, rate period, and elasticity relative to the hour.
 
+change_points <- which(price_schedule$period != dplyr::lag(price_schedule$period)) - 1
+mid_points <- change_points[-length(change_points)] +diff(change_points)/2 %>% 
+  if(price_schedule$period[1] == price_schedule$period[length(price_schedule$period)])
+
+rollover_midpoint <- (change_points[1]+24 + change_points[length(change_points)])/2 -24
+
 for(i in x) {
     nam <- paste("Midpoints", i, sep = ".")
     
