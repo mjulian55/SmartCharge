@@ -22,7 +22,36 @@ library(RColorBrewer)
 #load data
 #Price Schedule
 rates <- read_csv("Model_Map/2018_Winter_TOU_EV_4.csv")
+
+#Price Schedule Options (All in Model_Map Folder)
+
+#2018 Summer 3
+#read_csv("Model_Map/2018_Summer_TOU_EV_3.csv")
+
+#2018 Summer 4
+#read_csv("Model_Map/2018_Summer_TOU_EV_4.csv")
+
+#2018 Winter 3
+#read_csv("Model_Map/2018_Winter_TOU_EV_3.csv")
+
+#2018 Winter 4
+#read_csv("Model_Map/2018_Winter_TOU_EV_4.csv")
+
+#2018 Winter D
+#read_csv("Model_Map/2018_Winter_TOU_EV_D.csv")
+
+#2019 Summer 8
+#read_csv("Model_Map/2019_Summer_TOU_EV_8.csv")
+
+#2019 Winter 8
+#read_csv("Model_Map/2019_Winter_TOU_EV_8.csv")
+
+
+#Baseline Usage
 Baseline_03_18_WP <- read_csv("Model_Map/03-18_WP_Avg.csv")
+
+
+# Number of Chargers by Segment
 Chargers <- read_csv("Model_Map/Chargers_Installed_03-18.csv")
 
 #Elasticities with format 9X3 with columns Base_Hr, Changed_Hr, and Elasticity
@@ -39,13 +68,13 @@ price_schedule <- data.frame(Hr = c(1:24)) %>%
   mutate(P0 = rates$P0) %>% 
   mutate(period = rates$Period)
 
-#Calculate P-SOP Ratio of inputted price schedule
+#Ratio for selecting Elasticities
 P_SOP_Ratio <- max(price_schedule$P0)/min(price_schedule$P0)
 
-
-#Find the SDGE Rate Schedule with the closest ratio and use those elasticities
+#Matches our closest Ratio to Inputted Ratio
 closest_schedule <- SDGE_P_SOP_Ratios$Rate_Schedule[which.min(abs(SDGE_P_SOP_Ratios$P_SOP_Ratio - P_SOP_Ratio))]
-Chosen_Ratio <- SDGE_P_SOP_Ratios$P_SOP_Ratio[which.min(abs(SDGE_P_SOP_Ratios$P_SOP_Ratio - P_SOP_Ratio))]
+
+#Uses Elasticities of rate schedule with closest ratio
 Best_Elasticities <- select(Elasticities, Base_Hr = Base_Hr, Changed_Hr = Changed_Hr, Elasticity = closest_schedule)
 
 #price_schedule$period <- factor(price_schedule$period, levels = c("P","MP","OP"))
@@ -77,24 +106,27 @@ x <- c(1:24) #used for the 24 hours in for loops (24 elasticity columns)
 
 #This makes a table for each hour that lists the midpoint hours that will be splined, hours as <24, rate period, and elasticity relative to the hour.
 
+
+#Finds the hours in the rate schedule just before the period changes
+change_points <- which(price_schedule$period != dplyr::lag(price_schedule$period)) - 1
+
+#Finds the midpoints of each "chunk" of rate periods unless the "chunk" spans over the end of the day
+mid_points <- change_points[-length(change_points)] +diff(change_points)/2
+
+#finds the midpoint of the "chunk" of rate period that spans over the end of the day
+rollover_midpoint <- (change_points[1]+24 + change_points[length(change_points)])/2 -24
+
+#adds rollover_midpoint but only if there is actually a rate period "chunk" that rolls over the day
+if(price_schedule$period[1] == price_schedule$period[length(price_schedule$period)]) {
+  mid_points <- append(mid_points, rollover_midpoint)
+}
+  
+  
 for(i in x) {
     nam <- paste("Midpoints", i, sep = ".")
     
-    if(between(i,9,12)) {
-      
-  Hrs <- sort(c(i,3.5,15,20.5))
-  
-} else if (between(i,13,18)) {
-  
-  Hrs <- sort(c(i,3.5,10,20.5))
-  
-} else if (between(i,19,23)) {
-  
-  Hrs <- sort(c(i,3.5,10,15))
-  
-} else
-  Hrs <- sort(c(i,10,15,20.5))
-
+    Hrs <- append(mid_points, i)
+    Hrs <- Hrs[-match(price_schedule$period[i],price_schedule$period[mid_points])]
 #The loop above selects a set of midpoints that leaves out one midpoint based on the hour that a table is being made for (it excludes the midpoint that is in the same period as the hour of the table)
 
     Hrs24 <- append(Hrs,i) #adds the end point (the starting hour 24 hours later)
@@ -322,6 +354,7 @@ Demand_Graph <- ggplot(data = graph_table, aes(x = Hr)) +
 
 Potential_Graph <- Demand_Graph +
   geom_segment(aes(y=Theoretical_Max, yend=Theoretical_Max, x=11, xend=15))
+  
 # \n 50% Throttling 6 AM - 11 AM label for throttling
 # Aesthetic Notes:
 # might try to remove space b/w Y-axis and hr0, as well as past hr24
