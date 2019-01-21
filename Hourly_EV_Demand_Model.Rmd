@@ -47,8 +47,6 @@ rates <- read_csv("Model_Map/2018_Winter_TOU_EV_4.csv")
 #read_csv("Model_Map/2019_Winter_TOU_EV_8.csv")
 
 
-
-
 #Baseline Usage
 Baseline_03_18_WP <- read_csv("Model_Map/03-18_WP_Avg.csv")
 
@@ -280,24 +278,45 @@ Emissions <- data.frame(Hr = c(1:24)) %>%
   mutate(X0 = EV_Demand$X0) %>% # column for initial demand at each hour
   mutate(Xf = EV_Demand$Xt)  # column for new demand at each hour. we'll need to update "Xt" to reflect the new column post comms/all interventions
 
-#calculate change in Xf and relevant change in emissions
+#calculate emissions for base and new demand
 Emissions <- Emissions %>%
-  mutate(Xchange = Xf - X0) %>% 
-  mutate (CO2 = Xchange*CO2EF) %>% 
-  mutate (NOX = Xchange*NOXEF)
+  mutate (CO2base = X0*CO2EF) %>% 
+  mutate (NOXbase = X0*NOXEF) %>% 
+  mutate (CO2new = Xf*CO2EF) %>% 
+  mutate (NOXnew = Xf*NOXEF) %>% 
+  mutate (Xchange = Xf-X0) %>% 
+  mutate (CO2change = Xchange*CO2EF) %>% 
+  mutate (NOXchange = Xchange*NOXEF)
+  
 
-#Sum emissions by period (all, 11-3, 3pm-11am)
-CO2All <- sum(Emissions$CO2)
-NOXAll <- sum(Emissions$NOX)
+#Sum base emissions by period (11-3, 4-9pm, other)
+CO2base_1115 <- sum(Emissions$CO2base[12:15])
+NOXbase_1115 <- sum(Emissions$NOXbase[12:15])
+CO2base_1621 <- sum(Emissions$CO2base[17:21])
+NOXbase_1621 <- sum(Emissions$NOXbase[17:21])
+CO2base_other <- sum(Emissions$CO2base[21:24], Emissions$CO2base[1:11],Emissions$CO2base[16])
+NOXbase_other <- sum(Emissions$NOXbase[16:24], Emissions$NOXbase[1:11],Emissions$NOXbase[16])
+CO2base_sum <- sum(Emissions$CO2base)
+NOXbase_sum <- sum(Emissions$NOXbase)
 
-CO2peak <- sum(Emissions$CO2[12:15])
-NOXpeak <- sum(Emissions$NOX[12:15])
-CO2other <- sum(Emissions$CO2[16:24], Emissions$CO2[1:11])
-NOXother <- sum(Emissions$NOX[16:24], Emissions$NOX[1:11])
+#Sum new emissions by period (11-3, 4-9pm, other)
+CO2new_1115 <- sum(Emissions$CO2new[12:15])
+NOXnew_1115 <- sum(Emissions$NOXnew[12:15])
+CO2new_1621 <- sum(Emissions$CO2new[17:21])
+NOXnew_1621 <- sum(Emissions$NOXnew[17:21])
+CO2new_other <- sum(Emissions$CO2new[21:24], Emissions$CO2new[1:11],Emissions$CO2new[16])
+NOXnew_other <- sum(Emissions$NOXnew[16:24], Emissions$NOXnew[1:11],Emissions$NOXnew[16])
+CO2new_sum <- sum(Emissions$CO2new)
+NOXnew_sum <- sum(Emissions$NOXnew)
 
-#Final Emissions Table
-Emissions_Table <- data.frame("Time"= c("11am-3pm", "3pm-11am", "All"), "CO2lbs" = c(CO2peak,CO2other,CO2All), "NOXlbs" = c(NOXpeak, NOXother, NOXAll)) 
 
+#Put into new df
+Emissions_Table <- data.frame("Time"= c("11am-3pm", "4pm-9pm", "Other Times", "Total"), "BaseCO2" = c(CO2base_1115,CO2base_1621,CO2base_other, CO2base_sum), "NewCO2" = c(CO2new_1115,CO2new_1621,CO2new_other, CO2new_sum), "BaseNOX" = c(NOXbase_1115, NOXbase_1621,NOXbase_other, NOXbase_sum), "NewNOX" = c(NOXnew_1115, NOXnew_1621,NOXnew_other, NOXnew_sum))
+
+#Find differences
+Emissions_Table <- Emissions_Table %>% 
+  mutate(ChangeCO2 = NewCO2-BaseCO2) %>% 
+  mutate (ChangeNOX = NewNOX-BaseNOX)
 
 #curtailment cost: to be added
 
@@ -325,7 +344,7 @@ Demand_Graph <- ggplot(data = graph_table, aes(x = Hr)) +
        color=NULL) +
   scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
   scale_color_manual(labels=c("Baseline Demand","Demand with Intervention"), values = c("blue", "red")) +
- # geom_rect(aes(xmin=6,xmax=11,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
+  #geom_rect(aes(xmin=6,xmax=11,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
   geom_rect(aes(xmin=11,xmax=15,ymin=-Inf,ymax=Inf, fill = "Discount"),alpha=0.0075) +
   #theme_bw() + # theme_bw() gives grid lines, could remove
   theme(plot.title = element_text(hjust = 0.5)) + 
@@ -335,8 +354,8 @@ Demand_Graph <- ggplot(data = graph_table, aes(x = Hr)) +
 
 Potential_Graph <- Demand_Graph +
   geom_segment(aes(y=Theoretical_Max, yend=Theoretical_Max, x=11, xend=15))
-
-# \n 50% Throttling 6 AM - 11 AM
+  
+# \n 50% Throttling 6 AM - 11 AM label for throttling
 # Aesthetic Notes:
 # might try to remove space b/w Y-axis and hr0, as well as past hr24
 # bold axis titles
