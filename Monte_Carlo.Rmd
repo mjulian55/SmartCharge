@@ -51,7 +51,10 @@ baseline <- read_csv("Model_Map/03-18_WP_Avg.csv")
 
 
 # Number of Chargers by Segment
-chargers <- read_csv("Model_Map/Chargers_Installed_03-18.csv")
+#chargers <- read_csv("Model_Map/Chargers_Installed_03-18.csv")
+Chargers <- read_csv("Model_Map/Chargers.csv")
+
+
 
 #Elasticities with format 9X3 with columns Base_Hr, Changed_Hr, and Elasticity
 #Changed_Hr is the Hour where the price change occurs, Base_Hr is the hour in which demand changes
@@ -70,8 +73,11 @@ t_a <- -0.5
 t_h <- c(7:11)
 sch <- 3
 tsch <- 3
-
-hourly_demand <- function(schedule = sch, throttle_schedule = tsch,price_change = p_c,intervention_hours = i_h,throttle_amount = t_a,throttle_hours = t_h){
+sg <- "Workplace"
+mth <- "Mar_18"
+pwr <- 6.6
+  
+hourly_demand <- function(segment = sg, month = mth, charger_power = pwr, schedule = sch, throttle_schedule = tsch,price_change = p_c,intervention_hours = i_h,throttle_amount = t_a,throttle_hours = t_h){
   
   #CONTEXT#####
   
@@ -97,19 +103,22 @@ colnames(chosen_elasticities_t) <- c("Base_Hr","Changed_Hr","Elasticity")
 #price_schedule$period <- factor(price_schedule$period, levels = c("P","MP","OP"))
 
 #Baseline
+
+number_chargers <-filter(Chargers, Market_Segment == segment) %>% 
+  select(month) %>% 
+  as.numeric()
+
 #WP_Chargers <- chargers$Workplace #Number of Chargers (C)
-EV_Demand <- mutate(price_schedule, Xi = baseline$Xi, X0 = baseline$Xi/baseline$C[1]*chargers$Workplace ) #340 here comes from the number of chargers installed for the baseline
+EV_Demand <- mutate(price_schedule, Xi = baseline$Xi, X0 = baseline$Xi/baseline$C[1]*number_chargers) #340 here comes from the number of chargers installed for the baseline
   
 
 
   #MAX_THEORETICAL#### 
 #Theoretical max is based on the current number of chargers in the SCE Charge Ready pilot program, multiplied by the average power rating of Level 2 EV chargers (6.6 kW), multiplied by 1 hour.  This gives us the total number of kWh for each hour that could be achieved if every charger were utilized during the target load shift window of 11 AM - 3 PM.
 
-Number_Chargers <- 1020
-Charger_Power_Rating <- 6.6
-Max_Theory <- Number_Chargers*Charger_Power_Rating
 
-Max_Theory_df <- data.frame(Hour=c(12:15), kWh=Max_Theory)
+Max_Theory <- number_chargers*charger_power
+
 
 ####
 
@@ -319,7 +328,7 @@ for (val in x) {
 } #uses new price equivalent sumproduct with each hour's elasticities to find percent change in demand due to throttling
 Xtp <- Xtp[-1] #gets rid of dummy
 
-EV_Demand <- mutate(EV_Demand, Xtp = Xtp, Xt = (Xtp+1)*X1) #adds (Xtp) and the new demand in kW due to throttling (Xt)
+EV_Demand <- mutate(EV_Demand, Xtp = Xtp, Xt = (Xtp+1)*X1, MT = Max_Theory) #adds (Xtp) and the new demand in kW due to throttling (Xt)
 EV_Demand$Xt <- if_else(EV_Demand$Xt >= 0, EV_Demand$Xt, 0)
 
 #The variables below quantify the shift and net change in demand as a result of interventions, and need to be adjusted based on intervention (does not count throttling)
@@ -388,9 +397,9 @@ freq_graph
 
 #need to stack both demand curves in one data frame for a legend
 
-graph_table <- EV_Demand[c(1,5,14)] %>% 
+graph_table <- HD[c(1,5,14)] %>% 
   gather(condition,value,X0:Xt) %>% 
-  mutate(Theoretical_Max=Max_Theory)
+  mutate(Theoretical_Max=HD$MT[1])
 
 
 Demand_Graph <- ggplot(data = graph_table, aes(x = Hr)) +
