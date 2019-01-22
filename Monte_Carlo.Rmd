@@ -375,9 +375,9 @@ for(i in seq(simulations)){
 
 ```{r explore}
 library(ggplot2)
-freq_graph <- ggplot(sim_result, aes(x = Xt))+
-  geom_histogram(aes(fill = Hr)) +
-  facet_wrap(~Hr, scales = "free")
+freq_graph <- ggplot(sim_result, aes(x = Hr, y = Xt))+
+ geom_jitter(aes(color = Hr), alpha = 0.5) +
+  theme_minimal()
 
 freq_graph
 ```
