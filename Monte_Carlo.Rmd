@@ -384,17 +384,16 @@ Emissions <- Emissions %>%
   mutate (CO2X0 = X0*CO2Baseline) %>% 
   mutate (NOXX0 = X0*NOXBaseline)
 
-#calculate marginal emissions for change in demand
+#calculate change in emissions
 Emissions <- Emissions %>%
   mutate (CO2Xdelta = Xdelta*CO2Marginal) %>% 
   mutate (NOXXdelta= Xdelta*NOXMarginal)
 
-#calculate change in emissions from X0 to Xf
+#calculate emissions for final
 Emissions <- Emissions %>%
-  mutate (CO2change = CO2X0-CO2Xdelta) %>% # baseline emissions - final emissions for delta 
-  mutate (NOXchange = NOXX0-NOXXdelta)
+  mutate (CO2Xf = CO2X0+CO2Xdelta) %>% # baseline emissions - change for emissions associated with final demand
+  mutate (NOXf = NOXX0+NOXXdelta)
   
-
 #Sum base emissions by period (11-3, 4-9pm, other)
 
 #Sum new emissions by period (11-3, 4-9pm, other)
@@ -406,11 +405,6 @@ Emissions <- Emissions %>%
 
 #Put into new df
 # Emissions_Table <- data.frame("Time"= c("11am-3pm", "4pm-9pm", "Other Times", "Total"), "BaseCO2" = c(CO2base_1115,CO2base_1621,CO2base_other, CO2base_sum), "NewCO2" = c(CO2new_1115,CO2new_1621,CO2new_other, CO2new_sum), "BaseNOX" = c(NOXbase_1115, NOXbase_1621,NOXbase_other, NOXbase_sum), "NewNOX" = c(NOXnew_1115, NOXnew_1621,NOXnew_other, NOXnew_sum))
-
-#Find differences
-# Emissions_Table <- Emissions_Table %>% 
-  # mutate(ChangeCO2 = NewCO2-BaseCO2) %>% 
-  # mutate (ChangeNOX = NewNOX-BaseNOX)
 
 #curtailment cost: to be added
 
