@@ -76,6 +76,8 @@ tsch <- 3
 sg <- "Workplace"
 mth <- "Mar_18"
 pwr <- 6.6
+pk <- c(17:21) #target window to shift out off (this is for output calculations below, not for the function)
+o_h <- c(1:11,16,22:24) #all other hours outside the target peak window and intervention hours (again, for output calculations below, not for the function)
   
 hourly_demand <- function(segment = sg, month = mth, charger_power = pwr, schedule = sch, throttle_schedule = tsch,price_change = p_c,intervention_hours = i_h,throttle_amount = t_a,throttle_hours = t_h){
   
@@ -392,19 +394,42 @@ Emissions <- Emissions %>%
 #calculate emissions for final
 Emissions <- Emissions %>%
   mutate (CO2Xf = CO2X0+CO2Xdelta) %>% # baseline emissions - change for emissions associated with final demand
-  mutate (NOXf = NOXX0+NOXXdelta)
+  mutate (NOXXf = NOXX0+NOXXdelta)
   
-#Sum base emissions by period (11-3, 4-9pm, other)
-
-#Sum new emissions by period (11-3, 4-9pm, other)
-# CO2new_1115 <- sum(Emissions$CO2new[12:15])
-# CO2new_1621 <- sum(Emissions$CO2new[17:21])
-# CO2new_other <- sum(Emissions$CO2new[21:24], Emissions$CO2new[1:11],Emissions$CO2new[16])
-# CO2new_sum <- sum(Emissions$CO2new)
-
+#Sum base emissions by period (intervention window, peak window, other)
+ CO2X0_i_h <- sum(Emissions$CO2X0[i_h]) #11-3 window
+ CO2X0_pk <- sum(Emissions$CO2X0[pk]) #peak 4pm-9pm window
+ CO2X0_o_h <- sum(Emissions$CO2X0[o_h]) #all other hours
+ CO2X0_sum <- sum(Emissions$CO2X0)
+ NOXX0_i_h <- sum(Emissions$NOXX0[i_h]) #11-3 window
+ NOXX0_pk <- sum(Emissions$NOXX0[pk]) #peak 4pm-9pm window
+ NOXX0_o_h <- sum(Emissions$NOXX0[o_h]) #all other hours
+ NOXX0_sum <- sum(Emissions$NOXX0)
+ 
+#Sum final emissions by period (intervention window, peak window, other)
+ CO2Xf_i_h <- sum(Emissions$CO2Xf[i_h]) #11-3 window
+ CO2Xf_pk <- sum(Emissions$CO2Xf[pk]) #peak 4pm-9pm window
+ CO2Xf_o_h <- sum(Emissions$CO2Xf[o_h]) #all other hours
+ CO2Xf_sum <- sum(Emissions$CO2Xf)
+ NOXXf_i_h <- sum(Emissions$NOXXf[i_h]) #11-3 window
+ NOXXf_pk <- sum(Emissions$NOXXf[pk]) #peak 4pm-9pm window
+ NOXXf_o_h <- sum(Emissions$NOXXf[o_h]) #all other hours
+ NOXXf_sum <- sum(Emissions$NOXXf)
+ 
+#Sum change in emissions by period (intervention window, peak window, other)
+ CO2Xdelta_i_h <- sum(Emissions$CO2Xdelta[i_h]) #11-3 window
+ CO2Xdelta_pk <- sum(Emissions$CO2Xdelta[pk]) #peak 4pm-9pm window
+ CO2Xdelta_o_h <- sum(Emissions$CO2Xdelta[o_h]) #all other hours
+ CO2Xdelta_sum <- sum(Emissions$CO2Xdelta)
+ NOXXdelta_i_h <- sum(Emissions$NOXXdelta[i_h]) #11-3 window
+ NOXXdelta_pk <- sum(Emissions$NOXXdelta[pk]) #peak 4pm-9pm window
+ NOXXdelta_o_h <- sum(Emissions$NOXXdelta[o_h]) #all other hours
+ NOXXdelta_sum <- sum(Emissions$NOXXdelta)
+ 
 
 #Put into new df
-# Emissions_Table <- data.frame("Time"= c("11am-3pm", "4pm-9pm", "Other Times", "Total"), "BaseCO2" = c(CO2base_1115,CO2base_1621,CO2base_other, CO2base_sum), "NewCO2" = c(CO2new_1115,CO2new_1621,CO2new_other, CO2new_sum), "BaseNOX" = c(NOXbase_1115, NOXbase_1621,NOXbase_other, NOXbase_sum), "NewNOX" = c(NOXnew_1115, NOXnew_1621,NOXnew_other, NOXnew_sum))
+Emissions_Table <- data.frame(Time= c("intervention hours", "peak period", "other", "Total"), CO2Initial = c(CO2X0_i_h, CO2X0_pk, CO2X0_o_h, CO2X0_sum), CO2Final = c(CO2Xf_i_h, CO2Xf_pk, CO2Xf_o_h, CO2Xf_sum), CO2Change = c(CO2Xdelta_i_h, CO2Xdelta_pk, CO2Xdelta_o_h, CO2Xdelta_sum), NOXInitial = c(NOXX0_i_h, NOXX0_pk, NOXX0_o_h, NOXX0_sum), NOXFinal = c(NOXXf_i_h, NOXXf_pk, NOXXf_o_h, NOXXf_sum), NOXChange = c(NOXXdelta_i_h, NOXXdelta_pk, NOXXdelta_o_h, NOXXdelta_sum))
+#Note: there's got to be a cleaner way to calculate these totals.  
 
 #curtailment cost: to be added
 
