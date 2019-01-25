@@ -329,7 +329,7 @@ for (val in x) {
 Xtp <- Xtp[-1] #gets rid of dummy
 
 EV_Demand <- mutate(EV_Demand, Xtp = Xtp, Xt = (Xtp+1)*X1, MT = Max_Theory) #adds (Xtp) and the new demand in kW due to throttling (Xt)
-EV_Demand$Xt <- if_else(EV_Demand$Xt >= 0, EV_Demand$Xt, 0)
+EV_Demand$Xt <- if_else(EV_Demand$Xt >= 0, EV_Demand$Xt, 0) 
 
 #The variables below quantify the shift and net change in demand as a result of interventions, and need to be adjusted based on intervention (does not count throttling)
 Total_x0 <- sum(EV_Demand$X0)
@@ -351,7 +351,7 @@ Change_outside_intervention <- sum(EV_Demand$Xt[-intervention_hours])- sum(EV_De
 return(EV_Demand)
 
 }
-
+EV_Demand_run1 <- hourly_demand() #creates a data frame with the output from the function, which is needed to find the emission factors.
 
 
 
@@ -365,56 +365,56 @@ Hourly_EF <- read_csv("Hrly_EF.csv")
 
 #Create Date Frame for Emissions Outputs
 
-Emissions <- data.frame(Hr = c(1:24)) %>% 
-  mutate(CO2EF = Hourly_EF$CO2) %>% 
-  mutate(NOXEF = Hourly_EF$NOX) %>% 
-  mutate(X0 = EV_Demand$X0) %>% # column for initial demand at each hour
-  mutate(Xf = EV_Demand$Xt)  # column for new demand at each hour. we'll need to update "Xt" to reflect the new column post comms/all interventions
+Emissions <- Hourly_EF %>% 
+  mutate(Xi = EV_Demand_run1$Xi) %>% # column for initial demand at each hour not scaled
+  mutate(X0 = EV_Demand_run1$X0) %>% # column for initial demand at each hour scaled by chargers
+  mutate(Xf = EV_Demand_run1$Xt) # column for new demand at each hour. we'll need to update "Xt" to reflect the new column post comms/all interventions
+Emissions <- Emissions %>% 
+  mutate(Xdelta = Xf - X0) #add in delta (change) row. The function could spit this out in its final data frame and then we can copy this in and add it to the code above. 
 
-#calculate emissions for base and new demand
+#Emissions <- data.frame(Hr = c(1:24)) %>% 
+ # mutate(CO2EF = Hourly_EF$CO2) %>% 
+  # mutate(NOXEF = Hourly_EF$NOX) %>% 
+  
+
+#calculate emissions for baseline demand (scaled and not)
 Emissions <- Emissions %>%
-  mutate (CO2base = X0*CO2EF) %>% 
-  mutate (NOXbase = X0*NOXEF) %>% 
-  mutate (CO2new = Xf*CO2EF) %>% 
-  mutate (NOXnew = Xf*NOXEF) %>% 
-  mutate (Xchange = Xf-X0) %>% 
-  mutate (CO2change = Xchange*CO2EF) %>% 
-  mutate (NOXchange = Xchange*NOXEF)
+  mutate (CO2Xi = Xi*CO2Baseline) %>% 
+  mutate (NOXXi = Xi*NOXBaseline) %>% 
+  mutate (CO2X0 = X0*CO2Baseline) %>% 
+  mutate (NOXX0 = X0*NOXBaseline)
+
+#calculate marginal emissions for change in demand
+Emissions <- Emissions %>%
+  mutate (CO2Xdelta = Xdelta*CO2Marginal) %>% 
+  mutate (NOXXdelta= Xdelta*NOXMarginal)
+
+#calculate change in emissions from X0 to Xf
+Emissions <- Emissions %>%
+  mutate (CO2change = CO2X0-CO2Xdelta) %>% # baseline emissions - final emissions for delta 
+  mutate (NOXchange = NOXX0-NOXXdelta)
   
 
 #Sum base emissions by period (11-3, 4-9pm, other)
-CO2base_1115 <- sum(Emissions$CO2base[12:15])
-NOXbase_1115 <- sum(Emissions$NOXbase[12:15])
-CO2base_1621 <- sum(Emissions$CO2base[17:21])
-NOXbase_1621 <- sum(Emissions$NOXbase[17:21])
-CO2base_other <- sum(Emissions$CO2base[21:24], Emissions$CO2base[1:11],Emissions$CO2base[16])
-NOXbase_other <- sum(Emissions$NOXbase[16:24], Emissions$NOXbase[1:11],Emissions$NOXbase[16])
-CO2base_sum <- sum(Emissions$CO2base)
-NOXbase_sum <- sum(Emissions$NOXbase)
 
 #Sum new emissions by period (11-3, 4-9pm, other)
-CO2new_1115 <- sum(Emissions$CO2new[12:15])
-NOXnew_1115 <- sum(Emissions$NOXnew[12:15])
-CO2new_1621 <- sum(Emissions$CO2new[17:21])
-NOXnew_1621 <- sum(Emissions$NOXnew[17:21])
-CO2new_other <- sum(Emissions$CO2new[21:24], Emissions$CO2new[1:11],Emissions$CO2new[16])
-NOXnew_other <- sum(Emissions$NOXnew[16:24], Emissions$NOXnew[1:11],Emissions$NOXnew[16])
-CO2new_sum <- sum(Emissions$CO2new)
-NOXnew_sum <- sum(Emissions$NOXnew)
+# CO2new_1115 <- sum(Emissions$CO2new[12:15])
+# CO2new_1621 <- sum(Emissions$CO2new[17:21])
+# CO2new_other <- sum(Emissions$CO2new[21:24], Emissions$CO2new[1:11],Emissions$CO2new[16])
+# CO2new_sum <- sum(Emissions$CO2new)
 
 
 #Put into new df
-Emissions_Table <- data.frame("Time"= c("11am-3pm", "4pm-9pm", "Other Times", "Total"), "BaseCO2" = c(CO2base_1115,CO2base_1621,CO2base_other, CO2base_sum), "NewCO2" = c(CO2new_1115,CO2new_1621,CO2new_other, CO2new_sum), "BaseNOX" = c(NOXbase_1115, NOXbase_1621,NOXbase_other, NOXbase_sum), "NewNOX" = c(NOXnew_1115, NOXnew_1621,NOXnew_other, NOXnew_sum))
+# Emissions_Table <- data.frame("Time"= c("11am-3pm", "4pm-9pm", "Other Times", "Total"), "BaseCO2" = c(CO2base_1115,CO2base_1621,CO2base_other, CO2base_sum), "NewCO2" = c(CO2new_1115,CO2new_1621,CO2new_other, CO2new_sum), "BaseNOX" = c(NOXbase_1115, NOXbase_1621,NOXbase_other, NOXbase_sum), "NewNOX" = c(NOXnew_1115, NOXnew_1621,NOXnew_other, NOXnew_sum))
 
 #Find differences
-Emissions_Table <- Emissions_Table %>% 
-  mutate(ChangeCO2 = NewCO2-BaseCO2) %>% 
-  mutate (ChangeNOX = NewNOX-BaseNOX)
+# Emissions_Table <- Emissions_Table %>% 
+  # mutate(ChangeCO2 = NewCO2-BaseCO2) %>% 
+  # mutate (ChangeNOX = NewNOX-BaseNOX)
 
 #curtailment cost: to be added
 
 ```
-
 
 
 ```{r simulation}
@@ -448,7 +448,6 @@ freq_graph <- ggplot(sim_result, aes(x = Hr, y = Xt))+
 
 freq_graph
 ```
-
 
 
 ```{r figures}
