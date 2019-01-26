@@ -368,6 +368,9 @@ EV_Demand_run1 <- hourly_demand() #creates a data frame with the output from the
 Hourly_EF <- read_csv("Hrly_EF.csv")
 # Current hourly EF csv is fake. Numbers will be in lbs/kwh for both CO2 and NOX.
 
+#Insert cost NOX ($/kg)
+NOXcost <- 20.697
+
 #Create Date Frame for Emissions Outputs
 
 Emissions <- Hourly_EF %>% 
@@ -434,7 +437,11 @@ Emissions <- Emissions %>%
 Emissions_Table <- data.frame(Time= c("intervention hours", "peak period", "other", "Total"), CO2Initial = c(CO2X0_i_h, CO2X0_pk, CO2X0_o_h, CO2X0_sum), CO2Final = c(CO2Xf_i_h, CO2Xf_pk, CO2Xf_o_h, CO2Xf_sum), CO2Change = c(CO2Xdelta_i_h, CO2Xdelta_pk, CO2Xdelta_o_h, CO2Xdelta_sum), NOXInitial = c(NOXX0_i_h, NOXX0_pk, NOXX0_o_h, NOXX0_sum), NOXFinal = c(NOXXf_i_h, NOXXf_pk, NOXXf_o_h, NOXXf_sum), NOXChange = c(NOXXdelta_i_h, NOXXdelta_pk, NOXXdelta_o_h, NOXXdelta_sum))
 #Note: there's got to be a cleaner way to calculate these totals.  
 
-#curtailment cost: to be added
+#Calculate cost reduction from NOX reduction (only doing it for the change)
+Emissions_Table <- Emissions_Table %>% 
+  mutate(NOXChangeCost = NOXChange*NOXcost) #this is in dollars
+
+#curtailment cost reduction: to be added
 
 ```
 
