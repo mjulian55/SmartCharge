@@ -66,17 +66,17 @@ SDGE_P_SOP_Ratios <- read_csv("SDGE_P_SOP_Ratios.csv")
 
 ```{r function}
 
-
-p_c <- -0.05
-i_h <- c(12:15)
-t_a <- -0.5
-t_h <- c(7:11)
-sch <- 3
-tsch <- 3
-sg <- "Workplace"
-mth <- "Mar_18"
-pwr <- 6.6
-pk <- c(17:21) #target window to shift out off (this is for output calculations below, not for the function)
+#Set variables and values
+p_c <- -0.05 #price change
+i_h <- c(12:15) #intervention hours
+t_a <- -0.5 #throttling amount
+t_h <- c(7:11) #throttling hours
+sch <- 3 #elasticities to use for price intervention (column in the elasticities dataframe)
+tsch <- 3 #elasticites to use for throttling intervention (column in the elasticities dataframe)
+sg <- "Workplace" #segment
+mth <- "Mar_18" #month
+pwr <- 6.6 #charger power
+pk <- c(17:21) #target window to shift out off (this is only used in the output calculations below, not for the function)
 o_h <- c(1:11,16,22:24) #all other hours outside the target peak window and intervention hours (again, for output calculations below, not for the function)
   
 hourly_demand <- function(segment = sg, month = mth, charger_power = pwr, schedule = sch, throttle_schedule = tsch,price_change = p_c,intervention_hours = i_h,throttle_amount = t_a,throttle_hours = t_h){
@@ -97,7 +97,7 @@ price_schedule <- data.frame(Hr = c(1:24)) %>%
 #Uses Elasticities of rate schedule with closest ratio
 
 
-chosen_elasticities <- Elasticities[c(1,2,schedule)]
+chosen_elasticities <- Elasticities[c(1,2,schedule)] #this pulls out columns 1, 2, and the designated elasticity (from row 74 into a new dataframe)
 colnames(chosen_elasticities) <- c("Base_Hr","Changed_Hr","Elasticity")
 chosen_elasticities_t <- Elasticities[c(1,2,throttle_schedule)]
 colnames(chosen_elasticities_t) <- c("Base_Hr","Changed_Hr","Elasticity")
@@ -106,7 +106,7 @@ colnames(chosen_elasticities_t) <- c("Base_Hr","Changed_Hr","Elasticity")
 
 #Baseline
 
-number_chargers <-filter(Chargers, Market_Segment == segment) %>% 
+number_chargers <-filter(Chargers, Market_Segment == segment) %>%
   select(month) %>% 
   as.numeric()
 
