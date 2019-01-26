@@ -463,6 +463,8 @@ for(i in seq(simulations)){
 
 
 ```{r explore}
+
+# plot of monte carlo output
 library(ggplot2)
 freq_graph <- ggplot(sim_result, aes(x = Hr, y = Xt))+
  geom_jitter(aes(color = Hr), alpha = 0.5) +
