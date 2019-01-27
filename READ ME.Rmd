@@ -1,0 +1,33 @@
+---
+title: "READ ME"
+author: "Maddie Julian"
+date: "1/27/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Definition of Acronyms
+
+
+
+###Southern Edison Charge Ready Market Segments
+MUD: Multi-Unit Dwelling
+DC: Destination Center
+WP: Workplace
+Fleet: Fleet
+
+###Price Context
+TOU: Time of Use
+
+P: Peak
+OP: Off Peak
+MP: Mid Peak
+SOP: Super Off Peak
+
+
+#Model Map
+
+###This folder holds Time of Use (TOU) rate schedules, a list of the number of chargers for all market segments, baseline average and total usage for all four, Southern California Edison Charge Ready Pilot market segments, average and total event usage for all four market segments, graphs of fleet av
