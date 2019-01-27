@@ -485,8 +485,11 @@ for(i in seq(simulations)){
 # plot of monte carlo output
 library(ggplot2)
 freq_graph <- ggplot(sim_result, aes(x = Hr, y = Xt))+
- geom_jitter(aes(color = Hr), alpha = 0.5) +
-  theme_minimal()
+ geom_jitter(aes(color = Xt), alpha = 0.5) +
+  theme_minimal() +
+  xlab("Hour of the Day") +
+  ylab("Charging Demand (kW)") +
+  ggtitle("Monte Carlo Simulation of Charging Demand Per Hour")
 
 freq_graph
 ```
