@@ -103,7 +103,7 @@ hourly_demand <- function(segment = sg, month = mth, charger_power = pwr, schedu
   #Price Schedule is read in above
 
 # Elasticity 
-chosen_elasticities <- Elasticities[c(1,2,3)] #this pulls out columns 1, 2, and the designated elasticity (from row 74 into a new dataframe) CHANGE 3 BACK TO schedule
+chosen_elasticities <- Elasticities[c(1,2,schedule)] #this pulls out columns 1, 2, and the designated elasticity (from row 74 into a new dataframe) 
 colnames(chosen_elasticities) <- c("Base_Hr","Changed_Hr","Elasticity")
 chosen_elasticities_t <- Elasticities[c(1,2,throttle_schedule)]
 colnames(chosen_elasticities_t) <- c("Base_Hr","Changed_Hr","Elasticity")
