@@ -51,7 +51,10 @@ baseline <- read_csv("Model_Map/03-18_WP_Avg.csv")
 
 
 # Number of Chargers by Segment
-chargers <- read_csv("Model_Map/Chargers_Installed_03-18.csv")
+#chargers <- read_csv("Model_Map/Chargers_Installed_03-18.csv")
+Chargers <- read_csv("Model_Map/Chargers.csv")
+
+
 
 #Elasticities with format 9X3 with columns Base_Hr, Changed_Hr, and Elasticity
 #Changed_Hr is the Hour where the price change occurs, Base_Hr is the hour in which demand changes
@@ -63,17 +66,24 @@ SDGE_P_SOP_Ratios <- read_csv("SDGE_P_SOP_Ratios.csv")
 
 ```{r function}
 
-
-p_c <- -0.05
-i_h <- c(12:15)
-t_a <- -0.5
-t_h <- c(7:11)
-sch <- 3
-tsch <- 3
-
-hourly_demand <- function(schedule = sch, throttle_schedule = tsch,price_change = p_c,intervention_hours = i_h,throttle_amount = t_a,throttle_hours = t_h){
+#Set variables and values
+p_c <- -0.05 #price change
+i_h <- c(12:15) #intervention hours
+t_a <- -0.5 #throttling amount
+t_h <- c(7:11) #throttling hours
+sch <- 3 #elasticities to use for price intervention (column in the elasticities dataframe)
+tsch <- 3 #elasticites to use for throttling intervention (column in the elasticities dataframe)
+sg <- "Workplace" #segment
+mth <- "Mar_18" #month
+pwr <- 6.6 #charger power
+pk <- c(17:21) #target window to shift out off (this is only used in the output calculations below, not for the function)
+o_h <- c(1:11,16,22:24) #all other hours outside the target peak window and intervention hours (again, for output calculations below, not for the function)
+  
+hourly_demand <- function(segment = sg, month = mth, charger_power = pwr, schedule = sch, throttle_schedule = tsch,price_change = p_c,intervention_hours = i_h,throttle_amount = t_a,throttle_hours = t_h){
   
   #CONTEXT#####
+  
+  #This section puts the Hr, initial price (P0), period, initial unscaled load (Xi), and scaled load (XO) into EV_Demand
   
   #Price Schedule
 price_schedule <- data.frame(Hr = c(1:24)) %>% 
@@ -89,7 +99,7 @@ price_schedule <- data.frame(Hr = c(1:24)) %>%
 #Uses Elasticities of rate schedule with closest ratio
 
 
-chosen_elasticities <- Elasticities[c(1,2,schedule)]
+chosen_elasticities <- Elasticities[c(1,2,schedule)] #this pulls out columns 1, 2, and the designated elasticity (from row 74 into a new dataframe)
 colnames(chosen_elasticities) <- c("Base_Hr","Changed_Hr","Elasticity")
 chosen_elasticities_t <- Elasticities[c(1,2,throttle_schedule)]
 colnames(chosen_elasticities_t) <- c("Base_Hr","Changed_Hr","Elasticity")
@@ -97,19 +107,22 @@ colnames(chosen_elasticities_t) <- c("Base_Hr","Changed_Hr","Elasticity")
 #price_schedule$period <- factor(price_schedule$period, levels = c("P","MP","OP"))
 
 #Baseline
+
+number_chargers <-filter(Chargers, Market_Segment == segment) %>% 
+  select(month) %>% 
+  as.numeric()
+
 #WP_Chargers <- chargers$Workplace #Number of Chargers (C)
-EV_Demand <- mutate(price_schedule, Xi = baseline$Xi, X0 = baseline$Xi/baseline$C[1]*chargers$Workplace ) #340 here comes from the number of chargers installed for the baseline
+EV_Demand <- mutate(price_schedule, Xi = baseline$Xi, X0 = baseline$Xi/baseline$C[1]*number_chargers) #340 here comes from the number of chargers installed for the baseline
   
 
 
   #MAX_THEORETICAL#### 
 #Theoretical max is based on the current number of chargers in the SCE Charge Ready pilot program, multiplied by the average power rating of Level 2 EV chargers (6.6 kW), multiplied by 1 hour.  This gives us the total number of kWh for each hour that could be achieved if every charger were utilized during the target load shift window of 11 AM - 3 PM.
 
-Number_Chargers <- 1020
-Charger_Power_Rating <- 6.6
-Max_Theory <- Number_Chargers*Charger_Power_Rating
 
-Max_Theory_df <- data.frame(Hour=c(12:15), kWh=Max_Theory)
+Max_Theory <- number_chargers*charger_power
+
 
 ####
 
@@ -136,7 +149,7 @@ if(price_schedule$period[1] == price_schedule$period[length(price_schedule$perio
   mid_points <- append(mid_points, rollover_midpoint)
 }
   
-  
+  #create a dataframe of the own and cross elasticities of the midpoints and self point (i.e., put the stepwise elasticities into one)
 for(i in x) {
     nam <- paste("Midpoints", i, sep = ".")
     
@@ -164,6 +177,7 @@ for(i in x) {
     
 }
 
+#spline the midpoint table
 for (i in x) {
   current_hr <- eval(parse(text = sub("XX", i, "Midpoints.XX")))
   #calls current hours midpoint table
@@ -205,7 +219,7 @@ colnames(matrix) <- c(1:24)
 
 #price_change <- -0.05
 #intervention_hours <- c(12:15)
-EV_Demand <- mutate(EV_Demand, P1 = price_schedule$P0) #Adds price schedule with intervention (P1)
+EV_Demand <- mutate(EV_Demand, P1 = price_schedule$P0) #Copies the initial price schedule into a new column (P1) that can then be modified to reflect the intervention
 
 EV_Demand$P1[intervention_hours] <-EV_Demand$P1[intervention_hours] + price_change #updates intervention column to implement intervention
 
@@ -296,7 +310,7 @@ colnames(matrix) <- c(1:24)
 #throttle_amount <- 0 #throttling amount -0.5 - 50%
 Tp <- rep(0,24)
 #throttle_hours <- c(7:11) #hours that throttling occurs
-Tp[throttle_hours] <- throttle_amount #Assigns each hour a throttling percentage
+Tp[throttle_hours] <- throttle_amount #Assigns the throttling intervention percentage chosen at the inputs at the beginning tho the hours chosen then
 EV_Demand <- mutate(EV_Demand, Tp=Tp) #Adds throttling percentage to each hour (Tp)
 
 E <- as.vector(0) #dummy for self-elasticities (E)
@@ -308,7 +322,7 @@ for (val in x) {
 
 E <- E[-1] #removing dummy
 
-EV_Demand <- mutate(EV_Demand, Ptp = Tp/E, Pt = (1+Ptp)*P1)#Creates an equivalent change in price during that hour that would be required to see the drop in demand due to throttling
+EV_Demand <- mutate(EV_Demand, Ptp = Tp/E, Pt = (1+Ptp)*P1)#Creates an equivalent change in price during that hour that would be required to see the drop in demand due to throttling. Note, we don't need Pt to find Xtp or Xt, but we're calculating it for our own edification when looking at the table output.  
 
 Xtp <- as.vector(0) #Dummy for change in demand due to throttling (Xtp)
 
@@ -319,8 +333,8 @@ for (val in x) {
 } #uses new price equivalent sumproduct with each hour's elasticities to find percent change in demand due to throttling
 Xtp <- Xtp[-1] #gets rid of dummy
 
-EV_Demand <- mutate(EV_Demand, Xtp = Xtp, Xt = (Xtp+1)*X1) #adds (Xtp) and the new demand in kW due to throttling (Xt)
-EV_Demand$Xt <- if_else(EV_Demand$Xt >= 0, EV_Demand$Xt, 0)
+EV_Demand <- mutate(EV_Demand, Xtp = Xtp, Xt = (Xtp+1)*X1, MT = Max_Theory) #adds (Xtp) and the new demand in kW due to throttling (Xt). Adds the max theoretical to the end of the dataframe for our reference. 
+EV_Demand$Xt <- if_else(EV_Demand$Xt >= 0, EV_Demand$Xt, 0) 
 
 #The variables below quantify the shift and net change in demand as a result of interventions, and need to be adjusted based on intervention (does not count throttling)
 Total_x0 <- sum(EV_Demand$X0)
@@ -342,12 +356,94 @@ Change_outside_intervention <- sum(EV_Demand$Xt[-intervention_hours])- sum(EV_De
 return(EV_Demand)
 
 }
-
+EV_Demand_run1 <- hourly_demand() #creates a data frame with the output from the function, which is needed to find the emission factors.
 
 
 
 ```
 
+```{r emissions_outputs}
+
+#Load Emissions Factors
+Hourly_EF <- read_csv("Hrly_EF.csv")
+# Current hourly EF csv is fake. Numbers will be in lbs/kwh for both CO2 and NOX.
+
+#Insert cost NOX ($/kg)
+NOXcost <- 20.697
+
+#Create Date Frame for Emissions Outputs
+
+Emissions <- Hourly_EF %>% 
+  mutate(Xi = EV_Demand_run1$Xi) %>% # column for initial demand at each hour not scaled
+  mutate(X0 = EV_Demand_run1$X0) %>% # column for initial demand at each hour scaled by chargers
+  mutate(Xf = EV_Demand_run1$Xt) # column for new demand at each hour. we'll need to update "Xt" to reflect the new column post comms/all interventions
+Emissions <- Emissions %>% 
+  mutate(Xdelta = Xf - X0) #add in delta (change) row. The function could spit this out in its final data frame and then we can copy this in and add it to the code above. 
+
+#Emissions <- data.frame(Hr = c(1:24)) %>% 
+ # mutate(CO2EF = Hourly_EF$CO2) %>% 
+  # mutate(NOXEF = Hourly_EF$NOX) %>% 
+  
+
+#calculate emissions for baseline demand (scaled and not)
+Emissions <- Emissions %>%
+  mutate (CO2Xi = Xi*CO2Baseline) %>% 
+  mutate (NOXXi = Xi*NOXBaseline) %>% 
+  mutate (CO2X0 = X0*CO2Baseline) %>% 
+  mutate (NOXX0 = X0*NOXBaseline)
+
+#calculate change in emissions
+Emissions <- Emissions %>%
+  mutate (CO2Xdelta = Xdelta*CO2Marginal) %>% 
+  mutate (NOXXdelta= Xdelta*NOXMarginal)
+
+#calculate emissions for final
+Emissions <- Emissions %>%
+  mutate (CO2Xf = CO2X0+CO2Xdelta) %>% # baseline emissions - change for emissions associated with final demand
+  mutate (NOXXf = NOXX0+NOXXdelta)
+  
+#Sum base emissions by period (intervention window, peak window, other)
+ CO2X0_i_h <- sum(Emissions$CO2X0[i_h]) #11-3 window
+ CO2X0_pk <- sum(Emissions$CO2X0[pk]) #peak 4pm-9pm window
+ CO2X0_o_h <- sum(Emissions$CO2X0[o_h]) #all other hours
+ CO2X0_sum <- sum(Emissions$CO2X0)
+ NOXX0_i_h <- sum(Emissions$NOXX0[i_h]) #11-3 window
+ NOXX0_pk <- sum(Emissions$NOXX0[pk]) #peak 4pm-9pm window
+ NOXX0_o_h <- sum(Emissions$NOXX0[o_h]) #all other hours
+ NOXX0_sum <- sum(Emissions$NOXX0)
+ 
+#Sum final emissions by period (intervention window, peak window, other)
+ CO2Xf_i_h <- sum(Emissions$CO2Xf[i_h]) #11-3 window
+ CO2Xf_pk <- sum(Emissions$CO2Xf[pk]) #peak 4pm-9pm window
+ CO2Xf_o_h <- sum(Emissions$CO2Xf[o_h]) #all other hours
+ CO2Xf_sum <- sum(Emissions$CO2Xf)
+ NOXXf_i_h <- sum(Emissions$NOXXf[i_h]) #11-3 window
+ NOXXf_pk <- sum(Emissions$NOXXf[pk]) #peak 4pm-9pm window
+ NOXXf_o_h <- sum(Emissions$NOXXf[o_h]) #all other hours
+ NOXXf_sum <- sum(Emissions$NOXXf)
+ 
+#Sum change in emissions by period (intervention window, peak window, other)
+ CO2Xdelta_i_h <- sum(Emissions$CO2Xdelta[i_h]) #11-3 window
+ CO2Xdelta_pk <- sum(Emissions$CO2Xdelta[pk]) #peak 4pm-9pm window
+ CO2Xdelta_o_h <- sum(Emissions$CO2Xdelta[o_h]) #all other hours
+ CO2Xdelta_sum <- sum(Emissions$CO2Xdelta)
+ NOXXdelta_i_h <- sum(Emissions$NOXXdelta[i_h]) #11-3 window
+ NOXXdelta_pk <- sum(Emissions$NOXXdelta[pk]) #peak 4pm-9pm window
+ NOXXdelta_o_h <- sum(Emissions$NOXXdelta[o_h]) #all other hours
+ NOXXdelta_sum <- sum(Emissions$NOXXdelta)
+ 
+
+#Put into new df
+Emissions_Table <- data.frame(Time= c("intervention hours", "peak period", "other", "Total"), CO2Initial = c(CO2X0_i_h, CO2X0_pk, CO2X0_o_h, CO2X0_sum), CO2Final = c(CO2Xf_i_h, CO2Xf_pk, CO2Xf_o_h, CO2Xf_sum), CO2Change = c(CO2Xdelta_i_h, CO2Xdelta_pk, CO2Xdelta_o_h, CO2Xdelta_sum), NOXInitial = c(NOXX0_i_h, NOXX0_pk, NOXX0_o_h, NOXX0_sum), NOXFinal = c(NOXXf_i_h, NOXXf_pk, NOXXf_o_h, NOXXf_sum), NOXChange = c(NOXXdelta_i_h, NOXXdelta_pk, NOXXdelta_o_h, NOXXdelta_sum))
+#Note: there's got to be a cleaner way to calculate these totals.  
+
+#Calculate cost reduction from NOX reduction (only doing it for the change)
+Emissions_Table <- Emissions_Table %>% 
+  mutate(NOXChangeCost = NOXChange*NOXcost) #this is in dollars
+
+#curtailment cost reduction: to be added
+
+```
 
 
 ```{r simulation}
@@ -374,6 +470,8 @@ for(i in seq(simulations)){
 
 
 ```{r explore}
+
+# plot of monte carlo output
 library(ggplot2)
 freq_graph <- ggplot(sim_result, aes(x = Hr, y = Xt))+
  geom_jitter(aes(color = Xt), alpha = 0.5) +
@@ -386,14 +484,13 @@ freq_graph
 ```
 
 
-
 ```{r figures}
 
 #need to stack both demand curves in one data frame for a legend
 
-graph_table <- EV_Demand[c(1,5,14)] %>% 
+graph_table <- HD[c(1,5,14)] %>% 
   gather(condition,value,X0:Xt) %>% 
-  mutate(Theoretical_Max=Max_Theory)
+  mutate(Theoretical_Max=HD$MT[1])
 
 
 Demand_Graph <- ggplot(data = graph_table, aes(x = Hr)) +

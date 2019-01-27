@@ -52,7 +52,9 @@ baseline <- read_csv("Model_Map/03-18_WP_Avg.csv")
 
 
 # Number of Chargers by Segment
-chargers <- read_csv("Model_Map/Chargers_Installed_03-18.csv")
+#chargers <- read_csv("Model_Map/Chargers_Installed_03-18.csv")
+Chargers <- read_csv("Model_Map/Chargers.csv")
+
 
 #Elasticities with format 9X3 with columns Base_Hr, Changed_Hr, and Elasticity
 #Changed_Hr is the Hour where the price change occurs, Base_Hr is the hour in which demand changes
@@ -95,6 +97,7 @@ Charger_Power_Rating <- 6.6
 Max_Theory <- Number_Chargers*Charger_Power_Rating
 
 Max_Theory_df <- data.frame(Hour=c(12:15), kWh=Max_Theory)
+
 
 ```
 
