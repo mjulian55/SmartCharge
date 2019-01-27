@@ -122,7 +122,9 @@ intervention_chargers <- ifelse(int_equals_baseline == TRUE, baseline_chargers, 
 
 #WP_Chargers <- chargers$Workplace #Number of Chargers (C)
 #DC_Chargers <- chargers$Workplace #Number of Chargers (C)
-EV_Demand <- mutate(price_schedule, Xi = baseline$Jul_18, X0 = baseline$Jul_18/baseline_chargers*intervention_chargers) #340 here comes from the number of chargers installed for the baseline
+baseline_month<-unlist(select(baseline, month))
+
+EV_Demand <- mutate(price_schedule, Xi = baseline_month, X0 = baseline_month/baseline_chargers*intervention_chargers) #340 here comes from the number of chargers installed for the baseline
   
 
 
