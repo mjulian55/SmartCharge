@@ -18,7 +18,7 @@ library(dplyr)
 library(RColorBrewer)
 
 
-#load data
+#LOAD DATA
 #Price Schedule
 price_schedule <- read_csv("Model_Map/2018_Winter_TOU_EV_4.csv")
 
@@ -90,7 +90,7 @@ pk <- c(17:21) #target window to shift out off (this is only used in the output 
 o_h <- c(1:11,16,22:24) #all other hours outside the target peak window and intervention hours (again, for output calculations below, not for the function)
 int_ch <- filter(Chargers, Market_Segment == sg) %>% 
   select(mth) %>% 
-  as.numeric()
+  as.numeric() # default is to MARCH 2018
 int_e_b <- TRUE
 
   
@@ -112,16 +112,17 @@ colnames(chosen_elasticities_t) <- c("Base_Hr","Changed_Hr","Elasticity")
 
 #Baseline
 
+#filter the number of chargers by market segment and month, change to numeric (have to set the month and segment otherwise it will take the default, workplace and March 2018)
 baseline_chargers <-filter(Chargers, Market_Segment == segment) %>% 
   select(month) %>% 
   as.numeric()
 
 
-
 intervention_chargers <- ifelse(int_equals_baseline == TRUE, baseline_chargers, intervention_chargers)
 
 #WP_Chargers <- chargers$Workplace #Number of Chargers (C)
-EV_Demand <- mutate(price_schedule, Xi = baseline$Jul_18, X0 = baseline$Jul_18/baseline_chargers*intervention_chargers) #340 here comes from the number of chargers installed for the baseline. This needs to be fixed so that we're actually selecting the month and not hard coding.  
+#DC_Chargers <- chargers$Workplace #Number of Chargers (C)
+EV_Demand <- mutate(price_schedule, Xi = select(baseline, month), X0 = select(baseline, month)/baseline_chargers*intervention_chargers) #340 here comes from the number of chargers installed for the baseline
   
 
 
@@ -316,7 +317,7 @@ colnames(matrixt) <- c(1:24)
 #throttle_amount <- 0 #throttling amount -0.5 - 50%
 Tp <- rep(0,24)
 #throttle_hours <- c(7:11) #hours that throttling occurs
-Tp[throttle_hours] <- throttle_amount #Assigns the throttling intervention percentage chosen at the inputs at the beginning tho the hours chosen then
+Tp[throttle_hours] <- throttle_amount #Assigns the throttling intervention percentage chosen at the inputs at the beginning to the hours chosen then
 EV_Demand <- mutate(EV_Demand, Tp=Tp) #Adds throttling percentage to each hour (Tp)
 
 E <- as.vector(0) #dummy for self-elasticities (E)
@@ -362,7 +363,7 @@ Change_outside_intervention <- sum(EV_Demand$Xt[-intervention_hours])- sum(EV_De
 return(list(EV_Demand=EV_Demand,matrix=matrix,Matrix_throttling=matrixt)) #This is how to output multiple data frames from the fcn. 
 
 }
-EV_Demand_run1 <- hourly_demand() #creates a data frame with the output from the function, which is needed to find the emission factors.
+EV_Demand_run1 <- hourly_demand(month = "Jul_18", int_equals_baseline = FALSE, intervention_chargers = 234) #creates a data frame with the output from the function, which is needed to find the emission factors.
 
 
 ```
@@ -497,9 +498,9 @@ freq_graph
 
 #need to stack both demand curves in one data frame for a legend
 
-graph_table <- HD[c(1,5,14)] %>% 
+graph_table <- EV_Demand_run1[c(1,5,14)] %>% 
   gather(condition,value,X0:Xt) %>% 
-  mutate(Theoretical_Max=HD$MT[1])
+  mutate(Theoretical_Max=EV_Demand_run1$MT[1])
 
 
 Demand_Graph <- ggplot(data = graph_table, aes(x = Hr)) +
