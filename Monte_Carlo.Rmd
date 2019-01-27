@@ -20,7 +20,7 @@ library(RColorBrewer)
 
 #load data
 #Price Schedule
-rates <- read_csv("Model_Map/2018_Winter_TOU_EV_4.csv")
+price_schedule <- read_csv("Model_Map/2018_Winter_TOU_EV_4.csv")
 
 #Price Schedule Options (All in Model_Map Folder)
 
@@ -63,6 +63,14 @@ Elasticities <- read_csv("SDGE_Elasticities.csv")
 SDGE_P_SOP_Ratios <- read_csv("SDGE_P_SOP_Ratios.csv")
 
 
+#Ratio for selecting Default Elasticities
+P_SOP_Ratio <- max(price_schedule$P0)/min(price_schedule$P0)
+#Matches our closest Ratio to Inputted Ratio
+closest_schedule <- SDGE_P_SOP_Ratios$Rate_Schedule[which.min(abs(SDGE_P_SOP_Ratios$P_SOP_Ratio - P_SOP_Ratio))]
+closest_elasticities <- match(closest_schedule, names(Elasticities))
+#Uses Elasticities of rate schedule with closest ratio
+
+
 ```
 
 ```{r function}
@@ -73,8 +81,8 @@ p_c <- -0.05 #price change
 i_h <- c(12:15) #intervention hours
 t_a <- -0.5 #throttling amount
 t_h <- c(7:11) #throttling hours
-sch <- 3 #elasticities to use for price intervention (column in the elasticities dataframe) -  Non PV Summer Weekday EPEV L
-tsch <- 3 #elasticites to use for throttling intervention (column in the elasticities dataframe) - Non PV Summer Weekday EPEV L
+sch <- closest_elasticities #elasticities to use for price intervention (column in the elasticities dataframe) -  Non PV Summer Weekday EPEV L. The default now picks from the ratio 
+tsch <- closest_elasticities  #elasticites to use for throttling intervention (column in the elasticities dataframe) - Non PV Summer Weekday EPEV L
 sg <- "Workplace" #segment
 mth <- "Mar_18" #month
 pwr <- 6.6 #charger power
@@ -92,21 +100,10 @@ hourly_demand <- function(segment = sg, month = mth, charger_power = pwr, schedu
   
   #This section puts the Hr, initial price (P0), period, initial unscaled load (Xi), and scaled load (XO) into EV_Demand
   
-  #Price Schedule
-price_schedule <- data.frame(Hr = c(1:24)) %>% 
-  mutate(P0 = rates$P0) %>% 
-  mutate(period = rates$Period)
+  #Price Schedule is read in above
 
-#Ratio for selecting Elasticities
-#P_SOP_Ratio <- max(price_schedule$P0)/min(price_schedule$P0)
-
-#Matches our closest Ratio to Inputted Ratio
-#closest_schedule <- SDGE_P_SOP_Ratios$Rate_Schedule[which.min(abs(SDGE_P_SOP_Ratios$P_SOP_Ratio - P_SOP_Ratio))]
-
-#Uses Elasticities of rate schedule with closest ratio
-
-
-chosen_elasticities <- Elasticities[c(1,2,schedule)] #this pulls out columns 1, 2, and the designated elasticity (from row 74 into a new dataframe)
+# Elasticity 
+chosen_elasticities <- Elasticities[c(1,2,3)] #this pulls out columns 1, 2, and the designated elasticity (from row 74 into a new dataframe) CHANGE 3 BACK TO schedule
 colnames(chosen_elasticities) <- c("Base_Hr","Changed_Hr","Elasticity")
 chosen_elasticities_t <- Elasticities[c(1,2,throttle_schedule)]
 colnames(chosen_elasticities_t) <- c("Base_Hr","Changed_Hr","Elasticity")
@@ -124,7 +121,7 @@ baseline_chargers <-filter(Chargers, Market_Segment == segment) %>%
 intervention_chargers <- ifelse(int_equals_baseline == TRUE, baseline_chargers, intervention_chargers)
 
 #WP_Chargers <- chargers$Workplace #Number of Chargers (C)
-EV_Demand <- mutate(price_schedule, Xi = baseline$Jul_18, X0 = baseline$Jul_18/baseline_chargers*intervention_chargers) #340 here comes from the number of chargers installed for the baseline
+EV_Demand <- mutate(price_schedule, Xi = baseline$Jul_18, X0 = baseline$Jul_18/baseline_chargers*intervention_chargers) #340 here comes from the number of chargers installed for the baseline. This needs to be fixed so that we're actually selecting the month and not hard coding.  
   
 
 
@@ -147,7 +144,7 @@ x <- c(1:24) #used for the 24 hours in for loops (24 elasticity columns)
 
 
 #Finds the hours in the rate schedule just before the period changes
-change_points <- which(price_schedule$period != dplyr::lag(price_schedule$period)) - 1
+change_points <- which(price_schedule$Period != dplyr::lag(price_schedule$Period)) - 1
 
 #Finds the midpoints of each "chunk" of rate periods unless the "chunk" spans over the end of the day
 mid_points <- change_points[-length(change_points)] +diff(change_points)/2
@@ -156,16 +153,15 @@ mid_points <- change_points[-length(change_points)] +diff(change_points)/2
 rollover_midpoint <- (change_points[1]+24 + change_points[length(change_points)])/2 -24
 
 #adds rollover_midpoint but only if there is actually a rate period "chunk" that rolls over the day
-if(price_schedule$period[1] == price_schedule$period[length(price_schedule$period)]) {
+if(price_schedule$Period[1] == price_schedule$Period[length(price_schedule$Period)]) {
   mid_points <- append(mid_points, rollover_midpoint)
 }
   
   #create a dataframe of the own and cross elasticities of the midpoints and self point (i.e., put the stepwise elasticities into one)
 for(i in x) {
     nam <- paste("Midpoints", i, sep = ".")
-    
     Hrs <- append(mid_points, i)
-    Hrs <- Hrs[-match(price_schedule$period[i],price_schedule$period[mid_points])]
+    Hrs <- Hrs[-match(price_schedule$Period[i],price_schedule$Period[mid_points])]
 #The loop above selects a set of midpoints that leaves out one midpoint based on the hour that a table is being made for (it excludes the midpoint that is in the same period as the hour of the table)
 
     Hrs24 <- append(Hrs,i) #adds the end point (the starting hour 24 hours later)
@@ -173,12 +169,11 @@ for(i in x) {
       append(i+24)
     #lists "real hours" from the starting point, adding 24 to any hours before the start point
     
-    periods <- price_schedule$period[c(Hrs24)] 
+    periods <- price_schedule$Period[c(Hrs24)] 
     #retrieves the rate periods of each hour listed
     
-    own_period <- price_schedule$period[i]
+    own_period <- price_schedule$Period[i]
     #retrieves rate period of the current hour
-    
     own_period_elasticities <- filter(chosen_elasticities, Base_Hr == own_period)
     midpoint_elasticities <- own_period_elasticities$Elasticity[match(periods, Elasticities$Changed_Hr)]
 
@@ -259,7 +254,7 @@ for(i in x) {
     nam <- paste("Midpoints", i, sep = ".")
     
     Hrs <- append(mid_points, i)
-    Hrs <- Hrs[-match(price_schedule$period[i],price_schedule$period[mid_points])]
+    Hrs <- Hrs[-match(price_schedule$Period[i],price_schedule$Period[mid_points])]
 #The loop above selects a set of midpoints that leaves out one midpoint based on the hour that a table is being made for (it excludes the midpoint that is in the same period as the hour of the table)
 
     Hrs24 <- append(Hrs,i) #adds the end point (the starting hour 24 hours later)
@@ -267,10 +262,10 @@ for(i in x) {
       append(i+24)
     #lists "real hours" from the starting point, adding 24 to any hours before the start point
     
-    periods <- price_schedule$period[c(Hrs24)] 
+    periods <- price_schedule$Period[c(Hrs24)] 
     #retrieves the rate periods of each hour listed
     
-    own_period <- price_schedule$period[i]
+    own_period <- price_schedule$Period[i]
     #retrieves rate period of the current hour
     
     own_period_elasticities <- filter(chosen_elasticities_t, Base_Hr == own_period)
@@ -303,15 +298,15 @@ for (i in x) {
 #uses a for loop to call files rather than individually
 #NOTE this matrix has each COLUMN to be used for each hour. Our excel used each ROW if trying to compare.
 
-matrix <- data.frame(Hr = c(1:24))
+matrixt <- data.frame(Hr = c(1:24))
 for (i in x) {
   El <- eval(parse(text = sub("YY", i, "Elasticities.YY")))
   El <- El[-1,]
   El <- El[order(El$HR24),]
-  matrix <- cbind(matrix, El$ELAST)
+  matrixt <- cbind(matrixt, El$ELAST)
 }
-matrix<-matrix[,-1]
-colnames(matrix) <- c(1:24)
+matrixt<-matrixt[,-1]
+colnames(matrixt) <- c(1:24)
 
 ####
 
@@ -327,7 +322,7 @@ EV_Demand <- mutate(EV_Demand, Tp=Tp) #Adds throttling percentage to each hour (
 E <- as.vector(0) #dummy for self-elasticities (E)
 
 for (val in x) {
-  self <- matrix[val,val]
+  self <- matrixt[val,val] 
   E <- append(E,self)
 } #checks the matrix for the self elasticity and adds it to a vector, repeated 24 times as a for loop rather than 24 times
 
@@ -338,7 +333,7 @@ EV_Demand <- mutate(EV_Demand, Ptp = Tp/E, Pt = (1+Ptp)*P1)#Creates an equivalen
 Xtp <- as.vector(0) #Dummy for change in demand due to throttling (Xtp)
 
 for (val in x) {
-  mat <- sub("XX",val, "matrix$`XX`")
+  mat <- sub("XX",val, "matrixt$`XX`")
   sum_prod <- crossprod(EV_Demand$Ptp,eval(parse(text = mat)))
   Xtp<- append(Xtp,sum_prod)
 } #uses new price equivalent sumproduct with each hour's elasticities to find percent change in demand due to throttling
@@ -364,11 +359,10 @@ Change_outside_intervention <- sum(EV_Demand$Xt[-intervention_hours])- sum(EV_De
 ####
 
 
-return(EV_Demand)
+return(list(EV_Demand=EV_Demand,matrix=matrix,Matrix_throttling=matrixt)) #This is how to output multiple data frames from the fcn. 
 
 }
 EV_Demand_run1 <- hourly_demand() #creates a data frame with the output from the function, which is needed to find the emission factors.
-
 
 
 ```
@@ -383,6 +377,10 @@ Hourly_EF <- read_csv("Hrly_EF.csv")
 NOXcost <- 20.697
 
 #Create Date Frame for Emissions Outputs
+
+# Emissionfcn <- function (EV_Demand_run1, peak_hour = pk) {
+# add a column to output of hourly demand that specifies intervention hours (binary 1: 0; intervention hours = 1; not = 0); read that in for intervention hour; read in peak hours as another input; then calculate everything else other hour of concern (peak), and other
+#}
 
 Emissions <- Hourly_EF %>% 
   mutate(Xi = EV_Demand_run1$Xi) %>% # column for initial demand at each hour not scaled
