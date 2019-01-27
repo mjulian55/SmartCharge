@@ -358,6 +358,26 @@ Change_outside_intervention <- sum(EV_Demand$Xt[-intervention_hours])- sum(EV_De
 
   #COMMUNICATION####
 
+SDGE_commm_effect <- 0.15
+intervention_comm_effect <- 0.2
+
+change_int_no_comm <- Change_intervention/(1+SDGE_commm_effect)
+change_int_comm <- change_int_no_comm*(1+intervention_comm_effect)
+comm_shifting <- change_int_comm - change_int_no_comm
+
+
+
+EV_Demand <- mutate(EV_Demand, Xint_effect = Xt - X0, comm_shift = 0)
+EV_Demand$comm_shift[intervention_hours] <- (EV_Demand$Xint_effect[intervention_hours]/Change_intervention)*comm_shifting
+EV_Demand$comm_shift[-intervention_hours] <- (Xint_effect/Change_outside_intervention)*-comm_shifting
+
+
+
+EV_Demand <-   mutate(EV_Demand, XChangeSDGE = Xt - X0) %>% 
+  mutate(XChangeNoComm = XChangeSDGE/(1+SDGE_comm_effect)) %>% 
+  mutate(XChangeComm = XChangeNoComm*(1+intervention_comm_effect)) %>% 
+  mutate(Xf = XChangeComm)
+
 
 ####
 
