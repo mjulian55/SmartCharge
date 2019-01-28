@@ -123,7 +123,9 @@ intervention_chargers <- ifelse(int_equals_baseline == TRUE, baseline_chargers, 
 #DC_Chargers <- chargers$Workplace #Number of Chargers (C)
 baseline_month<-unlist(select(baseline, month))
 
-EV_Demand <- mutate(price_schedule, Xi = baseline_month, X0 = baseline_month/baseline_chargers*intervention_chargers) #340 here comes from the number of chargers installed for the baseline
+EV_Demand <- mutate(price_schedule, I01 = 0 ,Xi = baseline_month, X0 = baseline_month/baseline_chargers*intervention_chargers) #340 here comes from the number of chargers installed for the baseline. I01 refers to the hours where there is an intervention. 
+
+EV_Demand$I01[intervention_hours] <-1
 
 
   #MAX_THEORETICAL#### 
@@ -411,17 +413,22 @@ NOXcost <- 20.697
 # add a column to output of hourly demand that specifies intervention hours (binary 1: 0; intervention hours = 1; not = 0); read that in for intervention hour; read in peak hours as another input; then calculate everything else other hour of concern (peak), and other
 #}
 
-emissions_fcn <- function(intervention_emission_hours = i_h, peak_hours = pk, other_hours = o_h) {
+emissions_fcn <- function(EVDemand, intervention_emission_hours = i_h, peak_hours = pk, other_hours = o_h) {
 
 #Create Date Frame for Emissions Outputs
 Emissions <- Hourly_EF %>% 
-    mutate(Xi = EV_Demand_run1$EV_Demand$Xi) %>% # column for initial demand at each hour not scaled
-    mutate(X0 = EV_Demand_run1$EV_Demand$X0) %>% # column for initial demand at each hour scaled by chargers
-    mutate(Xf = EV_Demand_run1$EV_Demand$Xt) # column for new demand at each hour. we'll need to update "Xt" to reflect the new column post comms/all interventions
+    mutate(Xi = EVDemand$EV_Demand$Xi) %>% # column for initial demand at each hour not scaled
+    mutate(X0 = EVDemand$EV_Demand$X0) %>% # column for initial demand at each hour scaled by chargers
+    mutate(Xf = EVDemand$EV_Demand$Xt) # column for new demand at each hour. we'll need to update "Xt" to reflect the new column post comms/all interventions
+return(Emissions)
   
-  
+}
+
+Emissions <- emissions_fcn(EVDemand = hourly_demand())
+
+#
 Emissions <- Hourly_EF %>% 
-  mutate(Xi = EV_Demand_run1$EV_Demand$Xi) %>% # column for initial demand at each hour not scaled
+  mutate(Xi = EV_Demand$EV_Demand$Xi) %>% # column for initial demand at each hour not scaled
   mutate(X0 = EV_Demand_run1$EV_Demand$X0) %>% # column for initial demand at each hour scaled by chargers
   mutate(Xf = EV_Demand_run1$EV_Demand$Xt) # column for new demand at each hour. we'll need to update "Xt" to reflect the new column post comms/all interventions
 Emissions <- Emissions %>% 
