@@ -87,13 +87,12 @@ sg <- "Workplace" #segment
 mth <- "Mar_18" #month
 pwr <- 6.6 #charger power
 pk <- c(17:21) #target window to shift out off (this is only used in the output calculations below, not for the function)
-o_h <- c(1:11,16,22:24) #all other hours outside the target peak window and intervention hours (again, for output calculations below, not for the function)
 int_ch <- filter(Chargers, Market_Segment == sg) %>% 
   select(mth) %>% 
   as.numeric() # default is to MARCH 2018
 int_e_b <- TRUE
 
-  
+
 hourly_demand <- function(segment = sg, month = mth, charger_power = pwr, schedule = sch, throttle_schedule = tsch,price_change = p_c,intervention_hours = i_h, intervention_chargers = int_ch, int_equals_baseline = int_e_b, throttle_amount = t_a,throttle_hours = t_h){
   
   #CONTEXT#####
@@ -125,7 +124,6 @@ intervention_chargers <- ifelse(int_equals_baseline == TRUE, baseline_chargers, 
 baseline_month<-unlist(select(baseline, month))
 
 EV_Demand <- mutate(price_schedule, Xi = baseline_month, X0 = baseline_month/baseline_chargers*intervention_chargers) #340 here comes from the number of chargers installed for the baseline
-  
 
 
   #MAX_THEORETICAL#### 
@@ -367,16 +365,16 @@ comm_shifting <- change_int_comm - change_int_no_comm
 
 
 
-EV_Demand <- mutate(EV_Demand, Xint_effect = Xt - X0, comm_shift = 0)
-EV_Demand$comm_shift[intervention_hours] <- (EV_Demand$Xint_effect[intervention_hours]/Change_intervention)*comm_shifting
-EV_Demand$comm_shift[-intervention_hours] <- (Xint_effect/Change_outside_intervention)*-comm_shifting
+#EV_Demand <- mutate(EV_Demand, Xint_effect = Xt - X0, comm_shift = 0)
+#EV_Demand$comm_shift[intervention_hours] <- (EV_Demand$Xint_effect[intervention_hours]/Change_intervention)*comm_shifting
+#EV_Demand$comm_shift[-intervention_hours] <- (Xint_effect/Change_outside_intervention)*-comm_shifting
 
 
 
-EV_Demand <-   mutate(EV_Demand, XChangeSDGE = Xt - X0) %>% 
-  mutate(XChangeNoComm = XChangeSDGE/(1+SDGE_comm_effect)) %>% 
-  mutate(XChangeComm = XChangeNoComm*(1+intervention_comm_effect)) %>% 
-  mutate(Xf = XChangeComm)
+#EV_Demand <-   mutate(EV_Demand, XChangeSDGE = Xt - X0) %>% 
+  #mutate(XChangeNoComm = XChangeSDGE/(1+SDGE_comm_effect)) %>% 
+  #mutate(XChangeComm = XChangeNoComm*(1+intervention_comm_effect)) %>% 
+  #mutate(Xf = XChangeComm)
 
 
 ####
@@ -385,8 +383,9 @@ EV_Demand <-   mutate(EV_Demand, XChangeSDGE = Xt - X0) %>%
 return(list(EV_Demand=EV_Demand,matrix=matrix,Matrix_throttling=matrixt)) #This is how to output multiple data frames from the fcn. 
 
 }
-EV_Demand_run1 <- hourly_demand(month = "Jul_18", int_equals_baseline = FALSE, intervention_chargers = 234) #creates a data frame with the output from the function, which is needed to find the emission factors.
 
+#EV_Demand_run1 <- hourly_demand(month = "Jul_18", int_equals_baseline = FALSE, intervention_chargers = 234) #creates a data frame with the output from the function, which is needed to find the emission factors.
+EV_Demand_run1 <- hourly_demand()
 
 ```
 
@@ -396,28 +395,40 @@ EV_Demand_run1 <- hourly_demand(month = "Jul_18", int_equals_baseline = FALSE, i
 Hourly_EF <- read_csv("Hrly_EF.csv")
 # Current hourly EF csv is fake. Numbers will be in lbs/kwh for both CO2 and NOX.
 
+#Load default periods (intervention hour is set above)
+pk <- c(17:21) #target window to shift out off (this is only used in the output calculations below, not for the function)
+o_h <- c(1:24) #create 1:24 for all other hours
+o_h <-o_h[!o_h %in% i_h] #remove the intervention hours
+o_h <-o_h[!o_h %in% pk] #remove the pk hours
+#NOTE THIS NEEDS TO BE CHANGED TO REFLECT THE INTERVENTION HOURS FROM THE PREVIOUS FUNCTION... Currently set to filter based on i_h and pk. But i_h needs to be based on what's coming out of the "intervention_hours" in the first function. This needs to be moved into the function below. 
+
 #Insert cost NOX ($/kg)
 NOXcost <- 20.697
 
-#Create Date Frame for Emissions Outputs
-
+#emissions_x <- emission_output(run_x$EV_Demand)
+# emissions_x<- emission_output(hourly_demand()) 
 # Emissionfcn <- function (EV_Demand_run1, peak_hour = pk) {
 # add a column to output of hourly demand that specifies intervention hours (binary 1: 0; intervention hours = 1; not = 0); read that in for intervention hour; read in peak hours as another input; then calculate everything else other hour of concern (peak), and other
 #}
 
+emissions_fcn <- function(intervention_emission_hours = i_h, peak_hours = pk, other_hours = o_h) {
+
+#Create Date Frame for Emissions Outputs
 Emissions <- Hourly_EF %>% 
-  mutate(Xi = EV_Demand_run1$Xi) %>% # column for initial demand at each hour not scaled
-  mutate(X0 = EV_Demand_run1$X0) %>% # column for initial demand at each hour scaled by chargers
-  mutate(Xf = EV_Demand_run1$Xt) # column for new demand at each hour. we'll need to update "Xt" to reflect the new column post comms/all interventions
+    mutate(Xi = EV_Demand_run1$EV_Demand$Xi) %>% # column for initial demand at each hour not scaled
+    mutate(X0 = EV_Demand_run1$EV_Demand$X0) %>% # column for initial demand at each hour scaled by chargers
+    mutate(Xf = EV_Demand_run1$EV_Demand$Xt) # column for new demand at each hour. we'll need to update "Xt" to reflect the new column post comms/all interventions
+  
+  
+Emissions <- Hourly_EF %>% 
+  mutate(Xi = EV_Demand_run1$EV_Demand$Xi) %>% # column for initial demand at each hour not scaled
+  mutate(X0 = EV_Demand_run1$EV_Demand$X0) %>% # column for initial demand at each hour scaled by chargers
+  mutate(Xf = EV_Demand_run1$EV_Demand$Xt) # column for new demand at each hour. we'll need to update "Xt" to reflect the new column post comms/all interventions
 Emissions <- Emissions %>% 
   mutate(Xdelta = Xf - X0) #add in delta (change) row. The function could spit this out in its final data frame and then we can copy this in and add it to the code above. 
-
-#Emissions <- data.frame(Hr = c(1:24)) %>% 
- # mutate(CO2EF = Hourly_EF$CO2) %>% 
-  # mutate(NOXEF = Hourly_EF$NOX) %>% 
   
 
-#calculate emissions for baseline demand (scaled and not)
+#Calculate emissions for baseline demand (scaled and not)
 Emissions <- Emissions %>%
   mutate (CO2Xi = Xi*CO2Baseline) %>% 
   mutate (NOXXi = Xi*NOXBaseline) %>% 
@@ -474,7 +485,10 @@ Emissions_Table <- Emissions_Table %>%
   mutate(NOXChangeCost = NOXChange*NOXcost) #this is in dollars
 
 #curtailment cost reduction: to be added
+return(Emissions_Table)
+}
 
+#emissionsrun_1 <- emissions_fcn()
 ```
 
 
