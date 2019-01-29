@@ -91,9 +91,12 @@ int_ch <- filter(Chargers, Market_Segment == sg) %>%
   select(mth) %>% 
   as.numeric() # default is to MARCH 2018
 int_e_b <- TRUE
+SDGE_c_e <- 0.2
+i_c_e <- 0.2
 
 
-hourly_demand <- function(segment = sg, month = mth, charger_power = pwr, schedule = sch, throttle_schedule = tsch,price_change = p_c,intervention_hours = i_h, intervention_chargers = int_ch, int_equals_baseline = int_e_b, throttle_amount = t_a,throttle_hours = t_h){
+
+hourly_demand <- function(segment = sg, month = mth, charger_power = pwr, schedule = sch, throttle_schedule = tsch,price_change = p_c,intervention_hours = i_h, intervention_chargers = int_ch, int_equals_baseline = int_e_b, throttle_amount = t_a,throttle_hours = t_h, SDGE_commm_effect = SDGE_c_e, intervention_comm_effect = i_c_e){
   
   #CONTEXT#####
   
@@ -345,21 +348,21 @@ Xtp <- Xtp[-1] #gets rid of dummy
 EV_Demand <- mutate(EV_Demand, Xtp = Xtp, Xt = (Xtp+1)*X1, MT = Max_Theory) #adds (Xtp) and the new demand in kW due to throttling (Xt). Adds the max theoretical to the end of the dataframe for our reference. 
 EV_Demand$Xt <- if_else(EV_Demand$Xt >= 0, EV_Demand$Xt, 0) 
 
-#The variables below quantify the shift and net change in demand as a result of interventions, and need to be adjusted based on intervention (does not count throttling)
-Total_x0 <- sum(EV_Demand$X0)
-Total_xt <-sum(EV_Demand$Xt)
-
-Net_Change <- Total_xt-Total_x0
-Change_intervention <- sum(EV_Demand$Xt[intervention_hours]) - sum(EV_Demand$X0[intervention_hours])
-Change_outside_intervention <- sum(EV_Demand$Xt[-intervention_hours])- sum(EV_Demand$X0[-intervention_hours])
 
 ####
 
 
   #COMMUNICATION####
 
-SDGE_commm_effect <- 0.15
-intervention_comm_effect <- 0.2
+#The variables below quantify the shift and net change in demand as a result of interventions, and need to be adjusted based on intervention (does not count throttling)
+
+Total_x0 <- sum(EV_Demand$X0)
+Total_xt <-sum(EV_Demand$Xt)
+
+Net_Change <- Total_xt-Total_x0
+Change_intervention <- abs(sum(EV_Demand$Xt[intervention_hours]) - sum(EV_Demand$X0[intervention_hours]))
+Change_outside_intervention <- abs(sum(EV_Demand$Xt[-intervention_hours])- sum(EV_Demand$X0[-intervention_hours]))
+
 
 change_int_no_comm <- Change_intervention/(1+SDGE_commm_effect)
 change_int_comm <- change_int_no_comm*(1+intervention_comm_effect)
@@ -367,16 +370,15 @@ comm_shifting <- change_int_comm - change_int_no_comm
 
 
 
-#EV_Demand <- mutate(EV_Demand, Xint_effect = Xt - X0, comm_shift = 0)
-#EV_Demand$comm_shift[intervention_hours] <- (EV_Demand$Xint_effect[intervention_hours]/Change_intervention)*comm_shifting
-#EV_Demand$comm_shift[-intervention_hours] <- (Xint_effect/Change_outside_intervention)*-comm_shifting
+EV_Demand <- mutate(EV_Demand, Xint_effect = Xt - X0, comm_shift = 0)
+
+EV_Demand$comm_shift[intervention_hours] <-(abs(EV_Demand$Xint_effect[intervention_hours])/Change_intervention)*comm_shifting
+
+EV_Demand$comm_shift[-intervention_hours] <- (abs(EV_Demand$Xint_effect[-intervention_hours])/Change_outside_intervention)*-comm_shifting
+
+EV_Demand <- mutate(EV_Demand, Xf = Xt + comm_shift)
 
 
-
-#EV_Demand <-   mutate(EV_Demand, XChangeSDGE = Xt - X0) %>% 
-  #mutate(XChangeNoComm = XChangeSDGE/(1+SDGE_comm_effect)) %>% 
-  #mutate(XChangeComm = XChangeNoComm*(1+intervention_comm_effect)) %>% 
-  #mutate(Xf = XChangeComm)
 
 
 ####
