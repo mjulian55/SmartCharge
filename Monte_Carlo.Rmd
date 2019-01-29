@@ -586,3 +586,18 @@ Potential_Graph
 
 ```
 
+```{r hypothetical_scenarios}
+
+Total_max_theory <- pwr*Chargers$Nov_18[5]
+Workplace_max_theory <- pwr*Chargers$Nov_18[4]
+MUD_max_theory <- pwr*Chargers$Nov_18[3]
+Fleet_max_theory <- pwr*Chargers$Nov_18[2]
+DC_max_theory <- pwr*Chargers$Nov_18[1]
+
+Max_theory_table <- Chargers %>% 
+  select(Market_Segment, Nov_18) %>% 
+  mutate(Theoretical_Max = pwr*Nov_18)
+
+Max_theory_table #This shows the theoretical max per market segment (and total) for the SCE Charge Ready Pilot for ONE hour.
+
+```
