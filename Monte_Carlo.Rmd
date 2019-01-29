@@ -399,8 +399,9 @@ Hourly_EF <- read_csv("Hrly_EF.csv")
 #Load default periods (intervention hour is set above); decide if moving these defaults above
 pk <- c(17:21) #target window to shift out off (this is only used in the output calculations below, not for the function)
 
-#Insert cost NOX ($/kg)
-NOXcost <- 20.697
+#Insert costs ($/kg)
+NOXcost <- 20.697 #$/kg
+Curtailmentcost <- 0.15 #$/MWH This number needs to be sourced and updated! 
 
 #emissions_x <- emission_output(run_x$EV_Demand)
 # emissions_x<- emission_output(hourly_demand()) 
@@ -483,7 +484,13 @@ Emissions_Table <- data.frame(Time= c("intervention hours", "peak period", "othe
 Emissions_Table <- Emissions_Table %>% 
    mutate(NOXChangeCost = NOXChange*NOXcost) #this is in dollars
 
-#curtailment cost reduction: to be added
+#Curtailment Cost Reduction
+#sum hours of demand change in target window
+Xdelta_i_h <- sum(Emissions$Xdelta[intervention_emission_hours])
+Curtailmentcost_i_h <- Xdelta_i_h*Curtailmentcost
+#add to output table
+Emissions_Table <- Emissions_Table %>% 
+   mutate(CurtCostRed = c(Curtailmentcost_i_h, "NA", "NA", Curtailmentcost_i_h))
 
 return(list(Emissions=Emissions, Emissions_Table=Emissions_Table))
   
