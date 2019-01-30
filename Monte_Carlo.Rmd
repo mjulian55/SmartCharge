@@ -508,16 +508,17 @@ simulations <- 100
 intervention_draws <- sample(3:length(Elasticities),simulations,replace = TRUE)
 throttle_draws <- sample(3:length(Elasticities),simulations,replace = TRUE)
 
-sim_result <- hourly_demand() %>% 
-  mutate(i_draw = intervention_draws[1], t_draw = throttle_draws[1])
-sim_result <- sim_result[0,]
+sim_result <- hourly_demand()
+sim_result_EV_Demand <- mutate(sim_result$EV_Demand, i_draw = intervention_draws[1], t_draw = throttle_draws[1])
+sim_result_EV_Demand <- sim_result_EV_Demand[0,]
 
 
 for(i in seq(simulations)){
-  run_i <- hourly_demand(schedule = intervention_draws[i],throttle_schedule = throttle_draws[i],throttle_amount = 0) %>% 
+  run_i <- hourly_demand(schedule = intervention_draws[i],throttle_schedule = throttle_draws[i],throttle_amount = 0)
+  run_i_EV_Demand <- run_i$EV_Demand %>% 
     mutate(i_draw = intervention_draws[i], t_draw = throttle_draws[i])
   
-  sim_result <- rbind(sim_result,run_i)
+  sim_result_EV_Demand <- rbind(sim_result_EV_Demand,run_i_EV_Demand)
   
   
 }
@@ -529,7 +530,7 @@ for(i in seq(simulations)){
 
 # plot of monte carlo output
 library(ggplot2)
-freq_graph <- ggplot(sim_result, aes(x = Hr, y = Xt))+
+freq_graph <- ggplot(sim_result_EV_Demand, aes(x = Hr, y = Xt))+
  geom_jitter(aes(color = Xt), alpha = 0.5) +
   theme_minimal() +
   xlab("Hour of the Day") +
@@ -544,9 +545,9 @@ freq_graph
 
 #need to stack both demand curves in one data frame for a legend
 
-graph_table <- EV_Demand_run1[c(1,5,14)] %>% 
-  gather(condition,value,X0:Xt) %>% 
-  mutate(Theoretical_Max=EV_Demand_run1$MT[1])
+graph_table <- EV_Demand_run1$EV_Demand[c("Hr","X0","Xf")] %>% 
+  gather(condition,value,X0:Xf) %>% 
+  mutate(Theoretical_Max=EV_Demand_run1$EV_Demand$MT[1])
 
 
 Demand_Graph <- ggplot(data = graph_table, aes(x = Hr)) +
