@@ -49,11 +49,13 @@ price_schedule <- read_csv("Model_Map/2018_Winter_TOU_EV_4.csv")
 #Baseline Usage
 #baseline <- read_csv("Model_Map/03-18_WP_Avg.csv")
 baseline <- read_csv("Model_Map/DC_Avg_Usage.csv")
-
+Wokplace_Total_Usage <- read_csv("Model_Map/Wokplace_Total_Usage.csv")
+Workplace_Avg_Usage <- read_csv("Model_Map/Workplace_Avg_Usage.csv")
 
 # Number of Chargers by Segment
 #chargers <- read_csv("Model_Map/Chargers_Installed_03-18.csv")
 Chargers <- read_csv("Model_Map/Chargers.csv")
+Event_Chargers <- read_csv("Model_Map/Event_Chargers.csv")
 
 
 
@@ -604,3 +606,24 @@ Max_theory_table <- Chargers %>%
 Max_theory_table #This shows the theoretical max per market segment (and total) for the SCE Charge Ready Pilot for ONE hour.
 
 ```
+
+
+```{r pilot data}
+
+Workplace_chargers <- filter(Chargers, Market_Segment == "Workplace") %>% 
+  select(Jul_18, Jul_18, Aug_18, Sep_18) 
+
+Workplace_Event_Chargers<-filter(Event_Chargers, Market_Segment == "Workplace")
+
+WP_Avg_Usage_PerPort<- Workplace_Avg_Usage$Jul_18/Workplace_chargers
+Scale_Jul_11_18 <- WP_Avg_Usage_PerPort*Workplace_Event_Chargers
+
+July_WP_Table <- mutate(Scale_Jul_11_18)
+
+View(WP_Avg_Usage_PerPort)
+
+
+
+
+```
+
