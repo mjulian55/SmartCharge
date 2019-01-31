@@ -9,7 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r loadlib}
+```{r loadlib, message= FALSE, warning= FALSE}
 
 
 #load libraries
@@ -501,33 +501,48 @@ Emissions_Table <- Emissions_Table %>%
 return(list(Emissions=Emissions, Emissions_Table=Emissions_Table))
   
 }
-Emissions_run1 <- emissions_fcn(EVDemand = hourly_demand(SDGE_commm_effect = 0,intervention_comm_effect = 0, throttle_amount = 0)) #or run as emissions_fcn(EV_Demand_run1)
+#Emissions_run1 <- emissions_fcn(EVDemand = hourly_demand(SDGE_commm_effect = 0,intervention_comm_effect = 0, throttle_amount = 0)) #or run as emissions_fcn(EV_Demand_run1)
 
 ```
 
 
 ```{r simulation}
-simulations <- 100
-
-intervention_draws <- sample(3:length(Elasticities),simulations,replace = TRUE)
-throttle_draws <- sample(3:length(Elasticities),simulations,replace = TRUE)
-comm_possibilities <- seq(from=0, to=0.5, by=.01)
-comm_draws <-  sample(comm_possibilities,simulations, replace = TRUE)
-
-sim_result <- hourly_demand()
-sim_result_EV_Demand <- mutate(sim_result$EV_Demand, i_draw = intervention_draws[1], t_draw = throttle_draws[1])
-sim_result_EV_Demand <- sim_result_EV_Demand[0,]
 
 
-for(i in seq(simulations)){
-  run_i <- hourly_demand(schedule = intervention_draws[i],throttle_schedule = throttle_draws[i], intervention_comm_effect = comm_draws[i], month = "Nov_18", throttle_amount = 0)
-  run_i_EV_Demand <- run_i$EV_Demand %>% 
-    mutate(i_draw = intervention_draws[i], t_draw = throttle_draws[i])
+simulation <- function(simulations = 100, hourlydemand = hourly_demand()) {
   
-  sim_result_EV_Demand <- rbind(sim_result_EV_Demand,run_i_EV_Demand)
+  intervention_draws <- sample(3:length(Elasticities),simulations,replace = TRUE)
+  throttle_draws <- sample(3:length(Elasticities),simulations,replace = TRUE)
+  comm_possibilities <- seq(from=0, to=0.5, by=.01)
+  comm_draws <-  sample(comm_possibilities,simulations, replace = TRUE)
+
+  sim_result <- hourlydemand
+  sim_result_EV_Demand <- mutate(sim_result$EV_Demand, i_draw = intervention_draws[1], t_draw =     throttle_draws[1])
+  sim_result_EV_Demand <- sim_result_EV_Demand[0,]
+
+
+  for(i in seq(simulations)){
+    run_i <- hourly_demand(schedule = intervention_draws[i],throttle_schedule = throttle_draws[i], intervention_comm_effect = comm_draws[i], month = "Nov_18", throttle_amount = 0)
+    run_i_EV_Demand <- run_i$EV_Demand %>% 
+      mutate(i_draw = intervention_draws[i], t_draw = throttle_draws[i])
   
+    sim_result_EV_Demand <- rbind(sim_result_EV_Demand,run_i_EV_Demand)
+  
+  
+  }
+
+    summary <- group_by(sim_result_EV_Demand, Hr) %>% 
+    summarise_at(vars(Xf),funs(mean,min,max))# %>% 
+
+
+  sim_result_EV_Demand <- sim_result_EV_Demand %>% 
+    mutate(Hr_avg = summary_test$mean[Hr], min = summary_test$min[Hr], max = summary_test$max[Hr])
   
 }
+
+
+#sim1 <- simulation()
+
 
 ```
 
@@ -536,20 +551,12 @@ for(i in seq(simulations)){
 
 
 
-summary_test <- group_by(sim_result_EV_Demand, Hr) %>% 
-  summarise_at(vars(Xf),funs(mean,min,max))# %>% 
-  #select(Xf) %>% 
-  #unlist()
-
-
-sim_result_EV_Demand <- sim_result_EV_Demand %>% 
-  mutate(Hr_avg = summary_test$mean[Hr], min = summary_test$min[Hr], max = summary_test$max[Hr])
-
 # plot of monte carlo output
 library(ggplot2)
-freq_graph <- ggplot(sim_result_EV_Demand, aes(x = Hr, y = X0))+
-  geom_line(aes(x = Hr, y = X0), alpha = 0.5, fill = "blue")+
-  geom_jitter(aes(y = Xf, color = Xf>X0), alpha = 0.5) +
+freq_graph <- ggplot(sim1, aes(x = Hr, y = X0))+
+  geom_jitter(aes(y = Xf, color = Xf>X0), alpha = 0.5, width = 0.3) +
+  geom_line(aes(x = Hr, y = X0), alpha = 0.5, color = "blue")+
+  geom_point(aes(x = Hr, y = X0), alpha = 0.5, color = "blue")+
   #geom_ribbon(aes(ymin = min, ymax = max), alpha = 0.5, color ="blue") +
   #geom_line(aes(x = Hr, y = Hr_avg), alpha = 0.5, color = "red")+
   #geom_smooth(model = "lm") +
