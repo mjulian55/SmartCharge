@@ -404,7 +404,7 @@ Hourly_EF <- read_csv("Hrly_EF.csv")
 pk <- c(17:21) #target window to shift out off (this is only used in the output calculations below, not for the function)
 
 #Insert costs ($/kg)
-NOXcost <- 20.697 #$/kg
+NOXcost <- 21.93 #$/kg
 Curtailmentcost <- 0.15 #$/MWH This number needs to be sourced and updated! 
 
 #emissions_x <- emission_output(run_x$EV_Demand)
