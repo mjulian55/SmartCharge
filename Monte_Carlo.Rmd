@@ -48,7 +48,7 @@ price_schedule <- read_csv("Model_Map/2018_Winter_TOU_EV_4.csv")
 
 #Baseline Usage
 #baseline <- read_csv("Model_Map/03-18_WP_Avg.csv")
-baseline <- read_csv("Model_Map/DC_Avg_Usage.csv")
+baseline <- read_csv("Model_Map/Workplace_Avg_Usage.csv")
 
 
 # Number of Chargers by Segment
@@ -376,6 +376,8 @@ EV_Demand$comm_shift[intervention_hours] <-(abs(EV_Demand$Xint_effect[interventi
 
 EV_Demand$comm_shift[-intervention_hours] <- (abs(EV_Demand$Xint_effect[-intervention_hours])/Change_outside_intervention)*-comm_shifting
 
+EV_Demand$comm_shift[is.nan(EV_Demand$comm_shift)] <- 0
+
 EV_Demand <- mutate(EV_Demand, Xf = Xt + comm_shift)
 
 
@@ -387,7 +389,7 @@ EV_Demand <- mutate(EV_Demand, Xf = Xt + comm_shift)
 return(list(EV_Demand=EV_Demand,matrix=matrix,Matrix_throttling=matrixt)) #This is how to output multiple data frames from the fcn. 
 
 }
-EV_Demand_run1 <- hourly_demand()
+EV_Demand_run1 <- hourly_demand(month = "Nov_18",SDGE_commm_effect = 0,intervention_comm_effect = 0, throttle_amount = 0, price_change = 0.1, intervention_hours = c(16:18))
 #EV_Demand_run1 <- hourly_demand(month = "Jul_18", int_equals_baseline = FALSE, intervention_chargers = 234) #creates a data frame with the output from the function, which is needed to find the emission factors.
 
 ```
@@ -417,7 +419,7 @@ Emissions <- Hourly_EF %>%
   mutate(I01 = EVDemand$EV_Demand$I01) %>% 
   mutate(Xi = EVDemand$EV_Demand$Xi) %>% # column for initial demand at each hour not scaled
   mutate(X0 = EVDemand$EV_Demand$X0) %>% # column for initial demand at each hour scaled by chargers
-  mutate(Xf = EVDemand$EV_Demand$Xt) 
+  mutate(Xf = EVDemand$EV_Demand$Xf) 
      # column for new demand at each hour. we'll need to update "Xt" to reflect the new column post comms/all interventions
 
 Emissions <- Emissions %>% 
@@ -497,7 +499,7 @@ Emissions_Table <- Emissions_Table %>%
 return(list(Emissions=Emissions, Emissions_Table=Emissions_Table))
   
 }
-Emissions_run1 <- emissions_fcn(EVDemand = hourly_demand()) #or run as emissions_fcn(EV_Demand_run1)
+Emissions_run1 <- emissions_fcn(EVDemand = hourly_demand(SDGE_commm_effect = 0,intervention_comm_effect = 0, throttle_amount = 0)) #or run as emissions_fcn(EV_Demand_run1)
 
 ```
 
@@ -507,6 +509,8 @@ simulations <- 100
 
 intervention_draws <- sample(3:length(Elasticities),simulations,replace = TRUE)
 throttle_draws <- sample(3:length(Elasticities),simulations,replace = TRUE)
+comm_possibilities <- seq(from=0, to=0.5, by=.01)
+comm_draws <-  sample(comm_possibilities,simulations, replace = TRUE)
 
 sim_result <- hourly_demand()
 sim_result_EV_Demand <- mutate(sim_result$EV_Demand, i_draw = intervention_draws[1], t_draw = throttle_draws[1])
@@ -514,7 +518,7 @@ sim_result_EV_Demand <- sim_result_EV_Demand[0,]
 
 
 for(i in seq(simulations)){
-  run_i <- hourly_demand(schedule = intervention_draws[i],throttle_schedule = throttle_draws[i],throttle_amount = 0)
+  run_i <- hourly_demand(schedule = intervention_draws[i],throttle_schedule = throttle_draws[i], intervention_comm_effect = comm_draws[i], month = "Nov_18", throttle_amount = 0)
   run_i_EV_Demand <- run_i$EV_Demand %>% 
     mutate(i_draw = intervention_draws[i], t_draw = throttle_draws[i])
   
@@ -528,10 +532,25 @@ for(i in seq(simulations)){
 
 ```{r explore}
 
+
+
+summary_test <- group_by(sim_result_EV_Demand, Hr) %>% 
+  summarise_at(vars(Xf),funs(mean,min,max))# %>% 
+  #select(Xf) %>% 
+  #unlist()
+
+
+sim_result_EV_Demand <- sim_result_EV_Demand %>% 
+  mutate(Hr_avg = summary_test$mean[Hr], min = summary_test$min[Hr], max = summary_test$max[Hr])
+
 # plot of monte carlo output
 library(ggplot2)
-freq_graph <- ggplot(sim_result_EV_Demand, aes(x = Hr, y = Xt))+
- geom_jitter(aes(color = Xt), alpha = 0.5) +
+freq_graph <- ggplot(sim_result_EV_Demand, aes(x = Hr, y = X0))+
+  geom_line(aes(x = Hr, y = X0), alpha = 0.5, fill = "blue")+
+  geom_jitter(aes(y = Xf, color = Xf>X0), alpha = 0.5) +
+  #geom_ribbon(aes(ymin = min, ymax = max), alpha = 0.5, color ="blue") +
+  #geom_line(aes(x = Hr, y = Hr_avg), alpha = 0.5, color = "red")+
+  #geom_smooth(model = "lm") +
   theme_minimal() +
   xlab("Hour of the Day") +
   ylab("Charging Demand (kW)") +
@@ -544,6 +563,7 @@ freq_graph
 ```{r figures}
 
 #need to stack both demand curves in one data frame for a legend
+EV_Demand_run1 <- hourly_demand(month = "Nov_18",SDGE_commm_effect = 0,intervention_comm_effect = 0, throttle_amount = 0,throttle_hours = c(8:11), price_change = -0.05, intervention_hours = c(12:15))
 
 graph_table <- EV_Demand_run1$EV_Demand[c("Hr","X0","Xf")] %>% 
   gather(condition,value,X0:Xf) %>% 
