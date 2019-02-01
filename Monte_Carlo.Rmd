@@ -50,9 +50,9 @@ price_schedule <- read_csv("Model_Map/2018_Summer_TOU_EV_4.csv")
 #baseline <- read_csv("Model_Map/03-18_WP_Avg.csv")
 
 DC_baseline <- read_csv("Model_Map/DC_Avg_Usage.csv")
-WP_baseline <- read_csv("Model_Map/DC_Avg_Usage.csv")
-MUD_baseline <- read_csv("Model_Map/DC_Avg_Usage.csv")
-F_baseline <- read_csv("Model_Map/DC_Avg_Usage.csv")
+WP_baseline <- read_csv("Model_Map/Workplace_Avg_Usage.csv")
+MUD_baseline <- read_csv("Model_Map/MUD_Avg_Usage.csv")
+F_baseline <- read_csv("Model_Map/Fleet_Avg_Usage.csv")
 
 
 baseline <- bind_rows("Destination Center" = DC_baseline, "Fleet" = F_baseline, "Multi Unit Dwelling" = MUD_baseline,"Workplace" = WP_baseline, .id = "Segment") 
@@ -101,7 +101,7 @@ June_Sep_baseline <- baseline %>%
 #All defaults are set to MARCH 2018 WORKPLACE
 p_c <- -0.05 #price change
 i_h <- c(12:15) #intervention hours
-t_a <- -0.5 #throttling amount
+t_a <- 0 #throttling amount
 t_h <- c(7:11) #throttling hours
 sch <- closest_elasticities #elasticities to use for price intervention (column in the elasticities dataframe) -  Non PV Summer Weekday EPEV L. The default now picks from the ratio 
 tsch <- closest_elasticities  #elasticites to use for throttling intervention (column in the elasticities dataframe) - Non PV Summer Weekday EPEV L
@@ -570,6 +570,269 @@ simulation <- function(simulations = 100, hourlydemand = hourly_demand()) {
 ```
 
 
+```{r scenarios}
+
+#-Workplaces: Communication + Discount + Throttling on current TOU rate
+
+WP_C_D_T_TOU_SUmmer_4 <- hourly_demand(segment = "Workplace", 
+                                       month = "June_18",
+                                       price_change = -0.05,
+                                       intervention_hours = c(12:15),
+                                       intervention_comm_effect = 0.2, 
+                                       throttle_amount = -0.5, 
+                                       throttle_hours = c(6:11))
+
+
+#-Workplaces: TOU 2019
+#Having issues w/ implementing new TOU
+
+#TOU_summer_19 <- read_csv("Model_Map/2019_Summer_TOU_EV_8.csv")
+
+#WP_TOU_19 <- hourly_demand(segment = "Workplace",
+#                           month = "June_18",
+#                           new_TOU = TOU_summer_19$P0,
+#                           price_change = 0)
+
+#-MUDs: rebate+ communication
+
+MUD_R_C <- hourly_demand(segment = "Multi Unit Dwelling", 
+                         month = "June_18", 
+                         price_change = 0.1 , 
+                         intervention_hours = c(17:21), 
+                         intervention_comm_effect = 0.2)
+
+#-Destination centers: discount + throttling + no comms
+
+DC_D_T_NC <- hourly_demand(segment = "Destination Center", 
+                           month = "June_18", 
+                           intervention_hours = c(12:15),
+                           price_change = -0.05, 
+                           throttle_amount = -0.5, throttle_hours = c(6:11), 
+                           intervention_comm_effect = 0)
+
+#-Fleets: rebate + communication
+
+F_R_C <-  hourly_demand(segment = "Fleet", 
+                        month = "June_18", 
+                        intervention_hours = c(17:21), 
+                        price_change = 0.1, 
+                        intervention_comm_effect = 0.2)
+
+#-Workplaces: Discount + throttling
+
+
+
+WP_D_T <- hourly_demand(segment = "Workplace", 
+                        month = "June_18", 
+                        intervention_hours = c(12:15),
+                        price_change = -0.05,
+                        throttle_amount = -0.5,
+                        throttle_hours = c(6:11),
+                        SDGE_commm_effect = 0,
+                        intervention_comm_effect = 0)
+
+WP_D_R_T <- hourly_demand(segment = "Workplace", 
+                        month = "June_18", 
+                        intervention_hours = c(12:15, 17:21),
+                        price_change = c(rep(-0.05,4),rep(0.1,5)),
+                        throttle_amount = -0.5,
+                        throttle_hours = c(6:11),
+                        SDGE_commm_effect = 0,
+                        intervention_comm_effect = 0)
+
+```
+
+```{r scenario_graphs}
+
+
+#Scenario 1
+
+
+graph_table1 <- WP_C_D_T_TOU_SUmmer_4$EV_Demand[c("Hr","X0","Xf")] %>% 
+  gather(condition,value,X0:Xf) %>% 
+  mutate(Theoretical_Max=WP_C_D_T_TOU_SUmmer_4$EV_Demand$MT[1])
+
+
+Demand_Graph1 <- ggplot(data = graph_table1, aes(x = Hr)) +
+  geom_line(aes(y = value, color=condition)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+  labs(title=" Workplace Hourly Demand Forecast", 
+       subtitle="$0.05 Discount 11 AM - 3 PM \n 50% Throttling 6 AM - 11 AM \n 20% Communication Effect",
+       y="EV Charging Demand (kW)",
+       x="Hour",
+       color=NULL) +
+  scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
+  scale_color_manual(labels=c("Baseline Demand","Demand with Intervention"), values = c("blue", "red")) +
+  geom_rect(aes(xmin=6,xmax=11,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
+  geom_rect(aes(xmin=11,xmax=15,ymin=-Inf,ymax=Inf, fill = "Discount"),alpha=0.0075) +
+  theme(plot.title = element_text(hjust = 0.5)) + 
+  theme(plot.subtitle = element_text(hjust = 0.5))+
+ theme(legend.position="bottom") +
+  scale_fill_manual('Interventions',values = c('green','yellow'),  guide = guide_legend(override.aes = list(alpha = 0.15)))
+
+Potential_Graph1 <- Demand_Graph1 +
+  geom_line(aes(y=Theoretical_Max))
+
+Demand_Graph1
+#Potential_Graph1
+
+#Scenario 2 UNDER CONSTRUCTION
+
+#graph_table2 <- WP_TOU_19$EV_Demand[c("Hr","X0","Xf")] %>% 
+#  gather(condition,value,X0:Xf) %>% 
+#  mutate(Theoretical_Max=WP_TOU_19$EV_Demand$MT[1])
+#
+#
+#Demand_Graph2 <- ggplot(data = graph_table2, aes(x = Hr)) +
+#  geom_line(aes(y = value, color=condition)) +
+#  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+#        panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+#  labs(title=" Workplace Hourly Demand Forecast", 
+#       subtitle="2019 TOU Rates",
+#       y="EV Charging Demand (kW)",
+#       x="Hour",
+#       color=NULL) +
+#  scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
+#  scale_color_manual(labels=c("Baseline Demand","Demand with Intervention"), values = c("blue", "red")) +
+#  theme(plot.title = element_text(hjust = 0.5)) + 
+#  theme(plot.subtitle = element_text(hjust = 0.5))+
+#  theme(legend.position="bottom")
+#
+#Potential_Graph2 <- Demand_Graph2 +
+#  geom_line(aes(y=Theoretical_Max))
+#
+#Demand_Graph2
+#Potential_Graph2
+
+#Scenario 3
+
+graph_table3 <- MUD_R_C$EV_Demand[c("Hr","X0","Xf")] %>% 
+  gather(condition,value,X0:Xf) %>% 
+  mutate(Theoretical_Max=MUD_R_C$EV_Demand$MT[1])
+
+
+Demand_Graph3 <- ggplot(data = graph_table3, aes(x = Hr)) +
+  geom_line(aes(y = value, color=condition)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+  labs(title=" Multi-Unit Dwelling Hourly Demand Forecast", 
+       subtitle="$0.10 Rebate 4 PM - 9 PM \n 20% Communication Effect",
+       y="EV Charging Demand (kW)",
+       x="Hour",
+       color=NULL) +
+  scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
+  scale_color_manual(labels=c("Baseline Demand","Demand with Intervention"), values = c("blue", "red")) +
+  geom_rect(aes(xmin=17,xmax=21,ymin=-Inf,ymax=Inf, fill = "Rebate"),alpha=0.0075) +
+  theme(plot.title = element_text(hjust = 0.5)) + 
+  theme(plot.subtitle = element_text(hjust = 0.5))+
+ theme(legend.position="bottom") +
+  scale_fill_manual('Interventions',values = c('blue'),  guide = guide_legend(override.aes = list(alpha = 0.15)))
+
+Potential_Graph3 <- Demand_Graph3 +
+  geom_line(aes(y=Theoretical_Max))
+
+Demand_Graph3
+#Potential_Graph3
+
+
+#Scenario 4
+
+graph_table4 <- DC_D_T_NC$EV_Demand[c("Hr","X0","Xf")] %>% 
+  gather(condition,value,X0:Xf) %>% 
+  mutate(Theoretical_Max=DC_D_T_NC$EV_Demand$MT[1])
+
+
+Demand_Graph4 <- ggplot(data = graph_table4, aes(x = Hr)) +
+  geom_line(aes(y = value, color=condition)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+  labs(title="Destination Center Hourly Demand Forecast", 
+       subtitle="$0.05 Discount 11 AM - 3 PM \n 50% Throttling 6 AM - 11 AM \n",
+       y="EV Charging Demand (kW)",
+       x="Hour",
+       color=NULL) +
+  scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
+  scale_color_manual(labels=c("Baseline Demand","Demand with Intervention"), values = c("blue", "red")) +
+  geom_rect(aes(xmin=11,xmax=15,ymin=-Inf,ymax=Inf, fill = "Discount"),alpha=0.0075) +
+  geom_rect(aes(xmin=6,xmax=11,ymin=-Inf,ymax=Inf, fill = "Throttle"),alpha=0.0075) +
+  theme(plot.title = element_text(hjust = 0.5)) + 
+  theme(plot.subtitle = element_text(hjust = 0.5))+
+  theme(legend.position="bottom") +
+  scale_fill_manual('Interventions',values = c('green','yellow'),  guide = guide_legend(override.aes = list(alpha = 0.15)))
+
+Potential_Graph4 <- Demand_Graph4 +
+  geom_line(aes(y=Theoretical_Max))
+
+Demand_Graph4
+#Potential_Graph4
+
+
+#Scenario 5
+
+graph_table5 <- F_R_C$EV_Demand[c("Hr","X0","Xf")] %>% 
+  gather(condition,value,X0:Xf) %>% 
+  mutate(Theoretical_Max=F_R_C$EV_Demand$MT[1])
+
+
+Demand_Graph5 <- ggplot(data = graph_table5, aes(x = Hr)) +
+  geom_line(aes(y = value, color=condition)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+  labs(title="Fleet Hourly Demand Forecast", 
+       subtitle="$0.10 Rebate 4 PM - 9 PM \n 20% Communication Effect",
+       y="EV Charging Demand (kW)",
+       x="Hour",
+       color=NULL) +
+  scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
+  scale_color_manual(labels=c("Baseline Demand","Demand with Intervention"), values = c("blue", "red")) +
+  geom_rect(aes(xmin=17,xmax=21,ymin=-Inf,ymax=Inf, fill = "Rebate"),alpha=0.0075) +
+  theme(plot.title = element_text(hjust = 0.5)) + 
+  theme(plot.subtitle = element_text(hjust = 0.5))+
+ theme(legend.position="bottom") +
+  scale_fill_manual('Interventions',values = c('blue'),  guide = guide_legend(override.aes = list(alpha = 0.15)))
+
+Potential_Graph5 <- Demand_Graph5 +
+  geom_line(aes(y=Theoretical_Max))
+
+Demand_Graph5
+#Potential_Graph5
+
+#Scenario 6
+
+graph_table6 <- WP_D_T$EV_Demand[c("Hr","X0","Xf")] %>% 
+  gather(condition,value,X0:Xf) %>% 
+  mutate(Theoretical_Max=WP_D_T$EV_Demand$MT[1])
+
+
+Demand_Graph6 <- ggplot(data = graph_table6, aes(x = Hr)) +
+  geom_line(aes(y = value, color=condition)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+  labs(title=" Workplace Hourly Demand Forecast", 
+       subtitle="$0.05 Discount 11 AM - 3 PM \n 50% Throttling 6 AM - 11 AM",
+       y="EV Charging Demand (kW)",
+       x="Hour",
+       color=NULL) +
+  scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
+  scale_color_manual(labels=c("Baseline Demand","Demand with Intervention"), values = c("blue", "red")) +
+  geom_rect(aes(xmin=6,xmax=11,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
+  geom_rect(aes(xmin=11,xmax=15,ymin=-Inf,ymax=Inf, fill = "Discount"),alpha=0.0075) +
+  theme(plot.title = element_text(hjust = 0.5)) + 
+  theme(plot.subtitle = element_text(hjust = 0.5))+
+ theme(legend.position="bottom") +
+  scale_fill_manual('Interventions',values = c('green','yellow'),  guide = guide_legend(override.aes = list(alpha = 0.15)))
+
+Potential_Graph6 <- Demand_Graph6 +
+  geom_line(aes(y=Theoretical_Max))
+
+Demand_Graph6
+#Potential_Graph6
+
+
+```
+
+
 ```{r explore}
 
 
@@ -604,8 +867,7 @@ graph_table <- EV_Demand_run1$EV_Demand[c("Hr","X0","Xf")] %>%
 
 Demand_Graph <- ggplot(data = graph_table, aes(x = Hr)) +
   geom_line(aes(y = value, color=condition)) +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-        panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+  theme_classic() +
   labs(title="Hourly Demand Forecast", 
        subtitle="$0.05 Discount 11 AM - 3 PM",
        y="EV Charging Demand (kW)",
@@ -613,9 +875,8 @@ Demand_Graph <- ggplot(data = graph_table, aes(x = Hr)) +
        color=NULL) +
   scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
   scale_color_manual(labels=c("Baseline Demand","Demand with Intervention"), values = c("blue", "red")) +
-  #geom_rect(aes(xmin=6,xmax=11,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
+  geom_rect(aes(xmin=6,xmax=11,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
   geom_rect(aes(xmin=11,xmax=15,ymin=-Inf,ymax=Inf, fill = "Discount"),alpha=0.0075) +
-  #theme_bw() + # theme_bw() gives grid lines, could remove
   theme(plot.title = element_text(hjust = 0.5)) + 
   theme(plot.subtitle = element_text(hjust = 0.5))+
  theme(legend.position="bottom") +
