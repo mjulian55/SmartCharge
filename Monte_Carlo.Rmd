@@ -20,7 +20,7 @@ library(RColorBrewer)
 
 #LOAD DATA
 #Price Schedule
-price_schedule <- read_csv("Model_Map/2018_Winter_TOU_EV_4.csv")
+price_schedule <- read_csv("Model_Map/2018_Summer_TOU_EV_4.csv")
 
 #Price Schedule Options (All in Model_Map Folder)
 
@@ -48,7 +48,16 @@ price_schedule <- read_csv("Model_Map/2018_Winter_TOU_EV_4.csv")
 
 #Baseline Usage
 #baseline <- read_csv("Model_Map/03-18_WP_Avg.csv")
-baseline <- read_csv("Model_Map/DC_Avg_Usage.csv")
+
+DC_baseline <- read_csv("Model_Map/DC_Avg_Usage.csv")
+WP_baseline <- read_csv("Model_Map/DC_Avg_Usage.csv")
+MUD_baseline <- read_csv("Model_Map/DC_Avg_Usage.csv")
+F_baseline <- read_csv("Model_Map/DC_Avg_Usage.csv")
+
+
+baseline <- bind_rows("Destination Center" = DC_baseline, "Fleet" = F_baseline, "Multi Unit Dwelling" = MUD_baseline,"Workplace" = WP_baseline, .id = "Segment") 
+  
+
 Wokplace_Total_Usage <- read_csv("Model_Map/Wokplace_Total_Usage.csv")
 Workplace_Avg_Usage <- read_csv("Model_Map/Workplace_Avg_Usage.csv")
 
@@ -57,7 +66,9 @@ Workplace_Avg_Usage <- read_csv("Model_Map/Workplace_Avg_Usage.csv")
 Chargers <- read_csv("Model_Map/Chargers.csv")
 Event_Chargers <- read_csv("Model_Map/Event_Chargers.csv")
 
-
+add_baseline_chargers <- Chargers %>% 
+  filter(Market_Segment!= "Total") %>% 
+  slice(rep(1:n(),each=24))
 
 #Elasticities with format 9X3 with columns Base_Hr, Changed_Hr, and Elasticity
 #Changed_Hr is the Hour where the price change occurs, Base_Hr is the hour in which demand changes
@@ -71,6 +82,15 @@ P_SOP_Ratio <- max(price_schedule$P0)/min(price_schedule$P0)
 closest_schedule <- SDGE_P_SOP_Ratios$Rate_Schedule[which.min(abs(SDGE_P_SOP_Ratios$P_SOP_Ratio - P_SOP_Ratio))]
 closest_elasticities <- match(closest_schedule, names(Elasticities))
 #Uses Elasticities of rate schedule with closest ratio
+
+
+June_Sep_chargers <-Chargers %>% 
+  select(Market_Segment, June_18:Aug_18)
+
+June_Sep_baseline <- baseline %>% 
+  select(Segment, Hr,  June_18:Aug_18) %>% 
+  mutate(B_Jun = June_18/June_Sep_chargers$June_18)
+
 
 
 ```
@@ -126,7 +146,10 @@ intervention_chargers <- ifelse(int_equals_baseline == TRUE, baseline_chargers, 
 
 #WP_Chargers <- chargers$Workplace #Number of Chargers (C)
 #DC_Chargers <- chargers$Workplace #Number of Chargers (C)
-baseline_month<-unlist(select(baseline, month))
+baseline_month<- baseline %>% 
+  filter(Segment == segment) %>% 
+  select(month) %>%
+  unlist()
 
 EV_Demand <- mutate(price_schedule, I01 = 0 ,Xi = baseline_month, X0 = baseline_month/baseline_chargers*intervention_chargers) #340 here comes from the number of chargers installed for the baseline. I01 refers to the hours where there is an intervention. 
 
