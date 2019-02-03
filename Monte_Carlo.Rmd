@@ -104,7 +104,6 @@ i_h <- c(12:15) #intervention hours
 t_a <- 0 #throttling amount
 t_h <- c(7:11) #throttling hours
 sch <- closest_elasticities #elasticities to use for price intervention (column in the elasticities dataframe) -  Non PV Summer Weekday EPEV L. The default now picks from the ratio 
-tsch <- closest_elasticities  #elasticites to use for throttling intervention (column in the elasticities dataframe) - Non PV Summer Weekday EPEV L
 sg <- "Workplace" #segment
 mth <- "Mar_18" #month
 pwr <- 6.6 #charger power
@@ -118,7 +117,18 @@ i_c_e <- 0.2
 
 
 
-hourly_demand <- function(segment = sg, month = mth, charger_power = pwr, schedule = sch, throttle_schedule = tsch,price_change = p_c,intervention_hours = i_h, intervention_chargers = int_ch, int_equals_baseline = int_e_b, throttle_amount = t_a,throttle_hours = t_h, SDGE_commm_effect = SDGE_c_e, intervention_comm_effect = i_c_e){
+hourly_demand <- function(segment = sg, 
+                          month = mth, 
+                          charger_power = pwr,
+                          schedule = sch,
+                          price_change = p_c,
+                          intervention_hours = i_h, 
+                          intervention_chargers = int_ch,
+                          int_equals_baseline = int_e_b, 
+                          throttle_amount = t_a,
+                          throttle_hours = t_h, 
+                          SDGE_commm_effect = SDGE_c_e, 
+                          intervention_comm_effect = i_c_e){
   
   #CONTEXT#####
   
@@ -129,8 +139,7 @@ hourly_demand <- function(segment = sg, month = mth, charger_power = pwr, schedu
 # Elasticity 
 chosen_elasticities <- Elasticities[c(1,2,schedule)] #this pulls out columns 1, 2, and the designated elasticity (from row 74 into a new dataframe) 
 colnames(chosen_elasticities) <- c("Base_Hr","Changed_Hr","Elasticity")
-chosen_elasticities_t <- Elasticities[c(1,2,throttle_schedule)]
-colnames(chosen_elasticities_t) <- c("Base_Hr","Changed_Hr","Elasticity")
+
 
 #price_schedule$period <- factor(price_schedule$period, levels = c("P","MP","OP"))
 
@@ -252,15 +261,32 @@ colnames(matrix) <- c(1:24)
 
 
 
-  #INTERVENTION####
+
+  #INTERVENTION & COMMUNICATION####
+
+price_change_no_comm <- price_change/(1+SDGE_commm_effect)
+price_change_int_comm <- price_change_no_comm*(1+intervention_comm_effect)
+
 
 #price_change <- -0.05
 #intervention_hours <- c(12:15)
-EV_Demand <- mutate(EV_Demand, P1 = price_schedule$P0) #Copies the initial price schedule into a new column (P1) that can then be modified to reflect the intervention
+EV_Demand <- EV_Demand %>% 
+  mutate(P1 = price_schedule$P0) #Copies the initial price schedule into a new column (P1) that can then be modified to reflect the intervention
 
 EV_Demand$P1[intervention_hours] <-EV_Demand$P1[intervention_hours] + price_change #updates intervention column to implement intervention
 
-EV_Demand <- mutate(EV_Demand, P1p = (P1-P0)/P0) #Adds percentage change in price (P1p)
+P1_No_C <- EV_Demand$P1
+P1_No_C[intervention_hours] <-  P1_No_C[intervention_hours]/(1+SDGE_commm_effect)
+
+P1C <-P1_No_C
+P1C[intervention_hours] <- P1C[intervention_hours]*(1+intervention_comm_effect)
+
+#Adds percentage change in price (P1p)
+EV_Demand <- EV_Demand %>% 
+  mutate(P1_No_C = P1_No_C) %>% 
+  mutate(P1C = P1C) %>% 
+  mutate(P1p = (P1C-P0)/P0)
+  
 
 X1p <- as.vector(0)
 for (val in x) {
@@ -278,106 +304,24 @@ EV_Demand <- mutate(EV_Demand, X1 = (1+X1p)*X0) #adds new demand in kW variable 
 ####
 
 
-  #THROTTLE MATRIX####
-#This makes a table for each hour that lists the midpoint hours that will be splined, hours as <24, rate period, and elasticity relative to the hour.
-
-for(i in x) {
-    nam <- paste("Midpoints", i, sep = ".")
-    
-    Hrs <- append(mid_points, i)
-    Hrs <- Hrs[-match(price_schedule$Period[i],price_schedule$Period[mid_points])]
-#The loop above selects a set of midpoints that leaves out one midpoint based on the hour that a table is being made for (it excludes the midpoint that is in the same period as the hour of the table)
-
-    Hrs24 <- append(Hrs,i) #adds the end point (the starting hour 24 hours later)
-    Hrs <- if_else(Hrs<i,Hrs+24,Hrs) %>% 
-      append(i+24)
-    #lists "real hours" from the starting point, adding 24 to any hours before the start point
-    
-    periods <- price_schedule$Period[c(Hrs24)] 
-    #retrieves the rate periods of each hour listed
-    
-    own_period <- price_schedule$Period[i]
-    #retrieves rate period of the current hour
-    
-    own_period_elasticities <- filter(chosen_elasticities_t, Base_Hr == own_period)
-    midpoint_elasticities <- own_period_elasticities$Elasticity[match(periods, Elasticities$Changed_Hr)]
-
-    
-    assign(nam,data.frame(Hour=Hrs,Hrs24=Hrs24, Period=periods,Elasticity = midpoint_elasticities))
-    #makes a data frame named after the current hour with each of the above variables
-    
-}
-
-for (i in x) {
-  current_hr <- eval(parse(text = sub("XX", i, "Midpoints.XX")))
-  #calls current hours midpoint table
-  
-  Y = spline(x=current_hr$Hour,y=current_hr$Elasticity,xout=seq(min(current_hr$Hour),max(current_hr$Hour)))
-  #splines elasticities to smoooth
-  
-  HR = Y$x
-  
-  ELAST = Y$y
-  
-  nam <- paste("Elasticities", i, sep = ".")
-  
-  assign(nam,data.frame(HR=HR,ELAST=ELAST,HR24 = if_else(HR<=24,HR,HR-24)))
-  #makes a data frame with above variables: Hours, smoothed elasticities
-}
-
-#creates our matrix based on the 24 smoothed elasticities for each hour.
-#uses a for loop to call files rather than individually
-#NOTE this matrix has each COLUMN to be used for each hour. Our excel used each ROW if trying to compare.
-
-matrixt <- data.frame(Hr = c(1:24))
-for (i in x) {
-  El <- eval(parse(text = sub("YY", i, "Elasticities.YY")))
-  El <- El[-1,]
-  El <- El[order(El$HR24),]
-  matrixt <- cbind(matrixt, El$ELAST)
-}
-matrixt<-matrixt[,-1]
-colnames(matrixt) <- c(1:24)
-
-####
-
-
   #THROTTLING####
 
 #throttle_amount <- 0 #throttling amount -0.5 - 50%
 Tp <- rep(0,24)
 #throttle_hours <- c(7:11) #hours that throttling occurs
 Tp[throttle_hours] <- throttle_amount #Assigns the throttling intervention percentage chosen at the inputs at the beginning to the hours chosen then
-EV_Demand <- mutate(EV_Demand, Tp=Tp) #Adds throttling percentage to each hour (Tp)
 
-E <- as.vector(0) #dummy for self-elasticities (E)
+#Adds throttling percentage to each hour (Tp)
 
-for (val in x) {
-  self <- matrixt[val,val] 
-  E <- append(E,self)
-} #checks the matrix for the self elasticity and adds it to a vector, repeated 24 times as a for loop rather than 24 times
-
-E <- E[-1] #removing dummy
-
-EV_Demand <- mutate(EV_Demand, Ptp = Tp/E, Pt = (1+Ptp)*P1)#Creates an equivalent change in price during that hour that would be required to see the drop in demand due to throttling. Note, we don't need Pt to find Xtp or Xt, but we're calculating it for our own edification when looking at the table output.  
-
-Xtp <- as.vector(0) #Dummy for change in demand due to throttling (Xtp)
-
-for (val in x) {
-  mat <- sub("XX",val, "matrixt$`XX`")
-  sum_prod <- crossprod(EV_Demand$Ptp,eval(parse(text = mat)))
-  Xtp<- append(Xtp,sum_prod)
-} #uses new price equivalent sumproduct with each hour's elasticities to find percent change in demand due to throttling
-Xtp <- Xtp[-1] #gets rid of dummy
-
-EV_Demand <- mutate(EV_Demand, Xtp = Xtp, Xt = (Xtp+1)*X1, MT = Max_Theory) #adds (Xtp) and the new demand in kW due to throttling (Xt). Adds the max theoretical to the end of the dataframe for our reference. 
-EV_Demand$Xt <- if_else(EV_Demand$Xt >= 0, EV_Demand$Xt, 0) 
+EV_Demand <- EV_Demand %>% 
+  mutate(Tp=Tp) %>% 
+  mutate(Xt = (1+Tp)*X1)
 
 
 ####
 
 
-  #COMMUNICATION####
+  #SHIFTING/FINAL####
 
 #The variables below quantify the shift and net change in demand as a result of interventions, and need to be adjusted based on intervention (does not count throttling)
 
@@ -385,25 +329,15 @@ Total_x0 <- sum(EV_Demand$X0)
 Total_xt <-sum(EV_Demand$Xt)
 
 Net_Change <- Total_xt-Total_x0
-Change_intervention <- abs(sum(EV_Demand$Xt[intervention_hours]) - sum(EV_Demand$X0[intervention_hours]))
-Change_outside_intervention <- abs(sum(EV_Demand$Xt[-intervention_hours])- sum(EV_Demand$X0[-intervention_hours]))
-
-
-change_int_no_comm <- Change_intervention/(1+SDGE_commm_effect)
-change_int_comm <- change_int_no_comm*(1+intervention_comm_effect)
-comm_shifting <- change_int_comm - change_int_no_comm
+Change_intervention <- sum(EV_Demand$Xt[intervention_hours]) - sum(EV_Demand$X0[intervention_hours])
+Change_outside_intervention <- sum(EV_Demand$Xt[-intervention_hours])- sum(EV_Demand$X0[-intervention_hours])
 
 
 
-EV_Demand <- mutate(EV_Demand, Xint_effect = Xt - X0, comm_shift = 0)
 
-EV_Demand$comm_shift[intervention_hours] <-(abs(EV_Demand$Xint_effect[intervention_hours])/Change_intervention)*comm_shifting
+EV_Demand <- mutate(EV_Demand, Xint_effect = Xt - X0)
 
-EV_Demand$comm_shift[-intervention_hours] <- (abs(EV_Demand$Xint_effect[-intervention_hours])/Change_outside_intervention)*-comm_shifting
-
-EV_Demand$comm_shift[is.nan(EV_Demand$comm_shift)] <- 0
-
-EV_Demand <- mutate(EV_Demand, Xf = Xt + comm_shift)
+EV_Demand <- mutate(EV_Demand, MT = Max_Theory ,Xf = Xt)
 
 
 
@@ -411,10 +345,10 @@ EV_Demand <- mutate(EV_Demand, Xf = Xt + comm_shift)
 ####
 
 
-return(list(EV_Demand=EV_Demand,matrix=matrix,Matrix_throttling=matrixt)) #This is how to output multiple data frames from the fcn. 
+return(list(EV_Demand=EV_Demand,matrix=matrix)) #This is how to output multiple data frames from the fcn. 
 
 }
-EV_Demand_run1 <- hourly_demand(month = "Nov_18",SDGE_commm_effect = 0,intervention_comm_effect = 0, throttle_amount = 0, price_change = 0.1, intervention_hours = c(16:18))
+EV_Demand_run1 <- hourly_demand(month = "Nov_18",SDGE_commm_effect = 0.2,intervention_comm_effect = 0, throttle_amount = -0.5, price_change = -0.05, intervention_hours = c(12:15))
 #EV_Demand_run1 <- hourly_demand(month = "Jul_18", int_equals_baseline = FALSE, intervention_chargers = 234) #creates a data frame with the output from the function, which is needed to find the emission factors.
 
 ```
@@ -532,22 +466,45 @@ return(list(Emissions=Emissions, Emissions_Table=Emissions_Table))
 ```{r simulation}
 
 
-simulation <- function(simulations = 100, hourlydemand = hourly_demand()) {
+simulation <- function(simulations = 100, 
+                       sim_segment = sg,
+                       sim_month = mth, 
+                       sim_charger_power = pwr,
+                       sim_schedule = sch, 
+                       sim_price_change = p_c, 
+                       sim_intervention_hours = i_h,
+                       sim_intervention_chargers = int_ch, 
+                       sim_int_equals_baseline = int_e_b, 
+                       sim_throttle_amount = t_a, 
+                       sim_throttle_hours = t_h, 
+                       sim_SDGE_commm_effect = SDGE_c_e, 
+                       sim_intervention_comm_effect = i_c_e ) {
   
   intervention_draws <- sample(3:length(Elasticities),simulations,replace = TRUE)
-  throttle_draws <- sample(3:length(Elasticities),simulations,replace = TRUE)
   comm_possibilities <- seq(from=0, to=0.5, by=.01)
   comm_draws <-  sample(comm_possibilities,simulations, replace = TRUE)
 
-  sim_result <- hourlydemand
-  sim_result_EV_Demand <- mutate(sim_result$EV_Demand, i_draw = intervention_draws[1], t_draw =     throttle_draws[1])
+  sim_result <- hourly_demand()
+  sim_result_EV_Demand <- mutate(sim_result$EV_Demand, i_draw = intervention_draws[1], c_draw = comm_draws[1])
   sim_result_EV_Demand <- sim_result_EV_Demand[0,]
 
 
   for(i in seq(simulations)){
-    run_i <- hourly_demand(schedule = intervention_draws[i],throttle_schedule = throttle_draws[i], intervention_comm_effect = comm_draws[i], month = "Nov_18", throttle_amount = 0)
+    run_i <- hourly_demand(segment = sim_segment, 
+                          month = sim_month, 
+                          charger_power = sim_charger_power, 
+                          schedule = intervention_draws[i], 
+                          price_change = sim_price_change,
+                          intervention_hours = sim_intervention_hours, 
+                          intervention_chargers = sim_intervention_chargers, 
+                          int_equals_baseline = sim_int_equals_baseline, 
+                          throttle_amount = sim_throttle_amount,
+                          throttle_hours = sim_throttle_hours, 
+                          SDGE_commm_effect = sim_SDGE_commm_effect, 
+                          intervention_comm_effect = comm_draws[i])
+    
     run_i_EV_Demand <- run_i$EV_Demand %>% 
-      mutate(i_draw = intervention_draws[i], t_draw = throttle_draws[i])
+      mutate(i_draw = intervention_draws[i], c_draw = comm_draws[i])
   
     sim_result_EV_Demand <- rbind(sim_result_EV_Demand,run_i_EV_Demand)
   
@@ -559,12 +516,14 @@ simulation <- function(simulations = 100, hourlydemand = hourly_demand()) {
 
 
   sim_result_EV_Demand <- sim_result_EV_Demand %>% 
-    mutate(Hr_avg = summary_test$mean[Hr], min = summary_test$min[Hr], max = summary_test$max[Hr])
+    mutate(Hr_avg = summary$mean[Hr], min = summary$min[Hr], max = summary$max[Hr])
   
+  
+  return(sim_result_EV_Demand)
 }
 
 
-#sim1 <- simulation()
+sim1 <- simulation()
 
 
 ```
@@ -858,7 +817,7 @@ freq_graph
 ```{r figures}
 
 #need to stack both demand curves in one data frame for a legend
-EV_Demand_run1 <- hourly_demand(month = "Nov_18",SDGE_commm_effect = 0,intervention_comm_effect = 0, throttle_amount = 0,throttle_hours = c(8:11), price_change = -0.05, intervention_hours = c(12:15))
+EV_Demand_run1 <- hourly_demand(segment = "Workplace", month = "June_18",SDGE_commm_effect = 0,intervention_comm_effect = 0, throttle_amount = 0,throttle_hours = c(6:11), price_change = -0.05, intervention_hours = c(12:15))
 
 graph_table <- EV_Demand_run1$EV_Demand[c("Hr","X0","Xf")] %>% 
   gather(condition,value,X0:Xf) %>% 
@@ -869,14 +828,14 @@ Demand_Graph <- ggplot(data = graph_table, aes(x = Hr)) +
   geom_line(aes(y = value, color=condition)) +
   theme_classic() +
   labs(title="Hourly Demand Forecast", 
-       subtitle="$0.05 Discount 11 AM - 3 PM",
+       subtitle="50% Throttling 6 AM - 11 AM",
        y="EV Charging Demand (kW)",
        x="Hour",
        color=NULL) +
   scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
   scale_color_manual(labels=c("Baseline Demand","Demand with Intervention"), values = c("blue", "red")) +
   geom_rect(aes(xmin=6,xmax=11,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
-  geom_rect(aes(xmin=11,xmax=15,ymin=-Inf,ymax=Inf, fill = "Discount"),alpha=0.0075) +
+  #geom_rect(aes(xmin=11,xmax=15,ymin=-Inf,ymax=Inf, fill = "Discount"),alpha=0.0075) +
   theme(plot.title = element_text(hjust = 0.5)) + 
   theme(plot.subtitle = element_text(hjust = 0.5))+
  theme(legend.position="bottom") +
