@@ -112,8 +112,7 @@ int_ch <- filter(Chargers, Market_Segment == sg) %>%
   select(mth) %>% 
   as.numeric() # default is to MARCH 2018
 int_e_b <- TRUE
-SDGE_c_e <- 0.2
-i_c_e <- 0.2
+i_c_e <- 1
 
 
 
@@ -127,7 +126,6 @@ hourly_demand <- function(segment = sg,
                           int_equals_baseline = int_e_b, 
                           throttle_amount = t_a,
                           throttle_hours = t_h, 
-                          SDGE_commm_effect = SDGE_c_e, 
                           intervention_comm_effect = i_c_e){
   
   #CONTEXT#####
@@ -264,9 +262,6 @@ colnames(matrix) <- c(1:24)
 
   #INTERVENTION & COMMUNICATION####
 
-price_change_no_comm <- price_change/(1+SDGE_commm_effect)
-price_change_int_comm <- price_change_no_comm*(1+intervention_comm_effect)
-
 
 #price_change <- -0.05
 #intervention_hours <- c(12:15)
@@ -275,23 +270,17 @@ EV_Demand <- EV_Demand %>%
 
 EV_Demand$P1[intervention_hours] <-EV_Demand$P1[intervention_hours] + price_change #updates intervention column to implement intervention
 
-P1_No_C <- EV_Demand$P1
-P1_No_C[intervention_hours] <-  P1_No_C[intervention_hours]/(1+SDGE_commm_effect)
-
-P1C <-P1_No_C
-P1C[intervention_hours] <- P1C[intervention_hours]*(1+intervention_comm_effect)
 
 #Adds percentage change in price (P1p)
 EV_Demand <- EV_Demand %>% 
-  mutate(P1_No_C = P1_No_C) %>% 
-  mutate(P1C = P1C) %>% 
-  mutate(P1p = (P1C-P0)/P0)
+  mutate(P1p = (P1-P0)/P0) %>% 
+  mutate(P1pC = P1p*intervention_comm_effect)
   
 
 X1p <- as.vector(0)
 for (val in x) {
   mat <- sub("XX",val, "matrix$`XX`")
-  sum_prod <- crossprod(EV_Demand$P1p,eval(parse(text = mat)))
+  sum_prod <- crossprod(EV_Demand$P1pC,eval(parse(text = mat)))
   X1p<- append(X1p,sum_prod)
   
 } #crossprod() multiplies sumproduct of the percent change in price with each column in the matrix. This is done 24 times by the for loop rather than 24 individual times
@@ -348,7 +337,7 @@ EV_Demand <- mutate(EV_Demand, MT = Max_Theory ,Xf = Xt)
 return(list(EV_Demand=EV_Demand,matrix=matrix)) #This is how to output multiple data frames from the fcn. 
 
 }
-EV_Demand_run1 <- hourly_demand(month = "Nov_18",SDGE_commm_effect = 0.2,intervention_comm_effect = 0, throttle_amount = -0.5, price_change = -0.05, intervention_hours = c(12:15))
+EV_Demand_run1 <- hourly_demand(month = "Nov_18",intervention_comm_effect = 1, throttle_amount = -0.5, price_change = -0.05, intervention_hours = c(12:15))
 #EV_Demand_run1 <- hourly_demand(month = "Jul_18", int_equals_baseline = FALSE, intervention_chargers = 234) #creates a data frame with the output from the function, which is needed to find the emission factors.
 
 ```
@@ -477,7 +466,6 @@ simulation <- function(simulations = 100,
                        sim_int_equals_baseline = int_e_b, 
                        sim_throttle_amount = t_a, 
                        sim_throttle_hours = t_h, 
-                       sim_SDGE_commm_effect = SDGE_c_e, 
                        sim_intervention_comm_effect = i_c_e ) {
   
   intervention_draws <- sample(3:length(Elasticities),simulations,replace = TRUE)
@@ -500,7 +488,6 @@ simulation <- function(simulations = 100,
                           int_equals_baseline = sim_int_equals_baseline, 
                           throttle_amount = sim_throttle_amount,
                           throttle_hours = sim_throttle_hours, 
-                          SDGE_commm_effect = sim_SDGE_commm_effect, 
                           intervention_comm_effect = comm_draws[i])
     
     run_i_EV_Demand <- run_i$EV_Demand %>% 
@@ -537,7 +524,6 @@ WP_C_D_T_TOU_SUmmer_4 <- hourly_demand(segment = "Workplace",
                                        month = "June_18",
                                        price_change = -0.05,
                                        intervention_hours = c(12:15),
-                                       intervention_comm_effect = 0.2, 
                                        throttle_amount = -0.5, 
                                        throttle_hours = c(6:11))
 
@@ -557,8 +543,7 @@ WP_C_D_T_TOU_SUmmer_4 <- hourly_demand(segment = "Workplace",
 MUD_R_C <- hourly_demand(segment = "Multi Unit Dwelling", 
                          month = "June_18", 
                          price_change = 0.1 , 
-                         intervention_hours = c(17:21), 
-                         intervention_comm_effect = 0.2)
+                         intervention_hours = c(17:21))
 
 #-Destination centers: discount + throttling + no comms
 
@@ -566,16 +551,14 @@ DC_D_T_NC <- hourly_demand(segment = "Destination Center",
                            month = "June_18", 
                            intervention_hours = c(12:15),
                            price_change = -0.05, 
-                           throttle_amount = -0.5, throttle_hours = c(6:11), 
-                           intervention_comm_effect = 0)
+                           throttle_amount = -0.5, throttle_hours = c(6:11))
 
 #-Fleets: rebate + communication
 
 F_R_C <-  hourly_demand(segment = "Fleet", 
                         month = "June_18", 
                         intervention_hours = c(17:21), 
-                        price_change = 0.1, 
-                        intervention_comm_effect = 0.2)
+                        price_change = 0.1)
 
 #-Workplaces: Discount + throttling
 
@@ -586,18 +569,14 @@ WP_D_T <- hourly_demand(segment = "Workplace",
                         intervention_hours = c(12:15),
                         price_change = -0.05,
                         throttle_amount = -0.5,
-                        throttle_hours = c(6:11),
-                        SDGE_commm_effect = 0,
-                        intervention_comm_effect = 0)
+                        throttle_hours = c(6:11))
 
 WP_D_R_T <- hourly_demand(segment = "Workplace", 
                         month = "June_18", 
                         intervention_hours = c(12:15, 17:21),
                         price_change = c(rep(-0.05,4),rep(0.1,5)),
                         throttle_amount = -0.5,
-                        throttle_hours = c(6:11),
-                        SDGE_commm_effect = 0,
-                        intervention_comm_effect = 0)
+                        throttle_hours = c(6:11))
 
 ```
 
@@ -817,7 +796,7 @@ freq_graph
 ```{r figures}
 
 #need to stack both demand curves in one data frame for a legend
-EV_Demand_run1 <- hourly_demand(segment = "Workplace", month = "June_18",SDGE_commm_effect = 0,intervention_comm_effect = 0, throttle_amount = 0,throttle_hours = c(6:11), price_change = -0.05, intervention_hours = c(12:15))
+EV_Demand_run1 <- hourly_demand(segment = "Workplace", month = "June_18",intervention_comm_effect = 0, throttle_amount = 0,throttle_hours = c(6:11), price_change = -0.05, intervention_hours = c(12:15))
 
 graph_table <- EV_Demand_run1$EV_Demand[c("Hr","X0","Xf")] %>% 
   gather(condition,value,X0:Xf) %>% 
@@ -880,17 +859,17 @@ Max_theory_table #This shows the theoretical max per market segment (and total) 
 
 ```{r pilot data}
 
-Workplace_chargers <- filter(Chargers, Market_Segment == "Workplace") %>% 
-  select(Jul_18, Jul_18, Aug_18, Sep_18) 
+#Workplace_chargers <- filter(Chargers, Market_Segment == "Workplace") %>% 
+#  select(Jul_18, Jul_18, Aug_18, Sep_18) 
 
-Workplace_Event_Chargers<-filter(Event_Chargers, Market_Segment == "Workplace")
+#Workplace_Event_Chargers<-filter(Event_Chargers, Market_Segment == "Workplace")
 
-WP_Avg_Usage_PerPort<- Workplace_Avg_Usage$Jul_18/Workplace_chargers
-Scale_Jul_11_18 <- WP_Avg_Usage_PerPort*Workplace_Event_Chargers
+#WP_Avg_Usage_PerPort<- Workplace_Avg_Usage$Jul_18/Workplace_chargers
+#Scale_Jul_11_18 <- WP_Avg_Usage_PerPort*Workplace_Event_Chargers
 
-July_WP_Table <- mutate(Scale_Jul_11_18)
+#July_WP_Table <- mutate(Scale_Jul_11_18)
 
-View(WP_Avg_Usage_PerPort)
+#View(WP_Avg_Usage_PerPort)
 
 
 
