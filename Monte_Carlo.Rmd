@@ -56,7 +56,7 @@ F_baseline <- read_csv("Model_Map/Fleet_Avg_Usage.csv")
 
 
 baseline <- bind_rows("Destination Center" = DC_baseline, "Fleet" = F_baseline, "Multi Unit Dwelling" = MUD_baseline,"Workplace" = WP_baseline, .id = "Segment") 
-  
+View(baseline)
 
 Wokplace_Total_Usage <- read_csv("Model_Map/Wokplace_Total_Usage.csv")
 Workplace_Avg_Usage <- read_csv("Model_Map/Workplace_Avg_Usage.csv")
@@ -70,6 +70,12 @@ add_baseline_chargers <- Chargers %>%
   filter(Market_Segment!= "Total") %>% 
   slice(rep(1:n(),each=24))
 
+#WHY REPEAT 24 TIMES?? time doesnt matter here
+
+#Event Usage
+DC_Event_Total_Usage <- read_csv("Model_Map/DC_Event_Total_Usage.csv")
+
+
 #Elasticities with format 9X3 with columns Base_Hr, Changed_Hr, and Elasticity
 #Changed_Hr is the Hour where the price change occurs, Base_Hr is the hour in which demand changes
 Elasticities <- read_csv("SDGE_Elasticities.csv")
@@ -82,14 +88,6 @@ P_SOP_Ratio <- max(price_schedule$P0)/min(price_schedule$P0)
 closest_schedule <- SDGE_P_SOP_Ratios$Rate_Schedule[which.min(abs(SDGE_P_SOP_Ratios$P_SOP_Ratio - P_SOP_Ratio))]
 closest_elasticities <- match(closest_schedule, names(Elasticities))
 #Uses Elasticities of rate schedule with closest ratio
-
-
-June_Sep_chargers <-Chargers %>% 
-  select(Market_Segment, June_18:Aug_18)
-
-June_Sep_baseline <- baseline %>% 
-  select(Segment, Hr,  June_18:Aug_18) %>% 
-  mutate(B_Jun = June_18/June_Sep_chargers$June_18)
 
 
 
@@ -122,7 +120,7 @@ hourly_demand <- function(segment = sg,
                           schedule = sch,
                           price_change = p_c,
                           intervention_hours = i_h, 
-                          intervention_chargers = int_ch,
+                          intervention_chargers = int_ch,#if intervention_chargers is                           ever changed, have to also set int_equals_baseline = FALSE
                           int_equals_baseline = int_e_b, 
                           throttle_amount = t_a,
                           throttle_hours = t_h, 
@@ -157,6 +155,7 @@ baseline_month<- baseline %>%
   filter(Segment == segment) %>% 
   select(month) %>%
   unlist()
+
 
 EV_Demand <- mutate(price_schedule, I01 = 0 ,Xi = baseline_month, X0 = baseline_month/baseline_chargers*intervention_chargers) #340 here comes from the number of chargers installed for the baseline. I01 refers to the hours where there is an intervention. 
 
@@ -578,6 +577,30 @@ WP_D_R_T <- hourly_demand(segment = "Workplace",
                         throttle_amount = -0.5,
                         throttle_hours = c(6:11))
 
+#Scale baseline to July 11,2018 event 
+jul_11_18_event <- Event_Chargers %>% 
+  filter(Market_Segment=="DC") %>% 
+  select(Jul_11_18_LR) %>% 
+  unlist()
+
+Jul_11_18_baseline_usage_scaled <- hourly_demand(price_change = 0, 
+                                                 throttle_amount = 0, 
+                                                 month = "Jul_18", 
+                                                 segment =  "Destination Center", 
+                                                 intervention_chargers = 
+                                                   jul_11_18_event, 
+                                                 int_equals_baseline = FALSE)
+
+#Scale baseline to Nov 14, 2018 event 
+nov_14_18_event <- Event_Chargers %>% 
+  filter(Market_Segment=="Workplace") %>% 
+  select(Nov_14_18_LS) %>% 
+  unlist()
+
+Nov_14_18_baseline_usage_scaled <- hourly_demand(price_change = 0, throttle_amount = 0, month = "Nov_18", segment = "Workplace", intervention_chargers = nov_14_18_event, int_equals_baseline = FALSE)
+
+
+
 ```
 
 ```{r scenario_graphs}
@@ -613,6 +636,7 @@ Potential_Graph1 <- Demand_Graph1 +
   geom_line(aes(y=Theoretical_Max))
 
 Demand_Graph1
+
 #Potential_Graph1
 
 #Scenario 2 UNDER CONSTRUCTION
@@ -768,6 +792,41 @@ Demand_Graph6
 #Potential_Graph6
 
 
+#Scenario 7
+
+July_11_18_Event_Usage <- DC_Event_Total_Usage$Jul_11_18_LR
+Jul_11_18_baseline_usage_scaled$EV_Demand <- Jul_11_18_baseline_usage_scaled$EV_Demand %>% 
+  mutate(Event_Usage = July_11_18_Event_Usage)
+
+graph_table7 <- Jul_11_18_baseline_usage_scaled$EV_Demand[c("Hr","Xf","Event_Usage")] %>% 
+  gather(condition,value,Xf:Event_Usage) %>% 
+  mutate(Theoretical_Max=Jul_11_18_baseline_usage_scaled$EV_Demand$MT[1])
+
+
+Demand_Graph7 <- ggplot(data = graph_table7, aes(x = Hr)) +
+  geom_line(aes(y = value, color=condition)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+  labs(title=" Destination Center Hourly Demand Forecast", 
+       subtitle="Baseline July 2018 Scaled for July 11, 2018 Event Number of Chargers",
+       y="EV Charging Demand (kW)",
+       x="Hour",
+       color=NULL) +
+  scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
+  scale_color_manual(labels=c("Scaled Baseline Demand", "Event Demand"), values = c("blue", "red")) +
+  theme(plot.title = element_text(hjust = 0.5)) + 
+  theme(plot.subtitle = element_text(hjust = 0.5))+
+ theme(legend.position="bottom")
+
+Potential_Graph7 <- Demand_Graph7 +
+  geom_line(aes(y=Theoretical_Max))
+
+Demand_Graph7
+
+
+###Scenario 8
+
+
 ```
 
 
@@ -856,23 +915,4 @@ Max_theory_table #This shows the theoretical max per market segment (and total) 
 
 ```
 
-
-```{r pilot data}
-
-#Workplace_chargers <- filter(Chargers, Market_Segment == "Workplace") %>% 
-#  select(Jul_18, Jul_18, Aug_18, Sep_18) 
-
-#Workplace_Event_Chargers<-filter(Event_Chargers, Market_Segment == "Workplace")
-
-#WP_Avg_Usage_PerPort<- Workplace_Avg_Usage$Jul_18/Workplace_chargers
-#Scale_Jul_11_18 <- WP_Avg_Usage_PerPort*Workplace_Event_Chargers
-
-#July_WP_Table <- mutate(Scale_Jul_11_18)
-
-#View(WP_Avg_Usage_PerPort)
-
-
-
-
-```
 
