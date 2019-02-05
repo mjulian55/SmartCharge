@@ -879,7 +879,7 @@ Potential_Graph7 <- Demand_Graph7 +
 Demand_Graph7
 
 
-###Scenario 8
+###Workplace discount only self (Hour 12)
 
 graph_table8 <- no_cross_results[c("Hr","X0","Xf")] %>% 
   gather(condition,value,X0:Xf) %>% 
@@ -907,8 +907,9 @@ Potential_Graph8 <- Demand_Graph8 +
   geom_line(aes(y=Theoretical_Max))
 
 Demand_Graph8
+ggsave("Self_Only.pdf", device = "pdf", width = 8, height = 4.5)
 
-#Workplace discount only self and cross
+###Workplace discount only self and cross (Hour 12)
 
 graph_table9 <- WP_Cross_D$EV_Demand[c("Hr","X0","Xf")] %>% 
   gather(condition,value,X0:Xf) %>% 
