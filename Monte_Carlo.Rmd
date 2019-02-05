@@ -2,7 +2,10 @@
 title: "Monte Carlo Simulation"
 author: "Danny Ettelson"
 date: "1/21/2019"
-output: html_document
+output:
+  pdf_document: default
+  word_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -772,7 +775,7 @@ Demand_Graph5 <- ggplot(data = graph_table5, aes(x = Hr)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black")) +
   labs(title="Fleet Hourly Demand Forecast", 
-       subtitle="$0.10 Rebate 4 PM - 9 PM \n 20% Communication Effect",
+       subtitle="$0.10 Rebate 4 PM - 9 PM",
        y="EV Charging Demand (kW)",
        x="Hour",
        color=NULL) +
