@@ -59,7 +59,7 @@ F_baseline <- read_csv("Model_Map/Fleet_Avg_Usage.csv")
 
 
 baseline <- bind_rows("Destination Center" = DC_baseline, "Fleet" = F_baseline, "Multi Unit Dwelling" = MUD_baseline,"Workplace" = WP_baseline, .id = "Segment") 
-View(baseline)
+#View(baseline)
 
 Wokplace_Total_Usage <- read_csv("Model_Map/Wokplace_Total_Usage.csv")
 Workplace_Avg_Usage <- read_csv("Model_Map/Workplace_Avg_Usage.csv")
@@ -356,6 +356,7 @@ pk <- c(17:21) #target window to shift out off (this is only used in the output 
 
 #Insert costs ($/kg)
 NOXcost <- 21.93 #$/kg
+CO2cost <-0.05 #$/kg
 Curtailmentcost <- 0.15 #$/MWH This number needs to be sourced and updated! 
 
 #emissions_x <- emission_output(run_x$EV_Demand)
@@ -443,7 +444,10 @@ Emissions_Table <- data.frame(Time= c("intervention hours", "peak period", "othe
 
 #Calculate cost reduction from NOX reduction (only doing it for the change)
 Emissions_Table <- Emissions_Table %>% 
-   mutate(NOXChangeCost = NOXChange*NOXcost) #this is in dollars
+   mutate(NOXChangeCost = NOXChange*NOXcost) %>% #this is in dollars
+  mutate(CO2ChangeCost = CO2Change*CO2cost)
+
+
 
 #Curtailment Cost Reduction
 #sum hours of demand change in target window
@@ -456,6 +460,7 @@ Emissions_Table <- Emissions_Table %>%
 return(list(Emissions=Emissions, Emissions_Table=Emissions_Table))
   
 }
+Emissions_run1 <- emissions_fcn(EVDemand = hourly_demand())
 #Emissions_run1 <- emissions_fcn(EVDemand = hourly_demand(SDGE_commm_effect = 0,intervention_comm_effect = 0, throttle_amount = 0)) #or run as 
 # Emissions_run1 <- emissions_fcn(EV_Demand_run1)
 
