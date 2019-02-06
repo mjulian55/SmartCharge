@@ -450,11 +450,13 @@ Emissions_Table <- Emissions_Table %>%
 
 
 #Curtailment Cost Reduction
-#sum hours of demand change in target window
-Xdelta_i_h <- sum(Emissions$Xdelta[intervention_emission_hours])
-Curtailmentcost_i_h <- Xdelta_i_h*-Curtailmentcost
+#sum hours of demand change in target window and multiply by % assume are solar. 
+CurtailmentReduction <- 0.75*Xdelta_i_h
+Curtailmentcost_i_h <- CurtailmentReduction*-Curtailmentcost
+
 #add to output table
 Emissions_Table <- Emissions_Table %>% 
+  mutate(CurtRed = c(CurtailmentReduction, "NA", "NA", CurtailmentReduction)) %>% 
    mutate(ChangeCurtCost = c(Curtailmentcost_i_h, "NA", "NA", Curtailmentcost_i_h))
 
 return(list(Emissions=Emissions, Emissions_Table=Emissions_Table))
