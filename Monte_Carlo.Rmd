@@ -642,7 +642,17 @@ Nov_14_18_scaled_model_run <- hourly_demand(price_change = -0.05,
                                                  segment =  "Workplace", 
                                                  intervention_chargers = 
                                                    nov_14_18_event, 
-                                                 int_equals_baseline = FALSE)
+                                                 int_equals_baseline = FALSE,
+                                                intervention_comm_effect = 0.5)
+
+Nov_14_18_scaled_model_run_no_throttle <- hourly_demand(price_change = -0.05, 
+                                                 throttle_amount = 0, 
+                                                 month = "Nov_18", 
+                                                 segment =  "Workplace", 
+                                                 intervention_chargers = 
+                                                   nov_14_18_event, 
+                                                 int_equals_baseline = FALSE,
+                                                intervention_comm_effect = 0.5)
 
 
 ```
@@ -681,6 +691,8 @@ Potential_Graph1 <- Demand_Graph1 +
   geom_line(aes(y=Theoretical_Max))
 
 Demand_Graph1
+
+ggsave("Workplace_Result.pdf", Demand_Graph1, device = "pdf", width = 8, height = 4.5)
 
 #Potential_Graph1
 
@@ -779,6 +791,8 @@ Potential_Graph4 <- Demand_Graph4 +
 Demand_Graph4
 #Potential_Graph4
 
+ggsave("Destination_Center__Result.pdf", Demand_Graph4, device = "pdf", width = 8, height = 4.5)
+
 
 #Scenario 5
 #-Fleets: rebate + communication
@@ -861,7 +875,7 @@ Demand_Graph7 <- ggplot(data = graph_table7, aes(x = Hr)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black")) +
   labs(title="Workplace Hourly Demand Forecast", 
-       subtitle="Baseline November 2018 Scaled for November 14th, 2018 Event Number of Chargers \n Modeled $0.05 Discount 11 AM - 3 PM \n Modeled 50% Throttling 6 AM - 11 AM",
+       subtitle="Baseline November 2018 Scaled for November 14th, 2018 Event Number of Chargers \n Modeled $0.05 Discount 11 AM - 3 PM \n Modeled 50% Throttling 6 AM - 11 AM \n Modeled 50% Lesser Communication Effect",
        y="EV Charging Demand (kW)",
        x="Hour",
        color=NULL) +
@@ -891,13 +905,13 @@ Demand_Graph8 <- ggplot(data = graph_table8, aes(x = Hr)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black")) +
   labs(title=" Workplace Hourly Demand Forecast", 
-       subtitle="$0.05 Discount 11 AM - 3 PM \n No Cross Elasticity",
+       subtitle="$0.05 Discount 11 AM - 12 PM \n No Cross Elasticity",
        y="EV Charging Demand (kW)",
        x="Hour",
        color=NULL) +
   scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
   scale_color_manual(labels=c("Baseline Demand","Demand with Intervention"), values = c("blue", "red")) +
-  geom_rect(aes(xmin=11,xmax=15,ymin=-Inf,ymax=Inf, fill = "Discount"),alpha=0.0075) +
+  geom_rect(aes(xmin=11,xmax=12,ymin=-Inf,ymax=Inf, fill = "Discount"),alpha=0.0075) +
   theme(plot.title = element_text(hjust = 0.5)) + 
   theme(plot.subtitle = element_text(hjust = 0.5))+
   theme(legend.position="bottom") +
@@ -939,6 +953,43 @@ Demand_Graph9
 
 ggsave("Self_and_Cross.pdf", device = "pdf", width = 8, height = 4.5)
 #Potential_Graph1
+
+
+#Scenario 10
+#Scale baseline to Nov 14,2018 event no throttling
+
+nov_14_18_Event_Usage <- Workplace_Event_Total_Usage$Nov_14_18_LS
+Nov_14_18_scaled_model_run_no_throttle$EV_Demand <- Nov_14_18_scaled_model_run_no_throttle$EV_Demand %>% 
+  mutate(Event_Usage = nov_14_18_Event_Usage)
+
+graph_table10 <- Nov_14_18_scaled_model_run_no_throttle$EV_Demand[c("Hr","X0","Xf","Event_Usage")] %>% 
+  gather(condition,value,c("X0","Xf","Event_Usage")) %>% 
+  mutate(Theoretical_Max=Nov_14_18_scaled_model_run_no_throttle$EV_Demand$MT[1])
+
+
+Demand_Graph10 <- ggplot(data = graph_table10, aes(x = Hr)) +
+  geom_line(aes(y = value, color=condition)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+  labs(title="Workplace Hourly Demand Forecast", 
+       subtitle="Baseline November 2018 Scaled for November 14th, 2018 Event Number of Chargers \n Modeled $0.05 Discount 11 AM - 3 PM \n Modeled 50% Throttling 6 AM - 11 AM \n Modeled 50% Lesser Communication Effect",
+       y="EV Charging Demand (kW)",
+       x="Hour",
+       color=NULL) +
+  geom_rect(aes(xmin=11,xmax=15,ymin=-Inf,ymax=Inf, fill = "Discount"),alpha=0.0075) +
+  scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
+  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand", "Modeled Demand"), values = c("purple", "blue", "red")) +
+  theme(plot.title = element_text(hjust = 0.5)) + 
+  theme(plot.subtitle = element_text(hjust = 0.5))+
+  theme(legend.position="bottom") +
+  scale_fill_manual('Interventions',values = c('yellow'),  guide = guide_legend(override.aes = list(alpha = 0.15)))
+
+Potential_Graph10 <- Demand_Graph10 +
+  geom_line(aes(y=Theoretical_Max))
+
+Demand_Graph10
+
+
 
 
 ```
