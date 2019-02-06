@@ -59,7 +59,7 @@ F_baseline <- read_csv("Model_Map/Fleet_Avg_Usage.csv")
 
 
 baseline <- bind_rows("Destination Center" = DC_baseline, "Fleet" = F_baseline, "Multi Unit Dwelling" = MUD_baseline,"Workplace" = WP_baseline, .id = "Segment") 
-#View(baseline)
+View(baseline)
 
 Wokplace_Total_Usage <- read_csv("Model_Map/Wokplace_Total_Usage.csv")
 Workplace_Avg_Usage <- read_csv("Model_Map/Workplace_Avg_Usage.csv")
@@ -356,7 +356,6 @@ pk <- c(17:21) #target window to shift out off (this is only used in the output 
 
 #Insert costs ($/kg)
 NOXcost <- 21.93 #$/kg
-CO2cost <-0.05 #$/kg
 Curtailmentcost <- 0.15 #$/MWH This number needs to be sourced and updated! 
 
 #emissions_x <- emission_output(run_x$EV_Demand)
@@ -444,30 +443,22 @@ Emissions_Table <- data.frame(Time= c("intervention hours", "peak period", "othe
 
 #Calculate cost reduction from NOX reduction (only doing it for the change)
 Emissions_Table <- Emissions_Table %>% 
-   mutate(NOXChangeCost = NOXChange*NOXcost) %>% #this is in dollars
-  mutate(CO2ChangeCost = CO2Change*CO2cost)
-
-
+   mutate(NOXChangeCost = NOXChange*NOXcost) #this is in dollars
 
 #Curtailment Cost Reduction
-#sum hours of demand change in target window and multiply by % assume are solar. 
-CurtailmentReduction <- 0.75*Xdelta_i_h
-Curtailmentcost_i_h <- CurtailmentReduction*-Curtailmentcost
-
+#sum hours of demand change in target window
+Xdelta_i_h <- sum(Emissions$Xdelta[intervention_emission_hours])
+Curtailmentcost_i_h <- Xdelta_i_h*-Curtailmentcost
 #add to output table
 Emissions_Table <- Emissions_Table %>% 
-  mutate(CurtRed = c(CurtailmentReduction, "NA", "NA", CurtailmentReduction)) %>% 
    mutate(ChangeCurtCost = c(Curtailmentcost_i_h, "NA", "NA", Curtailmentcost_i_h))
 
 return(list(Emissions=Emissions, Emissions_Table=Emissions_Table))
   
 }
-Emissions_run1 <- emissions_fcn(EVDemand = hourly_demand())
 #Emissions_run1 <- emissions_fcn(EVDemand = hourly_demand(SDGE_commm_effect = 0,intervention_comm_effect = 0, throttle_amount = 0)) #or run as 
-# Emissions_run1 <- emissions_fcn(EV_Demand_run1)
+Emissions_run1 <- emissions_fcn(EV_Demand_run1)
 
-Workplace_run <- emissions_fcn(WP_C_D_T_TOU_SUmmer_4)
-Destination_Centers_Run <- emissions_fcn(DC_D_T_NC)
 ```
 
 
@@ -649,34 +640,49 @@ Jul_11_18_baseline_usage_scaled <- hourly_demand(price_change = 0,
                                                    jul_11_18_event, 
                                                  int_equals_baseline = FALSE)
 
+
 #Run model on scaled baseline
-#Scale baseline to Nov 14, 2018 event 
-
-nov_14_18_event <- Event_Chargers %>% 
-  filter(Market_Segment=="Workplace") %>% 
-  select(Nov_14_18_LS) %>% 
-  unlist()
-
+#Scale baseline to Nov 14, 2018 event
+nov_14_18_event <- Event_Chargers %>%
+filter(Market_Segment=="Workplace") %>%
+select(Nov_14_18_LS) %>%
+unlist()
 
 Nov_14_18_baseline_usage_scaled <- hourly_demand(price_change = 0, throttle_amount = 0, month = "Nov_18", segment = "Workplace", intervention_chargers = nov_14_18_event, int_equals_baseline = FALSE)
 
-Nov_14_18_scaled_model_run <- hourly_demand(price_change = -0.05, 
-                                                 throttle_amount = -0.5, 
-                                                 month = "Nov_18", 
-                                                 segment =  "Workplace", 
-                                                 intervention_chargers = 
-                                                   nov_14_18_event, 
-                                                 int_equals_baseline = FALSE,
-                                                intervention_comm_effect = 0.5)
 
-Nov_14_18_scaled_model_run_no_throttle <- hourly_demand(price_change = -0.05, 
-                                                 throttle_amount = 0, 
-                                                 month = "Nov_18", 
-                                                 segment =  "Workplace", 
-                                                 intervention_chargers = 
-                                                   nov_14_18_event, 
-                                                 int_equals_baseline = FALSE,
-                                                intervention_comm_effect = 0.5)
+Nov_14_18_scaled_model_run <- hourly_demand(price_change = -0.05,
+throttle_amount = -0.5,
+month = "Nov_18",
+segment =  "Workplace",
+intervention_chargers =
+nov_14_18_event,
+int_equals_baseline = FALSE,
+intervention_comm_effect = 1)
+
+
+Nov_14_18_scaled_model_run_comm <- hourly_demand(price_change = -0.05,
+throttle_amount = -0.5,
+month = "Nov_18",
+segment =  "Workplace",
+intervention_chargers =
+nov_14_18_event,
+int_equals_baseline = FALSE,
+intervention_comm_effect = 0.2)
+
+
+Nov_14_18_scaled_model_run$EV_Demand <- Nov_14_18_scaled_model_run$EV_Demand %>%
+mutate(with_comm = Nov_14_18_scaled_model_run_comm$EV_Demand$Xf)
+
+
+Nov_14_18_scaled_model_run_no_throttle <- hourly_demand(price_change = -0.05,
+throttle_amount = 0,
+month = "Nov_18",
+segment =  "Workplace",
+intervention_chargers =
+nov_14_18_event,
+int_equals_baseline = FALSE,
+intervention_comm_effect = 0.5)
 
 
 ```
@@ -1015,6 +1021,144 @@ Potential_Graph10 <- Demand_Graph10 +
   geom_line(aes(y=Theoretical_Max))
 
 Demand_Graph10
+
+#Just Price Change
+
+graph_table11 <- WP_C_D$EV_Demand[c("Hr","X0","Xf")] %>%
+  gather(condition,value,X0:Xf) %>%
+  mutate(Theoretical_Max=WP_C_D$EV_Demand$MT[1])
+
+
+Demand_Graph11 <- ggplot(data = graph_table11, aes(x = Hr)) +
+  geom_line(aes(y = value, color=condition)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+  panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+  labs(title=" Workplace Hourly Demand Forecast",
+  subtitle="$0.05 Discount 11 AM - 3 PM",
+  y="EV Charging Demand (kW)",
+  x="Hour",
+  color=NULL) +
+  scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
+  scale_color_manual(labels=c("Baseline Demand","Demand with Intervention"), values = c("blue", "red")) +
+  geom_rect(aes(xmin=11,xmax=15,ymin=-Inf,ymax=Inf, fill = "Discount"),alpha=0.0075) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(plot.subtitle = element_text(hjust = 0.5))+
+  theme(legend.position="bottom") +
+  scale_fill_manual('Interventions',values = c('green'),  guide = guide_legend(override.aes = list(alpha = 0.15)))
+
+
+Potential_Graph11 <- Demand_Graph11 +
+geom_line(aes(y=Theoretical_Max))
+
+
+Demand_Graph11
+ggsave("Workplace_Result_Just_Price.pdf", Demand_Graph11, device = "pdf", width = 8, height = 4.5)
+
+
+#Price and comm
+
+graph_table12 <- WP_C_D_comm$EV_Demand[c("Hr","X0","Xf")] %>%
+  gather(condition,value,X0:Xf) %>%
+  mutate(Theoretical_Max=WP_C_D_comm$EV_Demand$MT[1])
+
+Demand_Graph12 <- ggplot(data = graph_table12, aes(x = Hr)) +
+  geom_line(aes(y = value, color=condition)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+  panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+  labs(title=" Workplace Hourly Demand Forecast",
+  subtitle="$0.05 Discount 11 AM - 3 PM \n 20% Reduced Communication Effect",
+  y="EV Charging Demand (kW)",
+  x="Hour",
+  color=NULL) +
+  scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
+  scale_color_manual(labels=c("Baseline Demand","Demand with Intervention"), values = c("blue", "red")) +
+  geom_rect(aes(xmin=11,xmax=15,ymin=-Inf,ymax=Inf, fill = "Discount"),alpha=0.0075) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(plot.subtitle = element_text(hjust = 0.5))+
+  theme(legend.position="bottom") +
+  scale_fill_manual('Interventions',values = c('green'),  guide = guide_legend(override.aes = list(alpha = 0.15)))
+
+
+Potential_Graph12 <- Demand_Graph12 +
+geom_line(aes(y=Theoretical_Max))
+
+
+Demand_Graph12
+
+ggsave("Workplace_Result_with_comm.pdf", Demand_Graph12, device = "pdf", width = 8, height = 4.5)
+
+
+#baseline and event usage
+
+nov_14_18_Event_Usage <- Workplace_Event_Total_Usage$Nov_14_18_LS
+
+Nov_14_18_scaled_model_run$EV_Demand <- Nov_14_18_scaled_model_run$EV_Demand %>%
+  mutate(Event_Usage = nov_14_18_Event_Usage)
+
+
+graph_table13 <- Nov_14_18_scaled_model_run$EV_Demand[c("Hr","X0","Event_Usage")] %>%
+  gather(condition,value,c("X0","Event_Usage")) %>%
+  mutate(Theoretical_Max=Nov_14_18_scaled_model_run$EV_Demand$MT[1])
+
+
+Demand_Graph13 <- ggplot(data = graph_table13, aes(x = Hr)) +
+  geom_line(aes(y = value, color=condition)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+  panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+  labs(title="Workplace Hourly Demand Forecast",
+  subtitle="Baseline November 2018 Scaled for November 14th, 2018 Event Number of Chargers \n Event Usage November 14th, 2018 Event",
+  y="EV Charging Demand (kW)",
+  x="Hour",
+  color=NULL) +
+  geom_rect(aes(xmin=6,xmax=11,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
+  geom_rect(aes(xmin=11,xmax=15,ymin=-Inf,ymax=Inf, fill = "Discount"),alpha=0.0075) +
+  scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
+  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("purple", "blue")) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(plot.subtitle = element_text(hjust = 0.5))+
+  theme(legend.position="bottom") +
+  scale_fill_manual('Interventions',values = c('green','yellow'),  guide = guide_legend(override.aes = list(alpha = 0.15)))
+  
+
+Potential_Graph13 <- Demand_Graph13 +
+geom_line(aes(y=Theoretical_Max))
+
+Demand_Graph13
+
+ggsave("Event_Usage.pdf", Demand_Graph13, device = "pdf", width = 8, height = 4.5)
+
+
+#Baseline and model with comm
+
+graph_table14 <- Nov_14_18_scaled_model_run$EV_Demand[c("Hr","X0","with_comm")] %>%
+  gather(condition,value,c("X0","with_comm")) %>%
+  mutate(Theoretical_Max=Nov_14_18_scaled_model_run$EV_Demand$MT[1])
+
+
+
+Demand_Graph14 <- ggplot(data = graph_table14, aes(x = Hr)) +
+  geom_line(aes(y = value, color=condition)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+  panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+  labs(title="Workplace Hourly Demand Forecast",
+  subtitle="Baseline November 2018 Scaled for November 14th, 2018 Event Number of Chargers \n Modeled $0.05 Discount 11 AM - 3 PM \n Modeled 50% Communication 6 AM - 11 AM \n 80% Reduced Communication Effect",
+  y="EV Charging Demand (kW)",
+  x="Hour",
+  color=NULL) +
+  geom_rect(aes(xmin=6,xmax=11,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
+  geom_rect(aes(xmin=11,xmax=15,ymin=-Inf,ymax=Inf, fill = "Discount"),alpha=0.0075) +
+  scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
+  scale_color_manual(labels=c("Scaled Baseline Demand","Modeled Demand"), values = c("orange", "blue")) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(plot.subtitle = element_text(hjust = 0.5))+
+  theme(legend.position="bottom") +
+  scale_fill_manual('Interventions',values = c('green','yellow'),  guide = guide_legend(override.aes = list(alpha = 0.15)))
+
+
+Demand_Graph14
+
+ggsave("Model_0.2_comm.pdf", Demand_Graph14, device = "pdf", width = 8, height = 4.5)
+
 
 
 
