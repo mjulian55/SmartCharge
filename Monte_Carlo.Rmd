@@ -629,7 +629,7 @@ F_R_C <-  hourly_demand(segment = "Fleet",
 
 
 WP_D_T <- hourly_demand(segment = "Workplace", 
-                        month = "June_18", 
+                        month = "Nov_18", 
                         intervention_hours = c(12:15),
                         price_change = -0.05,
                         throttle_amount = -0.5,
@@ -728,7 +728,7 @@ Demand_Graph1 <- ggplot(data = graph_table1, aes(x = Hr)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black")) +
   labs(title=" Workplace Hourly Demand Forecast", 
-       subtitle="$0.05 Discount 11 AM - 3 PM \n 50% Throttling 6 AM - 11 AM \n 20% Communication Effect",
+       subtitle="$0.05 Discount 11 AM - 3 PM \n 50% Throttling 6 AM - 11 AM \n 80% Reduced Communication Effect",
        y="EV Charging Demand (kW)",
        x="Hour",
        color=NULL) +
@@ -880,9 +880,9 @@ Demand_Graph5
 #Potential_Graph5
 
 #Scenario 6
-#-Workplaces: Discount + throttling
+#-Workplaces: Discount + throttling 
 
-graph_table6 <- WP_D_T$EV_Demand[c("Hr","X0","Xf")] %>% 
+graph_table6 <-WP_D_T$EV_Demand[c("Hr","X0","Xf")] %>% 
   gather(condition,value,X0:Xf) %>% 
   mutate(Theoretical_Max=WP_D_T$EV_Demand$MT[1])
 
@@ -1114,7 +1114,7 @@ Demand_Graph12
 ggsave("Workplace_Result_with_comm.pdf", Demand_Graph12, device = "pdf", width = 8, height = 4.5)
 
 
-#baseline and event usage
+#Scaled Baseline and Nov 14 event usage
 
 nov_14_18_Event_Usage <- Workplace_Event_Total_Usage$Nov_14_18_LS
 
@@ -1154,7 +1154,7 @@ Demand_Graph13
 ggsave("Event_Usage.pdf", Demand_Graph13, device = "pdf", width = 8, height = 4.5)
 
 
-#Baseline and model with comm
+#Baseline and model with comm SCALED
 
 graph_table14 <- Nov_14_18_scaled_model_run$EV_Demand[c("Hr","X0","with_comm")] %>%
   gather(condition,value,c("X0","with_comm")) %>%
@@ -1167,7 +1167,7 @@ Demand_Graph14 <- ggplot(data = graph_table14, aes(x = Hr)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
   panel.background = element_blank(), axis.line = element_line(colour = "black")) +
   labs(title="Workplace Hourly Demand Forecast",
-  subtitle="$0.05 Discount 11 AM - 3 PM \n 50% Communication 6 AM - 11 AM \n 80% Reduced Communication Effect",
+  subtitle="Baseline November 2018 Scaled for November 14th, 2018 Event Number of Chargers \n Modeled $0.05 Discount 11 AM - 3 PM \n Modeled 50% Communication 6 AM - 11 AM \n 80% Reduced Communication Effect",
   y="EV Charging Demand (kW)",
   x="Hour",
   color=NULL) +
