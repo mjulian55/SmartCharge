@@ -357,6 +357,7 @@ pk <- c(17:21) #target window to shift out off (this is only used in the output 
 #Insert costs ($/kg)
 NOXcost <- 21.93 #$/kg
 Curtailmentcost <- 0.15 #$/MWH This number needs to be sourced and updated! 
+CO2cost <-0.05 #$/kg
 
 #emissions_x <- emission_output(run_x$EV_Demand)
 # emissions_x<- emission_output(hourly_demand()) 
@@ -443,12 +444,12 @@ Emissions_Table <- data.frame(Time= c("intervention hours", "peak period", "othe
 
 #Calculate cost reduction from NOX reduction (only doing it for the change)
 Emissions_Table <- Emissions_Table %>% 
-   mutate(NOXChangeCost = NOXChange*NOXcost) #this is in dollars
-
+  mutate(NOXChangeCost = NOXChange*NOXcost) %>% #this is in dollars
+  mutate(CO2ChangeCost = CO2Change*CO2cost)
+ 
 #Curtailment Cost Reduction
 #sum hours of demand change in target window
-Xdelta_i_h <- sum(Emissions$Xdelta[intervention_emission_hours])
-Curtailmentcost_i_h <- Xdelta_i_h*-Curtailmentcost
+Curtailmentcost_i_h <- Xdelta_i_h*0.75*-Curtailmentcost
 #add to output table
 Emissions_Table <- Emissions_Table %>% 
    mutate(ChangeCurtCost = c(Curtailmentcost_i_h, "NA", "NA", Curtailmentcost_i_h))
@@ -458,6 +459,9 @@ return(list(Emissions=Emissions, Emissions_Table=Emissions_Table))
 }
 #Emissions_run1 <- emissions_fcn(EVDemand = hourly_demand(SDGE_commm_effect = 0,intervention_comm_effect = 0, throttle_amount = 0)) #or run as 
 Emissions_run1 <- emissions_fcn(EV_Demand_run1)
+
+#Workplace_run <- emissions_fcn(WP_C_D_T_TOU_SUmmer_4)
+#Destination_Centers_Run <- emissions_fcn(DC_D_T_NC)
 
 ```
 
