@@ -1092,7 +1092,7 @@ Demand_Graph12 <- ggplot(data = graph_table12, aes(x = Hr)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
   panel.background = element_blank(), axis.line = element_line(colour = "black")) +
   labs(title=" Workplace Hourly Demand Forecast",
-  subtitle="$0.05 Discount 11 AM - 3 PM \n 20% Communication Effect",
+  subtitle="$0.05 Discount 11 AM - 3 PM \n 80% Reduced Communication Effect",
   y="EV Charging Demand (kW)",
   x="Hour",
   color=NULL) +
