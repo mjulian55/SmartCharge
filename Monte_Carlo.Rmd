@@ -19,7 +19,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(dplyr)
 library(RColorBrewer)
-
+library(lubridate)
 
 #LOAD DATA
 #Price Schedule
@@ -63,6 +63,17 @@ baseline <- bind_rows("Destination Center" = DC_baseline, "Fleet" = F_baseline, 
 
 Wokplace_Total_Usage <- read_csv("Model_Map/Wokplace_Total_Usage.csv")
 Workplace_Avg_Usage <- read_csv("Model_Map/Workplace_Avg_Usage.csv")
+
+Workplace_Daily_Usage <- read_csv("Workplace_Daily_Usage.csv")
+Workplace_Daily_Usage$Date <- as.Date(Workplace_Daily_Usage$Date, "%m/%d/%Y")
+Workplace_Daily_Usage <- Workplace_Daily_Usage %>% 
+  mutate(weekday = wday(Date, label=TRUE), month = month(Date,label = TRUE), Year = year(Date))
+
+  
+Workplace_Weekday_Usage <- Workplace_Daily_Usage %>% 
+  filter(!wday(Date) %in% c(1, 7) & month(Date) == 11 & year(Date) == 2018 )
+
+Workplace_Weekday_Average <- apply(select(Workplace_Weekday_Usage, '1':'24'),2,mean)
 
 # Number of Chargers by Segment
 #chargers <- read_csv("Model_Map/Chargers_Installed_03-18.csv")
@@ -538,7 +549,7 @@ sim1 <- simulation(sim_intervention_comm_effect = 0)
 no_cross_discount <- hourly_demand(segment = "Workplace", 
                                        month = "Nov_18",
                                        price_change = -0.05,
-                                       intervention_hours = c(12),
+                                       intervention_hours = c(12:15),
                                        throttle_amount = 0, 
                                        throttle_hours = c(6:11))
 #write_csv(no_cross_discount$EV_Demand, "WP_Discount_No_Cross_Nov_18.csv")
@@ -549,7 +560,7 @@ no_cross_results <- read_csv("WP_Discount_No_Cross_Nov_18.csv")
 WP_Cross_D <- hourly_demand(segment = "Workplace", 
                                        month = "Nov_18",
                                        price_change = -0.05,
-                                       intervention_hours = c(12),
+                                       intervention_hours = c(12:15),
                                        throttle_amount = 0)
 
 
@@ -566,7 +577,8 @@ WP_C_D_comm <- hourly_demand(segment = "Workplace",
                                        month = "Nov_18",
                                        price_change = -0.05,
                                        intervention_hours = c(12:15),
-                                       throttle_amount = 0)
+                                       throttle_amount = 0,
+                                       intervention_comm_effect = 0.2)
 
 
 #-Workplaces: Communication + Discount + Throttling on current TOU rate
@@ -576,7 +588,8 @@ WP_C_D_T_TOU_SUmmer_4 <- hourly_demand(segment = "Workplace",
                                        price_change = -0.05,
                                        intervention_hours = c(12:15),
                                        throttle_amount = -0.5, 
-                                       throttle_hours = c(6:11))
+                                       throttle_hours = c(6:11),
+                                       intervention_comm_effect = 0.2)
 
 
 #-Workplaces: TOU 2019
@@ -692,6 +705,13 @@ intervention_comm_effect = 0.5)
 ```
 
 ```{r scenario_graphs}
+
+test <- data.frame(Hr = WP_C_D_T_TOU_SUmmer_4$EV_Demand$Hr,Weekend_inc = baseline$Nov_18[73:96],Weekday = Workplace_Weekday_Average )
+
+ggplot(test, aes(x = Hr)) +
+  geom_line(aes(y = Weekend_inc), color = "red") +
+  geom_line(aes(y = Weekday), color = "blue") +
+  theme_classic()
 
 
 #Scenario 1
@@ -939,18 +959,19 @@ Demand_Graph8 <- ggplot(data = graph_table8, aes(x = Hr)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black")) +
   labs(title=" Workplace Hourly Demand Forecast", 
-       subtitle="$0.05 Discount 11 AM - 12 PM \n No Cross Elasticity",
+       subtitle="$0.05 Discount 11 AM - 3 PM \n No Cross Elasticity",
        y="EV Charging Demand (kW)",
        x="Hour",
        color=NULL) +
   scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
-  scale_color_manual(labels=c("Demand with Intervention","Baseline Demand"), values = c("red","blue")) +
-  scale_linetype_manual(labels=c("Demand with Intervention","Baseline Demand"), values = c("solid","dashed")) +
+  scale_color_manual(name = " ",labels=c("Baseline Demand","Demand with Intervention"), values = c("blue","red")) +
+  scale_linetype_manual(name = " ",labels=c("Baseline Demand","Demand with Intervention"), values = c("solid","dashed")) +
   #scale_size_manual(labels=c("Baseline Demand","Demand with Intervention"), values = c(0.75,0.5)) +
   theme(plot.title = element_text(hjust = 0.5)) + 
   theme(plot.subtitle = element_text(hjust = 0.5))+
   theme(legend.position="bottom") +
-  scale_fill_manual('Interventions',values = c('yellow'),  guide = guide_legend(override.aes = list(alpha = 0.15)))
+  geom_rect(aes(xmin=11,xmax=15,ymin=-Inf,ymax=Inf, fill = "Discount"),alpha=0.0075) +
+  scale_fill_manual('Interventions',values = c('green'),  guide = guide_legend(override.aes = list(alpha = 0.15)))
 
 Potential_Graph8 <- Demand_Graph8 +
   geom_line(aes(y=Theoretical_Max))
@@ -970,18 +991,19 @@ Demand_Graph9 <- ggplot(data = graph_table9, aes(x = Hr)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black")) +
   labs(title=" Workplace Hourly Demand Forecast", 
-       subtitle="$0.05 Discount 11 AM - 12 PM \n No Cross Elasticity",
+       subtitle="$0.05 Discount 11 AM - 3 PM \n Self and Cross Elasticity",
        y="EV Charging Demand (kW)",
        x="Hour",
        color=NULL) +
   scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
-  scale_color_manual(labels=c("Demand with Intervention","Baseline Demand"), values = c("red","blue")) +
-  scale_linetype_manual(labels=c("Demand with Intervention","Baseline Demand"), values = c("solid","dashed")) +
+  scale_color_manual(name = " ",labels=c("Baseline Demand","Demand with Intervention"), values = c("blue","red")) +
+  scale_linetype_manual(name = " ",labels=c("Baseline Demand","Demand with Intervention"), values = c("solid","dashed")) +
   #scale_size_manual(labels=c("Baseline Demand","Demand with Intervention"), values = c(0.75,0.5)) +
   theme(plot.title = element_text(hjust = 0.5)) + 
   theme(plot.subtitle = element_text(hjust = 0.5))+
   theme(legend.position="bottom") +
-  scale_fill_manual('Interventions',values = c('yellow'),  guide = guide_legend(override.aes = list(alpha = 0.15)))
+  geom_rect(aes(xmin=11,xmax=15,ymin=-Inf,ymax=Inf, fill = "Discount"),alpha=0.0075) +
+  scale_fill_manual('Interventions',values = c('green'),  guide = guide_legend(override.aes = list(alpha = 0.15)))
 
 Potential_Graph9 <- Demand_Graph9 +
   geom_line(aes(y=Theoretical_Max))
@@ -1070,7 +1092,7 @@ Demand_Graph12 <- ggplot(data = graph_table12, aes(x = Hr)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
   panel.background = element_blank(), axis.line = element_line(colour = "black")) +
   labs(title=" Workplace Hourly Demand Forecast",
-  subtitle="$0.05 Discount 11 AM - 3 PM \n 20% Reduced Communication Effect",
+  subtitle="$0.05 Discount 11 AM - 3 PM \n 20% Communication Effect",
   y="EV Charging Demand (kW)",
   x="Hour",
   color=NULL) +
