@@ -1167,14 +1167,14 @@ Demand_Graph14 <- ggplot(data = graph_table14, aes(x = Hr)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
   panel.background = element_blank(), axis.line = element_line(colour = "black")) +
   labs(title="Workplace Hourly Demand Forecast",
-  subtitle="Baseline November 2018 Scaled for November 14th, 2018 Event Number of Chargers \n Modeled $0.05 Discount 11 AM - 3 PM \n Modeled 50% Communication 6 AM - 11 AM \n 80% Reduced Communication Effect",
+  subtitle="$0.05 Discount 11 AM - 3 PM \n 50% Communication 6 AM - 11 AM \n 80% Reduced Communication Effect",
   y="EV Charging Demand (kW)",
   x="Hour",
   color=NULL) +
   geom_rect(aes(xmin=6,xmax=11,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
   geom_rect(aes(xmin=11,xmax=15,ymin=-Inf,ymax=Inf, fill = "Discount"),alpha=0.0075) +
   scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
-  scale_color_manual(labels=c("Scaled Baseline Demand","Modeled Demand"), values = c("orange", "blue")) +
+  scale_color_manual(labels=c("Modeled Demand", "Scaled Baseline Demand"), values = c( "orange","blue")) +
   theme(plot.title = element_text(hjust = 0.5)) +
   theme(plot.subtitle = element_text(hjust = 0.5))+
   theme(legend.position="bottom") +
