@@ -377,8 +377,13 @@ CO2cost <-0.05 #$/kg
 #}
 
 emissions_fcn <- function(EVDemand, peak_hours = pk) {
+
 #Create Date Frame for Emissions Outputs
-Emissions <- Hourly_EF %>% 
+Emissions <- data.frame(Hr = c(1:24)) %>% 
+  mutate(CO2Baseline=Hourly_EF$CO2Baseline2018) %>% 
+  mutate(CO2Marginal=Hourly_EF$CO2Marginal2018_gas) %>% 
+  mutate(NOXBaseline=Hourly_EF$NOXBaseline2018) %>% 
+  mutate(NOXMarginal=Hourly_EF$NOXMarginal2018_gas) %>% #want to change this so it selects the baseline and marginal based on year input and the gas/no gas scenario automatically in the function
   mutate(I01 = EVDemand$EV_Demand$I01) %>% 
   mutate(Xi = EVDemand$EV_Demand$Xi) %>% # column for initial demand at each hour not scaled
   mutate(X0 = EVDemand$EV_Demand$X0) %>% # column for initial demand at each hour scaled by chargers
@@ -471,8 +476,8 @@ return(list(Emissions=Emissions, Emissions_Table=Emissions_Table))
 #Emissions_run1 <- emissions_fcn(EVDemand = hourly_demand(SDGE_commm_effect = 0,intervention_comm_effect = 0, throttle_amount = 0)) #or run as 
 Emissions_run1 <- emissions_fcn(EV_Demand_run1)
 
-Workplace_run <- emissions_fcn(WP_C_D_T_TOU_SUmmer_4)
-Destination_Centers_Run <- emissions_fcn(DC_D_T_NC)
+#Workplace_run <- emissions_fcn(WP_C_D_T_TOU_SUmmer_4)
+#Destination_Centers_Run <- emissions_fcn(DC_D_T_NC)
 
 ```
 
