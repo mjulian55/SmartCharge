@@ -911,6 +911,9 @@ Potential_Graph6 <- Demand_Graph6 +
 Demand_Graph6
 #Potential_Graph6
 
+ggsave("Workplace_Result_no_comm.pdf", device = "pdf", width = 8, height = 4.5)
+
+
 
 #Scenario 7
 #Scale baseline to Nov 14,2018 event 
