@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 
 
-###Southern Edison Charge Ready Market Segments
+###Southern Edison Charge Ready Pilot Market Segments
 MUD: Multi-Unit Dwelling
 DC: Destination Center
 WP: Workplace
@@ -30,4 +30,23 @@ SOP: Super Off Peak
 
 #Model Map
 
-###This folder holds Time of Use (TOU) rate schedules, a list of the number of chargers for all market segments, baseline average and total usage for all four, Southern California Edison Charge Ready Pilot market segments, average and total event usage for all four market segments, graphs of fleet av
+###This folder contains the following files:
+-Time of Use (TOU) rate schedules
+-A list of the number of chargers for all market segments
+-Baseline average and total usage for all four SCE Charge Ready Pilot market segments 
+-Baseline average and total *event* usage for all four SCE Charge Ready Pilot market segments
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -59,7 +59,7 @@ F_baseline <- read_csv("Model_Map/Fleet_Avg_Usage.csv")
 
 
 baseline <- bind_rows("Destination Center" = DC_baseline, "Fleet" = F_baseline, "Multi Unit Dwelling" = MUD_baseline,"Workplace" = WP_baseline, .id = "Segment") 
-View(baseline)
+#View(baseline)
 
 Wokplace_Total_Usage <- read_csv("Model_Map/Wokplace_Total_Usage.csv")
 Workplace_Avg_Usage <- read_csv("Model_Map/Workplace_Avg_Usage.csv")
@@ -363,7 +363,7 @@ Hourly_EF <- read_csv("Hrly_EF.csv")
 # Current hourly EF csv is fake. Numbers will be in lbs/kwh for both CO2 and NOX.
 
 #Load default periods (intervention hour is set above); decide if moving these defaults above
-pk <- c(17:21) #target window to shift out off (this is only used in the output calculations below, not for the function)
+pk <- c(18:21) #target window to shift out off (this is only used in the output calculations below, not for the function)
 
 #Insert costs ($/kg)
 NOXcost <- 21.93 #$/kg
@@ -377,8 +377,13 @@ CO2cost <-0.05 #$/kg
 #}
 
 emissions_fcn <- function(EVDemand, peak_hours = pk) {
+
 #Create Date Frame for Emissions Outputs
-Emissions <- Hourly_EF %>% 
+Emissions <- data.frame(Hr = c(1:24)) %>% 
+  mutate(CO2Baseline=Hourly_EF$CO2Baseline2018) %>% 
+  mutate(CO2Marginal=Hourly_EF$CO2Marginal2018_gas) %>% 
+  mutate(NOXBaseline=Hourly_EF$NOXBaseline2018) %>% 
+  mutate(NOXMarginal=Hourly_EF$NOXMarginal2018_gas) %>% #want to change this so it selects the baseline and marginal based on year input and the gas/no gas scenario automatically in the function
   mutate(I01 = EVDemand$EV_Demand$I01) %>% 
   mutate(Xi = EVDemand$EV_Demand$Xi) %>% # column for initial demand at each hour not scaled
   mutate(X0 = EVDemand$EV_Demand$X0) %>% # column for initial demand at each hour scaled by chargers
@@ -629,7 +634,7 @@ F_R_C <-  hourly_demand(segment = "Fleet",
 
 
 WP_D_T <- hourly_demand(segment = "Workplace", 
-                        month = "June_18", 
+                        month = "Nov_18", 
                         intervention_hours = c(12:15),
                         price_change = -0.05,
                         throttle_amount = -0.5,
@@ -728,7 +733,7 @@ Demand_Graph1 <- ggplot(data = graph_table1, aes(x = Hr)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black")) +
   labs(title=" Workplace Hourly Demand Forecast", 
-       subtitle="$0.05 Discount 11 AM - 3 PM \n 50% Throttling 6 AM - 11 AM \n 20% Communication Effect",
+       subtitle="$0.05 Discount 11 AM - 3 PM \n 50% Throttling 6 AM - 11 AM \n 80% Reduced Communication Effect",
        y="EV Charging Demand (kW)",
        x="Hour",
        color=NULL) +
@@ -880,9 +885,9 @@ Demand_Graph5
 #Potential_Graph5
 
 #Scenario 6
-#-Workplaces: Discount + throttling
+#-Workplaces: Discount + throttling 
 
-graph_table6 <- WP_D_T$EV_Demand[c("Hr","X0","Xf")] %>% 
+graph_table6 <-WP_D_T$EV_Demand[c("Hr","X0","Xf")] %>% 
   gather(condition,value,X0:Xf) %>% 
   mutate(Theoretical_Max=WP_D_T$EV_Demand$MT[1])
 
@@ -910,6 +915,9 @@ Potential_Graph6 <- Demand_Graph6 +
 
 Demand_Graph6
 #Potential_Graph6
+
+ggsave("Workplace_Result_no_comm.pdf", device = "pdf", width = 8, height = 4.5)
+
 
 
 #Scenario 7
@@ -1092,7 +1100,7 @@ Demand_Graph12 <- ggplot(data = graph_table12, aes(x = Hr)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
   panel.background = element_blank(), axis.line = element_line(colour = "black")) +
   labs(title=" Workplace Hourly Demand Forecast",
-  subtitle="$0.05 Discount 11 AM - 3 PM \n 20% Communication Effect",
+  subtitle="$0.05 Discount 11 AM - 3 PM \n 80% Reduced Communication Effect",
   y="EV Charging Demand (kW)",
   x="Hour",
   color=NULL) +
@@ -1114,7 +1122,7 @@ Demand_Graph12
 ggsave("Workplace_Result_with_comm.pdf", Demand_Graph12, device = "pdf", width = 8, height = 4.5)
 
 
-#baseline and event usage
+#Scaled Baseline and Nov 14 event usage
 
 nov_14_18_Event_Usage <- Workplace_Event_Total_Usage$Nov_14_18_LS
 
@@ -1154,7 +1162,7 @@ Demand_Graph13
 ggsave("Event_Usage.pdf", Demand_Graph13, device = "pdf", width = 8, height = 4.5)
 
 
-#Baseline and model with comm
+#Baseline and model with comm SCALED
 
 graph_table14 <- Nov_14_18_scaled_model_run$EV_Demand[c("Hr","X0","with_comm")] %>%
   gather(condition,value,c("X0","with_comm")) %>%
@@ -1174,7 +1182,7 @@ Demand_Graph14 <- ggplot(data = graph_table14, aes(x = Hr)) +
   geom_rect(aes(xmin=6,xmax=11,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
   geom_rect(aes(xmin=11,xmax=15,ymin=-Inf,ymax=Inf, fill = "Discount"),alpha=0.0075) +
   scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
-  scale_color_manual(labels=c("Scaled Baseline Demand","Modeled Demand"), values = c("orange", "blue")) +
+  scale_color_manual(labels=c("Modeled Demand", "Scaled Baseline Demand"), values = c( "orange","blue")) +
   theme(plot.title = element_text(hjust = 0.5)) +
   theme(plot.subtitle = element_text(hjust = 0.5))+
   theme(legend.position="bottom") +
