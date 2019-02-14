@@ -12,6 +12,12 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+
+
+CONTEXT
+
+
+
 ```{r loadlib, message= FALSE, warning= FALSE}
 
 
@@ -49,7 +55,10 @@ price_schedule <- read_csv("Model_Map/2018_Summer_TOU_EV_4.csv")
 #read_csv("Model_Map/2019_Winter_TOU_EV_8.csv")
 
 
-#Baseline Usage
+
+
+
+#BASELINE USAGE
 #baseline <- read_csv("Model_Map/03-18_WP_Avg.csv")
 
 DC_baseline <- read_csv("Model_Map/DC_Avg_Usage.csv")
@@ -59,7 +68,7 @@ F_baseline <- read_csv("Model_Map/Fleet_Avg_Usage.csv")
 
 
 baseline <- bind_rows("Destination Center" = DC_baseline, "Fleet" = F_baseline, "Multi Unit Dwelling" = MUD_baseline,"Workplace" = WP_baseline, .id = "Segment") 
-#View(baseline)
+
 
 Wokplace_Total_Usage <- read_csv("Model_Map/Wokplace_Total_Usage.csv")
 Workplace_Avg_Usage <- read_csv("Model_Map/Workplace_Avg_Usage.csv")
@@ -75,7 +84,11 @@ Workplace_Weekday_Usage <- Workplace_Daily_Usage %>%
 
 Workplace_Weekday_Average <- apply(select(Workplace_Weekday_Usage, '1':'24'),2,mean)
 
-# Number of Chargers by Segment
+
+
+
+# NUMBER OF CHARGERS BY SEGMENT
+
 #chargers <- read_csv("Model_Map/Chargers_Installed_03-18.csv")
 Chargers <- read_csv("Model_Map/Chargers.csv")
 Event_Chargers <- read_csv("Model_Map/Event_Chargers.csv")
@@ -84,19 +97,33 @@ add_baseline_chargers <- Chargers %>%
   filter(Market_Segment!= "Total") %>% 
   slice(rep(1:n(),each=24))
 
-#WHY REPEAT 24 TIMES?? time doesnt matter here
 
-#Event Usage
+
+
+
+
+#EVENT USAGE
+
 DC_Event_Total_Usage <- read_csv("Model_Map/DC_Event_Total_Usage.csv")
+
 Workplace_Event_Total_Usage <- read_csv("Model_Map/Workplace_Event_Total_Usage.csv")
 
-#Elasticities with format 9X3 with columns Base_Hr, Changed_Hr, and Elasticity
+
+
+
+
+#ELASTICITIES with format 9X3 with columns Base_Hr, Changed_Hr, and Elasticity
+
 #Changed_Hr is the Hour where the price change occurs, Base_Hr is the hour in which demand changes
+
 Elasticities <- read_csv("SDGE_Elasticities.csv")
 SDGE_P_SOP_Ratios <- read_csv("SDGE_P_SOP_Ratios.csv")
 
 
-#Ratio for selecting Default Elasticities
+
+
+#RATIO for selecting Default Elasticities
+
 P_SOP_Ratio <- max(price_schedule$P0)/min(price_schedule$P0)
 #Matches our closest Ratio to Inputted Ratio
 closest_schedule <- SDGE_P_SOP_Ratios$Rate_Schedule[which.min(abs(SDGE_P_SOP_Ratios$P_SOP_Ratio - P_SOP_Ratio))]
@@ -107,10 +134,19 @@ closest_elasticities <- match(closest_schedule, names(Elasticities))
 
 ```
 
+
+
+
+FUNCTION
+
+
+
 ```{r function}
 
-#Set variables and values
+#SET VARIABLES AND VALUES
+
 #All defaults are set to MARCH 2018 WORKPLACE
+
 p_c <- -0.05 #price change
 i_h <- c(12:15) #intervention hours
 t_a <- 0 #throttling amount
@@ -144,6 +180,7 @@ hourly_demand <- function(segment = sg,
   
   #This section puts the Hr, initial price (P0), period, initial unscaled load (Xi), and scaled load (XO) into EV_Demand
   
+
   #Price Schedule is read in above
 
 # Elasticity 
@@ -153,7 +190,7 @@ colnames(chosen_elasticities) <- c("Base_Hr","Changed_Hr","Elasticity")
 
 #price_schedule$period <- factor(price_schedule$period, levels = c("P","MP","OP"))
 
-#Baseline
+  ##Baseline
 
 #filter the number of chargers by market segment and month, change to numeric (have to set the month and segment otherwise it will take the default, workplace and March 2018)
 baseline_chargers <-filter(Chargers, Market_Segment == segment) %>% 
@@ -176,6 +213,7 @@ EV_Demand <- mutate(price_schedule, I01 = 0 ,Xi = baseline_month, X0 = baseline_
 EV_Demand$I01[intervention_hours] <-1
 
 
+  
   #MAX_THEORETICAL#### 
 #Theoretical max is based on the current number of chargers in the SCE Charge Ready pilot program, multiplied by the average power rating of Level 2 EV chargers (6.6 kW), multiplied by 1 hour.  This gives us the total number of kWh for each hour that could be achieved if every charger were utilized during the target load shift window of 11 AM - 3 PM.
 
@@ -356,6 +394,13 @@ EV_Demand_run1 <- hourly_demand(month = "Nov_18",intervention_comm_effect = 1, t
 
 ```
 
+
+
+
+EMISSIONS OUTPUTS
+
+
+
 ```{r emissions_outputs}
 
 #Load Emissions Factors
@@ -482,6 +527,13 @@ Emissions_run1 <- emissions_fcn(EV_Demand_run1)
 ```
 
 
+
+
+SIMULATION
+
+
+
+
 ```{r simulation}
 
 
@@ -544,6 +596,12 @@ sim1 <- simulation(sim_intervention_comm_effect = 0)
 
 
 ```
+
+
+
+SCENARIOS
+
+
 
 
 ```{r scenarios}
