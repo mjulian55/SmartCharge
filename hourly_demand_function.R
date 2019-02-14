@@ -13,25 +13,25 @@ price_schedule <- read_csv("Model_Map/2018_Summer_TOU_EV_4.csv")
 #Price Schedule Options (All in Model_Map Folder)
 
 #2018 Summer 3
-#read_csv("Model_Map/2018_Summer_TOU_EV_3.csv")
+read_csv("Model_Map/2018_Summer_TOU_EV_3.csv")
 
 #2018 Summer 4
-#read_csv("Model_Map/2018_Summer_TOU_EV_4.csv")
+read_csv("Model_Map/2018_Summer_TOU_EV_4.csv")
 
 #2018 Winter 3
-#read_csv("Model_Map/2018_Winter_TOU_EV_3.csv")
+read_csv("Model_Map/2018_Winter_TOU_EV_3.csv")
 
 #2018 Winter 4
-#read_csv("Model_Map/2018_Winter_TOU_EV_4.csv")
+read_csv("Model_Map/2018_Winter_TOU_EV_4.csv")
 
 #2018 Winter D
-#read_csv("Model_Map/2018_Winter_TOU_EV_D.csv")
+read_csv("Model_Map/2018_Winter_TOU_EV_D.csv")
 
 #2019 Summer 8
-#read_csv("Model_Map/2019_Summer_TOU_EV_8.csv")
+read_csv("Model_Map/2019_Summer_TOU_EV_8.csv")
 
 #2019 Winter 8
-#read_csv("Model_Map/2019_Winter_TOU_EV_8.csv")
+read_csv("Model_Map/2019_Winter_TOU_EV_8.csv")
 
 
 #Baseline Usage

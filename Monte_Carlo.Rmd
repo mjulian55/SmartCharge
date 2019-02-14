@@ -767,6 +767,14 @@ intervention_comm_effect = 0.5)
 
 ```
 
+
+
+
+SCENARIO GRAPHS
+
+
+
+
 ```{r scenario_graphs}
 
 test <- data.frame(Hr = WP_C_D_T_TOU_SUmmer_4$EV_Demand$Hr,Weekend_inc = baseline$Nov_18[73:96],Weekday = Workplace_Weekday_Average )
@@ -1220,7 +1228,16 @@ Demand_Graph13
 ggsave("Event_Usage.pdf", Demand_Graph13, device = "pdf", width = 8, height = 4.5)
 
 
-#Baseline and model with comm SCALED
+
+
+```
+
+
+
+
+##Baseline and model with comm SCALED
+```{r Scenario 14}
+
 
 graph_table14 <- Nov_14_18_scaled_model_run$EV_Demand[c("Hr","X0","with_comm")] %>%
   gather(condition,value,c("X0","with_comm")) %>%
@@ -1251,11 +1268,8 @@ Demand_Graph14
 
 ggsave("Model_0.2_comm.pdf", Demand_Graph14, device = "pdf", width = 8, height = 4.5)
 
-
-
-
-
 ```
+
 
 
 ```{r explore}
