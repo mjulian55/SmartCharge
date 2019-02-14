@@ -49,16 +49,24 @@ baseline <- bind_rows("Destination Center" = DC_baseline, "Fleet" = F_baseline, 
 Wokplace_Total_Usage <- read_csv("Model_Map/Wokplace_Total_Usage.csv")
 Workplace_Avg_Usage <- read_csv("Model_Map/Workplace_Avg_Usage.csv")
 
+
+
 Workplace_Daily_Usage <- read_csv("Workplace_Daily_Usage.csv")
 Workplace_Daily_Usage$Date <- as.Date(Workplace_Daily_Usage$Date, "%m/%d/%Y")
 Workplace_Daily_Usage <- Workplace_Daily_Usage %>% 
-  mutate(weekday = wday(Date, label=TRUE), month = month(Date,label = TRUE), Year = year(Date))
+  mutate(weekday = wday(Date, label=TRUE), month = month(Date,label = TRUE), Year = year(Date)) #add columns to the end of sheet to identify day of week, month, year
+#as a check for the chunk below
+
+
 
 
 Workplace_Weekday_Usage <- Workplace_Daily_Usage %>% 
-  filter(!wday(Date) %in% c(1, 7) & month(Date) == 11 & year(Date) == 2018 )
+  filter(!wday(Date) %in% c(1, 7) & month(Date) == 11 & year(Date) == 2018 )#keep everything that's nopt sunday(1) and satuday(7)
 
-Workplace_Weekday_Average <- apply(select(Workplace_Weekday_Usage, '1':'24'),2,mean)
+
+Workplace_Weekday_Average <- apply(select(Workplace_Weekday_Usage, '1':'24'),2,mean) 
+
+
 
 # Number of Chargers by Segment
 #chargers <- read_csv("Model_Map/Chargers_Installed_03-18.csv")
