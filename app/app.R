@@ -1,19 +1,44 @@
-#
-# This is a Shiny web application. You can run the application by clicking
-# the 'Run App' button above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
-#
+# Smart Charge Group Project - EV Charging Demand Profile Simulation App
+# App Name???
 
 library(shiny)
+library(shinydashboard)
+library(tidyverse)
 
-# Define UI for application that draws a histogram
+# Input parameters:
+
+# Market Segment
+# User selects which market segment as a radio button from 4 choices
+
+# Month
+# ser selects a date (Month and Year) that their interventions will be based on from a drop-down menu
+
+# Discount amount
+# User enters a value in a slider that has a minimum and maximum value based on the electricity prices
+
+# Rebate Amount
+# User enters a value in a slider that has a minimum and maximum value based on the electricity prices
+
+# Intervention Hours
+# User sets a range of hours that the price intervention will occur (rebate or discount) by setting two sliders on hours of the day
+
+# Throttling Amount
+# User chooses a percentage on a slider from 0-100% of the charging reduction that will happen due to throttling
+
+# Throttling Hours
+# User sets a range of hours that throttling will occur by setting two sliders on hours of the day
+
+
+# Outputs:
+# Baseline EV Charging Demand Profile
+# New EV Charging Demand Profile
+# Greenhouse Gas (CO2) Implications
+# Air Quality Implications (NOX)
+
 ui <- fluidPage(
    
   # App title ----
-  titlePanel("Uploading Files"),
+  titlePanel("Smart Charge"),
   
   # Sidebar layout with input and output definitions ----
   sidebarLayout(
@@ -74,7 +99,7 @@ ui <- fluidPage(
   )
 )
 
-# Define server logic required to draw a histogram
+# Define server logic required to create a demand profilemi
 server <- function(input, output) {
    
   output$contents <- renderTable({
@@ -110,6 +135,7 @@ server <- function(input, output) {
   })
   
 }
+
 # Run the application 
 shinyApp(ui = ui, server = server)
 
