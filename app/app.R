@@ -29,77 +29,40 @@ library(tidyverse)
 # User sets a range of hours that throttling will occur by setting two sliders on hours of the day
 
 
+
+ui <- fluidPage(
+  # App Title
+  titlePanel("Smart Charge - EV Charging Demand Profile Simulation App"),
+    navbarPage("      ",
+               tabPanel("Demand Graphs"),
+               
+               tabPanel("GHG Implications"),
+               
+               tabPanel("Air Quality Impacts")
+               
+               )
+  
+  
+  # Sidebar for inputs
+  sidebarLayout(
+    sidebarPanel(
+      
+    )
+  )
+
+)
+
+
+
+
+# Define server logic required to create a demand profile
+
 # Outputs:
 # Baseline EV Charging Demand Profile
 # New EV Charging Demand Profile
 # Greenhouse Gas (CO2) Implications
 # Air Quality Implications (NOX)
 
-ui <- fluidPage(
-   
-  # App title ----
-  titlePanel("Smart Charge"),
-  
-  # Sidebar layout with input and output definitions ----
-  sidebarLayout(
-    
-    # Sidebar panel for inputs ----
-    sidebarPanel(
-      
-      # Input: Select a file ----
-      fileInput("file1", "Choose CSV File",
-                multiple = FALSE,
-                accept = c("text/csv",
-                           "text/comma-separated-values,text/plain",
-                           ".csv")),
-      
-      # Horizontal line ----
-      tags$hr(),
-      
-      # Input: Checkbox if file has header ----
-      checkboxInput("header", "Header", TRUE),
-      
-      # Input: Select separator ----
-      radioButtons("sep", "Separator",
-                   choices = c(Comma = ",",
-                               Semicolon = ";",
-                               Tab = "\t"),
-                   selected = ","),
-      
-      # Input: Select quotes ----
-      radioButtons("quote", "Quote",
-                   choices = c(None = "",
-                               "Double Quote" = '"',
-                               "Single Quote" = "'"),
-                   selected = '"'),
-      
-      # Horizontal line ----
-      tags$hr(),
-      
-      # Input: Select number of rows to display ----
-      radioButtons("disp", "Display",
-                   choices = c(Head = "head",
-                               All = "all"),
-                   selected = "head"),
-      
-      numericInput("num", label = h3("Numeric input"), value = 1),
-      
-      hr(),
-      fluidRow(column(3, verbatimTextOutput("value")))
-      ),
-    
-    # Main panel for displaying outputs ----
-    mainPanel(
-      
-      # Output: Data file ----
-      tableOutput("contents")
-      
-    )
-    
-  )
-)
-
-# Define server logic required to create a demand profilemi
 server <- function(input, output) {
    
   output$contents <- renderTable({
