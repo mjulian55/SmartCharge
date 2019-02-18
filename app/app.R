@@ -7,11 +7,8 @@ library(tidyverse)
 
 # Input parameters:
 
-# Market Segment
-# User selects which market segment as a radio button from 4 choices
-
 # Month
-# ser selects a date (Month and Year) that their interventions will be based on from a drop-down menu
+# selects a date (Month and Year) that the interventions will be based on from a drop-down menu
 
 # Discount amount
 # User enters a value in a slider that has a minimum and maximum value based on the electricity prices
@@ -33,30 +30,41 @@ library(tidyverse)
 ui <- fluidPage(
   # App Title
   titlePanel("Smart Charge - EV Charging Demand Profile Simulation App"),
-    navbarPage("      ",
+    navbarPage("SMART CHARGE",
+               tabPanel("About"),
+                p("This Shiny Application is used for the Bren School Group Project Smart Charge"),
+               
                tabPanel("Demand Graphs"),
                
                tabPanel("GHG Implications"),
                
                tabPanel("Air Quality Impacts")
                
-               )
+               ),
   
   
   # Sidebar for inputs
   sidebarLayout(
-    sidebarPanel(
-      
-    )
-  )
+   sidebarPanel("Parameters", 
+                # Market Segment dropdown widget
+                selectInput("radio", label = h3("Market Segment"), 
+                  choices = list("Workplace" = 1, 
+                  "Destination Center" = 2, 
+                  "Fleet" = 3, 
+                  "Multi-Unit Dwelling" = 4), 
+                  selected = 1) # Code obtained here: https://bit.ly/2Sdx5Yg
+                
+                
+                ),
+   
+   mainPanel(
+     
+   )
 
-)
-
-
+))
 
 
 # Define server logic required to create a demand profile
-
 # Outputs:
 # Baseline EV Charging Demand Profile
 # New EV Charging Demand Profile
