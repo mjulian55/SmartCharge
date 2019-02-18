@@ -7,17 +7,6 @@ library(tidyverse)
 
 # Input parameters:
 
-# Month
-# selects a date (Month and Year) that the interventions will be based on from a drop-down menu
-
-# Discount amount
-# User enters a value in a slider that has a minimum and maximum value based on the electricity prices
-
-# Rebate Amount
-# User enters a value in a slider that has a minimum and maximum value based on the electricity prices
-
-# Intervention Hours
-# User sets a range of hours that the price intervention will occur (rebate or discount) by setting two sliders on hours of the day
 
 # Throttling Amount
 # User chooses a percentage on a slider from 0-100% of the charging reduction that will happen due to throttling
@@ -42,18 +31,49 @@ ui <- fluidPage(
                
                ),
   
-  
   # Sidebar for inputs
   sidebarLayout(
-   sidebarPanel("Parameters", 
+   sidebarPanel(strong("PARAMETERS"), 
+                
+                # Number of Chargers widget
+                numericInput("num", label = h4("Number of Chargers"), value = 900),
+
                 # Market Segment dropdown widget
-                selectInput("radio", label = h3("Market Segment"), 
+                selectInput("radio", label = h4("Market Segment"), 
                   choices = list("Workplace" = 1, 
                   "Destination Center" = 2, 
                   "Fleet" = 3, 
                   "Multi-Unit Dwelling" = 4), 
-                  selected = 1) # Code obtained here: https://bit.ly/2Sdx5Yg
+                  selected = 1),
                 
+                # Date Selection of Invervention (Month and Year)
+                (dateInput("date", label = h4("Month and Year"), 
+                format = "mm/yyyy", value = "2014-01-01")),
+                
+                # Discount price selection widget
+                # NOTE: Ultimately this slider bar should be nested under some other things.
+                # For instance, a radio button of "Apply Discount - Y/N?"
+                # If yes, the slider bar comes up to choose the amount, but another slider should appear for the time period.
+                sliderInput("slider1", label = h4("Discount Price (in cents)"), 
+                  min = 0, max = 40, value = 5),
+                
+                # Discount period widget
+                sliderInput("slider2", label = h4("Discount Period"), min = 0, 
+                  max = 24, value = c(11, 15)),
+                
+                # Rebate price selection widget
+                sliderInput("slider1", label = h4("Rebate Price (in cents)"), 
+                  min = 0, max = 40, value = 10),
+                
+                # Discount period widget
+                sliderInput("slider2", label = h4("Rebate Period"), min = 0, 
+                  max = 24, value = c(18, 21)),
+                
+                # Throttling percent widget
+                numericInput("num", label = h4("Throttling"), min = 0, max = 1, value = 0.0),
+                
+                # Action Button (Simulate Demand)
+                actionButton("action", label = "Charge")
                 
                 ),
    
