@@ -35,7 +35,6 @@ read_csv("Model_Map/2019_Winter_TOU_EV_8.csv")
 
 
 #Baseline Usage
-#baseline <- read_csv("Model_Map/03-18_WP_Avg.csv")
 
 DC_baseline <- read_csv("Model_Map/DC_Avg_Usage.csv")
 WP_baseline <- read_csv("Model_Map/Workplace_Avg_Usage.csv")
@@ -46,10 +45,7 @@ F_baseline <- read_csv("Model_Map/Fleet_Avg_Usage.csv")
 baseline <- bind_rows("Destination Center" = DC_baseline, "Fleet" = F_baseline, "Multi Unit Dwelling" = MUD_baseline,"Workplace" = WP_baseline, .id = "Segment") 
 #View(baseline)
 
-Wokplace_Total_Usage <- read_csv("Model_Map/Wokplace_Total_Usage.csv")
-Workplace_Avg_Usage <- read_csv("Model_Map/Workplace_Avg_Usage.csv")
-
-
+##~~~~~~~~~~REMOVING WEEKENDS~~~~~~~~~~##
 
 Workplace_Daily_Usage <- read_csv("Workplace_Daily_Usage.csv")
 Workplace_Daily_Usage$Date <- as.Date(Workplace_Daily_Usage$Date, "%m/%d/%Y")
@@ -65,7 +61,7 @@ Workplace_Weekday_Usage <- Workplace_Daily_Usage %>%
 
 
 Workplace_Weekday_Average <- apply(select(Workplace_Weekday_Usage, '1':'24'),2,mean) 
-
+View(Workplace_Weekday_Average)
 
 
 # Number of Chargers by Segment
@@ -77,11 +73,12 @@ add_baseline_chargers <- Chargers %>%
   filter(Market_Segment!= "Total") %>% 
   slice(rep(1:n(),each=24))
 
-#WHY REPEAT 24 TIMES?? time doesnt matter here
 
 #Event Usage
 DC_Event_Total_Usage <- read_csv("Model_Map/DC_Event_Total_Usage.csv")
 Workplace_Event_Total_Usage <- read_csv("Model_Map/Workplace_Event_Total_Usage.csv")
+Fleet_Event_Total_Usage <- read_csv("Model_Map/Fleet_Event_Total_Usage.csv")
+MUD_Event_Total_Usage <- read_csv("Model_Map/MUD_Event_Total_Usage.csv")
 
 #Elasticities with format 9X3 with columns Base_Hr, Changed_Hr, and Elasticity
 #Changed_Hr is the Hour where the price change occurs, Base_Hr is the hour in which demand changes
@@ -124,7 +121,7 @@ hourly_demand <- function(segment = sg,
                           schedule = sch,
                           price_change = p_c,
                           intervention_hours = i_h, 
-                          intervention_chargers = int_ch,#if intervention_chargers is                           ever changed, have to also set int_equals_baseline = FALSE
+                          intervention_chargers = int_ch,#if intervention_chargers is ever changed, have to also set int_equals_baseline = FALSE
                           int_equals_baseline = int_e_b, 
                           throttle_amount = t_a,
                           throttle_hours = t_h, 
@@ -156,15 +153,14 @@ hourly_demand <- function(segment = sg,
   
   intervention_chargers <- ifelse(int_equals_baseline == TRUE, baseline_chargers, intervention_chargers)
   
-  #WP_Chargers <- chargers$Workplace #Number of Chargers (C)
-  #DC_Chargers <- chargers$Workplace #Number of Chargers (C)
+ #baseline_month is dependent on selection of segment and month in the function
   baseline_month<- baseline %>% 
     filter(Segment == segment) %>% 
     select(month) %>%
     unlist()
   
-  
-  EV_Demand <- mutate(price_schedule, I01 = 0 ,Xi = baseline_month, X0 = baseline_month/baseline_chargers*intervention_chargers) #340 here comes from the number of chargers installed for the baseline. I01 refers to the hours where there is an intervention. 
+  #create a new table (EV_Demand) that lists initial price schedule, month, scaled # of chargers
+  EV_Demand <- mutate(price_schedule, I01 = 0 ,Xi = baseline_month, X0 = baseline_month/baseline_chargers*intervention_chargers) #I01 refers to the hours where there is an intervention. 
   
   EV_Demand$I01[intervention_hours] <-1
   
