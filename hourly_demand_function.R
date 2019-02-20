@@ -48,6 +48,48 @@ baseline <- bind_rows("Destination Center" = DC_baseline, "Fleet" = F_baseline, 
 ##~~~~~~~~~~REMOVING WEEKENDS~~~~~~~~~~##
 
 Workplace_Daily_Usage <- read_csv("Workplace_Daily_Usage.csv")
+Multi_Unit_Dwelling_Daily_Usage <- read_csv("Multi_Unit_Dwelling_Daily_Usage.csv")
+Fleet_Daily_Usage <- read_csv("Fleet_Daily_Usage.csv")
+Destination_Center_Daily_Usage <- read_csv("Destination_Center_Daily_Usage.csv")
+
+
+#Putting all the hourly baseline in one place
+
+WP_gathered <- gather(Workplace_Daily_Usage,"Hour","Demand",3:26) %>% 
+  mutate(segment = "WP")
+
+MUD_gathered <- gather(Multi_Unit_Dwelling_Daily_Usage,"Hour","Demand",3:26) %>% 
+  mutate(segment = "MUD")
+
+F_gathered <- gather(Fleet_Daily_Usage,"Hour","Demand",3:26) %>% 
+  mutate(segment = "F")
+
+DC_gathered <- gather(Destination_Center_Daily_Usage,"Hour","Demand",3:26) %>% 
+  mutate(segment = "DC")
+
+hourly_baseline <- rbind(WP_gathered,MUD_gathered,F_gathered,DC_gathered)
+
+hourly_baseline$Date <- as.Date(hourly_baseline$Date, "%m/%d/%Y")
+
+hourly_baseline <- hourly_baseline %>% 
+  mutate(weekday = wday(Date, label = TRUE)) %>% 
+  mutate(weekday = ifelse(weekday == "Sun" |weekday == "Sat", "Weekend","Weekday")) %>% 
+  mutate(price = ifelse(month(Date) %in% seq(6,9,1), 
+                        ifelse(Hour %in% c(seq(1,8,1),24),
+                               0.05, 
+                               ifelse(Hour %in% c(seq(9,12,1),seq(19,23,1)),
+                                      0.12,
+                                      0.29)),
+                        ifelse(Hour %in% c(seq(1,8,1),24),
+                               0.06, 
+                               ifelse(Hour %in% c(seq(9,12,1),seq(19,23,1)),
+                                      0.09,
+                                      0.11)
+                        ))) 
+
+
+
+
 Workplace_Daily_Usage$Date <- as.Date(Workplace_Daily_Usage$Date, "%m/%d/%Y")
 Workplace_Daily_Usage <- Workplace_Daily_Usage %>% 
   mutate(weekday = wday(Date, label=TRUE), month = month(Date,label = TRUE), Year = year(Date)) #add columns to the end of sheet to identify day of week, month, year
