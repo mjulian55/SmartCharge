@@ -116,7 +116,7 @@ Workplace_Weekday_Usage <- Workplace_Daily_Usage %>%
 
 
 Workplace_Weekday_Average <- apply(select(Workplace_Weekday_Usage, '1':'24'),2,mean) 
-View(Workplace_Weekday_Average)
+#View(Workplace_Weekday_Average)
 
 
 # Number of Chargers by Segment
