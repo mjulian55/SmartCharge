@@ -631,6 +631,8 @@ ggsave("Workplace_2018_Nov_DTh.pdf", device = "pdf", width = 8, height = 4.5)
 ```
 
 #Scenario 7
+Workplace November 2018
+Baseline + Event (Nov 14, 2018) + Model Run(DThC)
 ```{r}
 #Scenario 7
 #Scale baseline to Nov 14,2018 event 
@@ -938,15 +940,22 @@ ggsave("Workplace_Result_with_comm.pdf", Demand_Graph12, device = "pdf", width =
 ```
 
 
+~~~~~~~EVENTS~~~~~~~~~~~
 
-
-#Scenario 13- Nov 14, 2018 Event + Baseline (scaled for 546 chargers) 
+#Scenario 13- Nov 14, 2018 EVENT + Baseline (scaled for 546 chargers) 
 
 Event: Workplace, November 14, 2018, TOU EV-4, $0.05 Discount (11AM-3PM)
 
 ```{r Scenario 13}
 
 #Scaled Baseline and Nov 14 event usage
+
+#CHARGERS
+nov_14_18_event <- Event_Chargers %>%
+filter(Market_Segment=="Workplace") %>%
+select(Nov_14_18_LS) %>%
+unlist()
+
 
 Nov_14_18_scaled_model_run <- hourly_demand(price_change = -0.05,
                     throttle_amount = -0.5,
@@ -994,6 +1003,15 @@ geom_line(aes(y=Theoretical_Max))
 Demand_Graph13
 
 ggsave("Nov_14_Event_Usage.pdf", Demand_Graph13, device = "pdf", width = 8, height = 4.5)
+
+#COST
+Cost_Table13 <- Nov_14_18_scaled_model_run$EV_Demand[c("Hr","X0","P0","Event_Usage","P1")] %>% 
+  mutate(Cost0 = X0*P0) %>% 
+  mutate(Cost1 = Event_Usage*P1) %>% 
+  mutate(Cost_diff = Cost1-Cost0)
+View(Cost_Table13)
+
+
 ```
 
 
@@ -1063,7 +1081,7 @@ Cost_Table14 <- Nov_28_18_scaled_model_run$EV_Demand[c("Hr","X0","P0","Event_Usa
   mutate(Cost_diff = Cost1-Cost0) 
 View(Cost_Table14)
 
-Sum14 <- sum(Cost_Table14$Cost_diff)
+
 ```
 
 
@@ -1290,14 +1308,14 @@ Event: Destination Center, November 28, 2018, TOU EV-4, $0.05 Discount (11AM-3PM
 
 #CHARGERS
 nov_28_18_DC_event <- Event_Chargers %>%
-filter(Market_Segment=="Destination Center") %>%
+filter(Market_Segment=="DC") %>%
 select(Nov_28_18_LS) %>%
 unlist()
 
-Nov_28_18_DC_scaled_model_run <- hourly_demand(price_change = -0.05,
-                    throttle_amount = -0.5,
+Nov_28_18_DC_scaled_model_run <- hourly_demand(price_change = -.05,
+                    throttle_amount = -.5,
                     month = "Nov_18",
-                    segment =  "DC",
+                    segment =  "Destination Center",
                     intervention_chargers =
                     nov_28_18_DC_event,
                     int_equals_baseline = FALSE,
@@ -1307,7 +1325,7 @@ Nov_28_18_DC_scaled_model_run <- hourly_demand(price_change = -0.05,
 nov_28_18_DC_Event_Usage <- DC_Event_Total_Usage$Nov_28_18_LS
 
 Nov_28_18_DC_scaled_model_run$EV_Demand <- Nov_28_18_DC_scaled_model_run$EV_Demand %>%
-  mutate(Event_Usage = nov_28_18_Event_Usage)
+  mutate(Event_Usage = nov_28_18_DC_Event_Usage)
 
 
 graph_table18 <- Nov_28_18_DC_scaled_model_run$EV_Demand[c("Hr","X0","Event_Usage")] %>%
@@ -1341,11 +1359,35 @@ Demand_Graph18
 
 ggsave("Nov_28_DC_Event_Usage.pdf", Demand_Graph18, device = "pdf", width = 8, height = 4.5)
 
+#Cost
+Cost_Table18 <- Nov_28_18_DC_scaled_model_run$EV_Demand[c("Hr","X0","P0","Event_Usage","P1")] %>% 
+  mutate(Cost0 = X0*P0) %>% 
+  mutate(Cost1 = Event_Usage*P1) %>% 
+  mutate(Cost_diff = Cost1-Cost0)
+View(Cost_Table18)
+
 ```
 
 
+
+```{r}
+Cost_Table <- rbind(sum(Cost_Table13$Cost_diff), 
+                    sum(Cost_Table14$Cost_diff),
+                    sum(Cost_Table15$Cost_diff),
+                    sum(Cost_Table16$Cost_diff),
+                    sum(Cost_Table17$Cost_diff),
+                    sum(Cost_Table18$Cost_diff))
+View(Cost_Table)
+```
+
+
+
+
+
+
+
 ##Baseline and model with comm SCALED
-```{r Scenario 14}
+```{r Scenario 19}
 nov_14_18_event <- Event_Chargers %>%
 filter(Market_Segment=="Workplace") %>%
 select(Nov_14_18_LS) %>%
@@ -1369,13 +1411,13 @@ Nov_14_18_scaled_model_run$EV_Demand <- Nov_14_18_scaled_model_run$EV_Demand %>%
   mutate(Event_Usage = nov_14_18_Event_Usage)
 
 
-graph_table14 <- Nov_14_18_scaled_model_run$EV_Demand[c("Hr","X0","with_comm")] %>%
+graph_table19 <- Nov_14_18_scaled_model_run$EV_Demand[c("Hr","X0","with_comm")] %>%
   gather(condition,value,c("X0","with_comm")) %>%
   mutate(Theoretical_Max=Nov_14_18_scaled_model_run$EV_Demand$MT[1])
 
 
 
-Demand_Graph14 <- ggplot(data = graph_table14, aes(x = Hr)) +
+Demand_Graph19 <- ggplot(data = graph_table14, aes(x = Hr)) +
   geom_line(aes(y = value, color=condition)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
   panel.background = element_blank(), axis.line = element_line(colour = "black")) +
@@ -1394,7 +1436,7 @@ Demand_Graph14 <- ggplot(data = graph_table14, aes(x = Hr)) +
   scale_fill_manual('Interventions',values = c('green','yellow'),  guide = guide_legend(override.aes = list(alpha = 0.15)))
 
 
-Demand_Graph14
+Demand_Graph19
 
 ggsave("Model_0.2_comm.pdf", Demand_Graph14, device = "pdf", width = 8, height = 4.5)
 
