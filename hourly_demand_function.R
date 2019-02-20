@@ -56,16 +56,16 @@ Destination_Center_Daily_Usage <- read_csv("Destination_Center_Daily_Usage.csv")
 #Putting all the hourly baseline in one place
 
 WP_gathered <- gather(Workplace_Daily_Usage,"Hour","Demand",3:26) %>% 
-  mutate(segment = "WP")
+  mutate(segment = "Workplace")
 
 MUD_gathered <- gather(Multi_Unit_Dwelling_Daily_Usage,"Hour","Demand",3:26) %>% 
-  mutate(segment = "MUD")
+  mutate(segment = "Multi Unit Dwelling")
 
 F_gathered <- gather(Fleet_Daily_Usage,"Hour","Demand",3:26) %>% 
-  mutate(segment = "F")
+  mutate(segment = "Fleet")
 
 DC_gathered <- gather(Destination_Center_Daily_Usage,"Hour","Demand",3:26) %>% 
-  mutate(segment = "DC")
+  mutate(segment = "Destination Center")
 
 hourly_baseline <- rbind(WP_gathered,MUD_gathered,F_gathered,DC_gathered)
 
@@ -87,19 +87,6 @@ hourly_baseline <- hourly_baseline %>%
                                       0.09,
                                       0.11)
                         )))
-
-ifelse(month(Date) %in% seq(6,9,1), 
-       ifelse(Hour %in% c(seq(1,8,1),24),
-              0.05, 
-              ifelse(Hour %in% c(seq(9,12,1),seq(19,23,1)),
-                     0.12,
-                     0.29)),
-              ifelse(Hour %in% c(seq(1,8,1),24),
-                     0.06, 
-                     ifelse(Hour %in% c(seq(9,12,1),seq(19,23,1)),
-                            0.09,
-                            0.11)
-              ))
 
 
 
@@ -156,7 +143,7 @@ t_a <- 0 #throttling amount
 t_h <- c(7:11) #throttling hours
 sch <- closest_elasticities #elasticities to use for price intervention (column in the elasticities dataframe) -  Non PV Summer Weekday EPEV L. The default now picks from the ratio 
 sg <- "Workplace" #segment
-mth <- "Mar_18" #month
+mth <- 11 #month
 pwr <- 6.6 #charger power
 pk <- c(17:21) #target window to shift out off (this is only used in the output calculations below, not for the function)
 int_ch <- filter(Chargers, Market_Segment == sg) %>% 
@@ -165,7 +152,6 @@ int_ch <- filter(Chargers, Market_Segment == sg) %>%
 int_e_b <- TRUE
 i_c_e <- 1
 yr <- 2018
-
 
 
 
@@ -211,10 +197,13 @@ hourly_demand <- function(segment = sg,
 
   Xi <- filter(hourly_baseline, month(Date) == month & year(Date) == year & segment == segment) %>% 
     group_by(Hour) %>% 
-    summarise(Demand = mean(Demand))
+    summarise(Demand = mean(Demand)) %>% 
+    select(Demand) %>% 
+    unlist()
+    
   
   #create a new table (EV_Demand) that lists initial price schedule, month, scaled # of chargers
-  EV_Demand <- mutate(price_schedule, I01 = 0 ,Xi = Xi, X0 = baseline_month/baseline_chargers*intervention_chargers) #I01 refers to the hours where there is an intervention. 
+  EV_Demand <- mutate(price_schedule, I01 = 0 ,Xi = Xi, X0 = Xi/baseline_chargers*intervention_chargers) #I01 refers to the hours where there is an intervention. 
   
   EV_Demand$I01[intervention_hours] <-1
   
