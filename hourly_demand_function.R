@@ -69,6 +69,7 @@ DC_gathered <- gather(Destination_Center_Daily_Usage,"Hour","Demand",3:26) %>%
 
 hourly_baseline <- rbind(WP_gathered,MUD_gathered,F_gathered,DC_gathered)
 
+hourly_baseline$Hour <- as.numeric(hourly_baseline$Hour)
 hourly_baseline$Date <- as.Date(hourly_baseline$Date, "%m/%d/%Y")
 
 hourly_baseline <- hourly_baseline %>% 
@@ -85,8 +86,20 @@ hourly_baseline <- hourly_baseline %>%
                                ifelse(Hour %in% c(seq(9,12,1),seq(19,23,1)),
                                       0.09,
                                       0.11)
-                        ))) 
+                        )))
 
+ifelse(month(Date) %in% seq(6,9,1), 
+       ifelse(Hour %in% c(seq(1,8,1),24),
+              0.05, 
+              ifelse(Hour %in% c(seq(9,12,1),seq(19,23,1)),
+                     0.12,
+                     0.29)),
+              ifelse(Hour %in% c(seq(1,8,1),24),
+                     0.06, 
+                     ifelse(Hour %in% c(seq(9,12,1),seq(19,23,1)),
+                            0.09,
+                            0.11)
+              ))
 
 
 
@@ -151,14 +164,14 @@ int_ch <- filter(Chargers, Market_Segment == sg) %>%
   as.numeric() # default is to MARCH 2018
 int_e_b <- TRUE
 i_c_e <- 1
-
-
+yr <- 2018
 
 
 
 
 hourly_demand <- function(segment = sg, 
-                          month = mth, 
+                          month = mth,
+                          year = yr,
                           charger_power = pwr,
                           schedule = sch,
                           price_change = p_c,
@@ -195,14 +208,13 @@ hourly_demand <- function(segment = sg,
   
   intervention_chargers <- ifelse(int_equals_baseline == TRUE, baseline_chargers, intervention_chargers)
   
- #baseline_month is dependent on selection of segment and month in the function
-  baseline_month<- baseline %>% 
-    filter(Segment == segment) %>% 
-    select(month) %>%
-    unlist()
+
+  Xi <- filter(hourly_baseline, month(Date) == month & year(Date) == year & segment == segment) %>% 
+    group_by(Hour) %>% 
+    summarise(Demand = mean(Demand))
   
   #create a new table (EV_Demand) that lists initial price schedule, month, scaled # of chargers
-  EV_Demand <- mutate(price_schedule, I01 = 0 ,Xi = baseline_month, X0 = baseline_month/baseline_chargers*intervention_chargers) #I01 refers to the hours where there is an intervention. 
+  EV_Demand <- mutate(price_schedule, I01 = 0 ,Xi = Xi, X0 = baseline_month/baseline_chargers*intervention_chargers) #I01 refers to the hours where there is an intervention. 
   
   EV_Demand$I01[intervention_hours] <-1
   
