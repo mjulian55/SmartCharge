@@ -1192,7 +1192,7 @@ ggsave("Oct_16_Event_Usage.pdf", Demand_Graph16, device = "pdf", width = 8, heig
 
 Event: Workplace, September 27, 2018, TOU EV-4, $0.10 Rebate (4PM-9PM)
 
-```{r Scenario 16}
+```{r Scenario 17}
 
 #Scaled Baseline and Oct 16 event usage
 
@@ -1253,11 +1253,11 @@ ggsave("Sep_27_Event_Usage.pdf", Demand_Graph17, device = "pdf", width = 8, heig
 
 ```
 
-#Scenario 14- Nov 28, 2018 Event + Baseline (scaled for 146 chargers) 
+#Scenario 18 - Nov 28, 2018 Event + Baseline (scaled for 146 chargers) 
 
 Event: Destination Center, November 28, 2018, TOU EV-4, $0.05 Discount (11AM-3PM)
 
-```{r Scenario 14}
+```{r Scenario 18}
 
 #CHARGERS
 nov_28_18_DC_event <- Event_Chargers %>%
@@ -1284,7 +1284,7 @@ Nov_28_18_DC_scaled_model_run$EV_Demand <- Nov_28_18_DC_scaled_model_run$EV_Dema
 graph_table18 <- Nov_28_18_DC_scaled_model_run$EV_Demand[c("Hr","X0","Event_Usage")] %>%
   gather(condition,value,c("X0","Event_Usage")) %>%
   mutate(Theoretical_Max=Nov_28_18_DC_scaled_model_run$EV_Demand$MT[1])
-
+View(graph_table18)
 
 Demand_Graph18 <- ggplot(data = graph_table18, aes(x = Hr)) +
   geom_line(aes(y = value, color=condition)) +
