@@ -17,19 +17,9 @@ library(tidyverse)
 
 
 ui <- fluidPage(
+  
+  
   # App Title
-  titlePanel("Smart Charge - EV Charging Demand Profile Simulation App"),
-    navbarPage("SMART CHARGE",
-               tabPanel("About"),
-                p("This Shiny Application is used for the Bren School Group Project Smart Charge"),
-               
-               tabPanel("Demand Graphs"),
-               
-               tabPanel("GHG Implications"),
-               
-               tabPanel("Air Quality Impacts")
-               
-               ),
   
   # Sidebar for inputs
   sidebarLayout(
@@ -77,7 +67,21 @@ ui <- fluidPage(
                 
                 ),
    
-   mainPanel(
+   mainPanel(titlePanel("Smart Charge - EV Charging Demand Profile Simulation App"),
+             navbarPage("SMART CHARGE",
+                        
+                        
+                        tabPanel("About",
+                                 
+                                 "This Shiny Application is used for the Bren School Group Project Smart Charge"),
+                        
+                        tabPanel("Demand Graphs"),
+                        
+                        tabPanel("GHG Implications"),
+                        
+                        tabPanel("Air Quality Impacts")
+                        
+             )
      
    )
 
