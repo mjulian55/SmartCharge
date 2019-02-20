@@ -1055,6 +1055,15 @@ geom_line(aes(y=Theoretical_Max))
 Demand_Graph14
 
 ggsave("Nov_28_Event_Usage.pdf", Demand_Graph14, device = "pdf", width = 8, height = 4.5)
+
+#COST
+Cost_Table14 <- Nov_28_18_scaled_model_run$EV_Demand[c("Hr","X0","P0","Event_Usage","P1")] %>% 
+  mutate(Cost0 = X0*P0) %>% 
+  mutate(Cost1 = Event_Usage*P1) %>% 
+  mutate(Cost_diff = Cost1-Cost0) 
+View(Cost_Table14)
+
+Sum14 <- sum(Cost_Table14$Cost_diff)
 ```
 
 
@@ -1118,6 +1127,13 @@ geom_line(aes(y=Theoretical_Max))
 Demand_Graph15
 
 ggsave("Oct_30_Event_Usage.pdf", Demand_Graph15, device = "pdf", width = 8, height = 4.5)
+
+#COST
+Cost_Table15 <- Oct_30_18_scaled_model_run$EV_Demand[c("Hr","X0","P0","Event_Usage","P1")] %>% 
+  mutate(Cost0 = X0*P0) %>% 
+  mutate(Cost1 = Event_Usage*P1) %>% 
+  mutate(Cost_diff = Cost1-Cost0)
+View(Cost_Table15)
 ```
 
 
@@ -1181,6 +1197,14 @@ geom_line(aes(y=Theoretical_Max))
 Demand_Graph16
 
 ggsave("Oct_16_Event_Usage.pdf", Demand_Graph16, device = "pdf", width = 8, height = 4.5)
+
+
+#COST
+Cost_Table16 <- Oct_16_18_scaled_model_run$EV_Demand[c("Hr","X0","P0","Event_Usage","P1")] %>% 
+  mutate(Cost0 = X0*P0) %>% 
+  mutate(Cost1 = Event_Usage*P1) %>% 
+  mutate(Cost_diff = Cost1-Cost0)
+View(Cost_Table16)
 
 
 
@@ -1249,7 +1273,12 @@ Demand_Graph17
 
 ggsave("Sep_27_Event_Usage.pdf", Demand_Graph17, device = "pdf", width = 8, height = 4.5)
 
-
+#Cost
+Cost_Table17 <- Sep_27_18_scaled_model_run$EV_Demand[c("Hr","X0","P0","Event_Usage","P1")] %>% 
+  mutate(Cost0 = X0*P0) %>% 
+  mutate(Cost1 = Event_Usage*P1) %>% 
+  mutate(Cost_diff = Cost1-Cost0)
+View(Cost_Table17)
 
 ```
 
