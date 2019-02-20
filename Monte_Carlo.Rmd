@@ -1376,6 +1376,80 @@ Sum_Cost18 <-sum(Cost_Table18$Cost_diff)
 
 
 
+#Scenario 19: July 31, 2018 LR Event + Baseline (scaled for 396 chargers) 
+
+Event: Workplace, July 31, 2018, TOU EV-4, $0.10 Rebate (4PM-9PM)
+
+```{r Scenario 18}
+
+#Scaled Baseline and Oct 16 event usage
+
+#CHARGERS
+Jul_31_18_event <- Event_Chargers %>%
+filter(Market_Segment=="Workplace") %>%
+select(Jul_31_18_LR) %>%
+unlist()
+
+Jul_31_18_scaled_model_run <- hourly_demand(price_change = -.10,
+                    throttle_amount = -.5,
+                    month = "Sep_18",
+                    segment =  "Workplace",
+                    intervention_chargers =
+                    Jul_31_18_event,
+                    int_equals_baseline = FALSE,
+                    intervention_comm_effect = 1)
+
+
+Jul_31_18_Event_Usage <- Workplace_Event_Total_Usage$Jul_31_18_LR
+
+Jul_31_18_scaled_model_run$EV_Demand <- Jul_31_18_scaled_model_run$EV_Demand %>%
+  mutate(Event_Usage = Jul_31_18_Event_Usage)
+
+
+graph_table19 <- Jul_31_18_scaled_model_run$EV_Demand[c("Hr","X0","Event_Usage")] %>%
+  gather(condition,value,c("X0","Event_Usage")) %>%
+  mutate(Theoretical_Max=Jul_31_18_scaled_model_run$EV_Demand$MT[1])
+
+
+Demand_Graph19 <- ggplot(data = graph_table19, aes(x = Hr)) +
+  geom_line(aes(y = value, color=condition)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+  panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+  labs(title="Workplace Hourly Demand Forecast",
+  subtitle="Baseline September 2018 Scaled for September 27th, 2018 LR Event (414 Chargers) \n Event Usage October 16th, 2018 Event",
+  y="EV Charging Demand (kW)",
+  x="Hour",
+  color=NULL) +
+  geom_rect(aes(xmin=16,xmax=21,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
+  geom_rect(aes(xmin=16,xmax=21,ymin=-Inf,ymax=Inf, fill = "Rebate"),alpha=0.0075) +
+  scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
+  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("purple", "blue")) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(plot.subtitle = element_text(hjust = 0.5))+
+  theme(legend.position="bottom") +
+  scale_fill_manual('Interventions',values = c('green','yellow'),  guide = guide_legend(override.aes = list(alpha = 0.15)))
+  
+
+Potential_Graph19 <- Demand_Graph19 +
+geom_line(aes(y=Theoretical_Max))
+
+Demand_Graph19
+
+ggsave("Jul_31_Event_Usage.pdf", Demand_Graph19, device = "pdf", width = 8, height = 4.5)
+
+#Cost
+Cost_Table19 <- Jul_31_18_scaled_model_run$EV_Demand[c("Hr","X0","P0","Event_Usage","P1")] %>% 
+  mutate(Cost0 = X0*P0) %>% 
+  mutate(Cost1 = Event_Usage*P1) %>% 
+  mutate(Cost_diff = Cost1-Cost0)
+#View(Cost_Table19)
+
+#Sum of Cost
+Sum_Cost19 <-sum(Cost_Table19$Cost_diff)
+#View(Sum_Cost19)
+```
+
+
 #Scenario 20 - Nov 28, 2018 Event + Baseline (scaled for 146 chargers) 
 
 Event: Destination Center, November 28, 2018, TOU EV-4, $0.05 Discount (11AM-3PM)
