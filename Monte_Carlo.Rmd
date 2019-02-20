@@ -1367,8 +1367,11 @@ Cost_Table18 <- Aug_30_18_scaled_model_run$EV_Demand[c("Hr","X0","P0","Event_Usa
   mutate(Cost0 = X0*P0) %>% 
   mutate(Cost1 = Event_Usage*P1) %>% 
   mutate(Cost_diff = Cost1-Cost0)
-View(Cost_Table18)
+#View(Cost_Table18)
 
+#Sum of Cost
+Sum_Cost18 <-sum(Cost_Table18$Cost_diff)
+#View(Sum_Cost18)
 ```
 
 
