@@ -16,11 +16,22 @@ library(knitr)
 
 ```
 
+#EV Charging Demand Profile Simulation Application
 
-EV Charging Demand Profile Simulation Application
-                                 
 
-This Shiny Application was developed as part of the Smart Charge Master's Group Project at the UCSB Bren School of Environmental Science & Management. Information on the Bren School's master's projects can be found at https://www.bren.ucsb.edu/research/masters_projects_landing.htm.  Information on the Smart Charge group project can be found at https://www.bren.ucsb.edu/research/masters_projects_landing.htm.
+
+## This Application
+
+This Shiny application is meant to simulate the change in electric vehicle charging demand based on changing various inputs that affect charging behavior.
+
+
+## The Bren School
+
+This Application was developed as part of the Smart Charge Master's Group Project at the UCSB Bren School of Environmental Science & Management. Information on the Bren School's master's projects can be found at https://www.bren.ucsb.edu/research/masters_projects_landing.htm.  Information on the Smart Charge group project can be found at https://www.bren.ucsb.edu/research/masters_projects_landing.htm.
+
+## Electric Vehicle Charging
+
+
 
 
 

@@ -11,9 +11,10 @@ ui <- fluidPage(
    
    mainPanel(navbarPage("SMART CHARGE",
                         
-                        tabPanel("About", fluidRow(
-                          column(width = 12,includeMarkdown("About_App.Rmd")))),
+                        tabPanel("About"),
                                  
+                       includeMarkdown("About_App.Rmd"),
+                        
                         tabPanel("Demand Graphs",
                                  
                                  # Number of chargers widget
