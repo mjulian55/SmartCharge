@@ -198,7 +198,7 @@ hourly_demand <- function(segment = sg,
    # as.numeric()
   
   
-  intervention_chargers <- ifelse(int_equals_baseline == TRUE, baseline_chargers, intervention_chargers)
+  
   
 
   Xi <- filter(hourly_baseline, month(Date) == month & year(Date) == year & segment == segment) %>% 
@@ -207,11 +207,12 @@ hourly_demand <- function(segment = sg,
     select(Demand) %>% 
     unlist()
   
-  baseline_chargers <- filter(hourly_baseline, month(Date) == 11 & year(Date) == 2018 & segment == "Workplace") %>% 
+  baseline_chargers <- filter(hourly_baseline, month(Date) == month & year(Date) == year & segment == segment) %>% 
     summarise(Ports = mean(Ports)) %>% 
     select(Ports) %>% 
     unlist()
     
+  intervention_chargers <- ifelse(int_equals_baseline == TRUE, baseline_chargers, intervention_chargers)
   
   #create a new table (EV_Demand) that lists initial price schedule, month, scaled # of chargers
   EV_Demand <- mutate(price_schedule, I01 = 0 ,Xi = Xi, X0 = Xi/baseline_chargers*intervention_chargers) #I01 refers to the hours where there is an intervention. 
