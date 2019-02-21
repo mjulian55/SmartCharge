@@ -11,12 +11,9 @@ ui <- fluidPage(
    
    mainPanel(navbarPage("SMART CHARGE",
                         
-                        tabPanel("About",
+                        tabPanel("About", fluidRow(
+                          column(width = 12,includeMarkdown("About_App.Rmd")))),
                                  
-                                 "EV Charging Demand Profile Simulation App.
-                                 
-                                 This Shiny Application is used for the Bren School Group Project Smart Charge"),
-                        
                         tabPanel("Demand Graphs",
                                  
                                  # Number of chargers widget
