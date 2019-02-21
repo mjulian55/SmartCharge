@@ -32,7 +32,7 @@ source("hourly_demand_function.R")
 hourly_demand()
 
 
-EV_Demand_run1 <- hourly_demand(month = "Nov_18",intervention_comm_effect = 1, throttle_amount = -0.5, price_change = -0.05, intervention_hours = c(12:15))
+#EV_Demand_run1 <- hourly_demand(month = "Nov_18",intervention_comm_effect = 1, throttle_amount = -0.5, price_change = -0.05, intervention_hours = c(12:15))
 #EV_Demand_run1 <- hourly_demand(month = "Jul_18", int_equals_baseline = FALSE, intervention_chargers = 234) #creates a data frame with the output from the function, which is needed to find the emission factors.
 
 ```
@@ -959,7 +959,8 @@ unlist()
 
 Nov_14_18_scaled_model_run <- hourly_demand(price_change = -0.05,
                     throttle_amount = -0.5,
-                    month = "Nov_18",
+                    month = 11,
+                    year= 2018,
                     segment =  "Workplace",
                     intervention_chargers =
                     nov_14_18_event,
@@ -1029,7 +1030,8 @@ unlist()
 
 Nov_28_18_scaled_model_run <- hourly_demand(price_change = -0.05,
                     throttle_amount = -0.5,
-                    month = "Nov_18",
+                    month = 11,
+                    year=2018,
                     segment =  "Workplace",
                     intervention_chargers =
                     nov_28_18_event,
@@ -1101,7 +1103,8 @@ unlist()
 
 Oct_30_18_scaled_model_run <- hourly_demand(price_change = -0.05,
                     throttle_amount = -0.5,
-                    month = "Oct_18",
+                    month = 10,
+                    year = 2018,
                     segment =  "Workplace",
                     intervention_chargers =
                     Oct_30_18_event,
@@ -1171,7 +1174,8 @@ unlist()
 
 Oct_16_18_scaled_model_run <- hourly_demand(price_change = -0.05,
                     throttle_amount = -0.5,
-                    month = "Oct_18",
+                    month = 10,
+                    year = 2018,
                     segment =  "Workplace",
                     intervention_chargers =
                     Oct_16_18_event,
@@ -1246,7 +1250,8 @@ unlist()
 
 Sep_27_18_scaled_model_run <- hourly_demand(price_change = -.10,
                     throttle_amount = -.5,
-                    month = "Sep_18",
+                    month = 9,
+                    year = 2018,
                     segment =  "Workplace",
                     intervention_chargers =
                     Sep_27_18_event,
