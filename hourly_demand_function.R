@@ -69,8 +69,14 @@ DC_gathered <- gather(Destination_Center_Daily_Usage,"Hour","Demand",3:26) %>%
 
 hourly_baseline <- rbind(WP_gathered,MUD_gathered,F_gathered,DC_gathered)
 
+
+#Change class of Hour to numeric and Date to Date
 hourly_baseline$Hour <- as.numeric(hourly_baseline$Hour)
 hourly_baseline$Date <- as.Date(hourly_baseline$Date, "%m/%d/%Y")
+
+
+#Add weekday column to label if weekend or weekday
+#Then add price column (TOU EV 4) with complicated nested ifelse statement to decide price at each hour based on if month is summer or winter and which rate period the hour is
 
 hourly_baseline <- hourly_baseline %>% 
   mutate(weekday = wday(Date, label = TRUE)) %>% 
@@ -187,9 +193,9 @@ hourly_demand <- function(segment = sg,
   #Baseline
   
   #filter the number of chargers by market segment and month, change to numeric (have to set the month and segment otherwise it will take the default, workplace and March 2018)
-  baseline_chargers <-filter(Chargers, Market_Segment == segment) %>% 
-    select(month) %>% 
-    as.numeric()
+  #baseline_chargers <-filter(Chargers, Market_Segment == segment) %>% 
+  #  select(month) %>% 
+   # as.numeric()
   
   
   intervention_chargers <- ifelse(int_equals_baseline == TRUE, baseline_chargers, intervention_chargers)
@@ -199,6 +205,11 @@ hourly_demand <- function(segment = sg,
     group_by(Hour) %>% 
     summarise(Demand = mean(Demand)) %>% 
     select(Demand) %>% 
+    unlist()
+  
+  baseline_chargers <- filter(hourly_baseline, month(Date) == 11 & year(Date) == 2018 & segment == "Workplace") %>% 
+    summarise(Ports = mean(Ports)) %>% 
+    select(Ports) %>% 
     unlist()
     
   
