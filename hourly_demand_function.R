@@ -158,12 +158,15 @@ int_ch <- filter(Chargers, Market_Segment == sg) %>%
 int_e_b <- TRUE
 i_c_e <- 1
 yr <- 2018
+wknds <- TRUE
+
 
 
 
 hourly_demand <- function(segment = sg, 
                           month = mth,
                           year = yr,
+                          include_wknds = wknds,
                           charger_power = pwr,
                           schedule = sch,
                           price_change = p_c,
@@ -199,13 +202,14 @@ hourly_demand <- function(segment = sg,
   
   
   
-  
-
-  Xi <- filter(hourly_baseline, month(Date) == month & year(Date) == year & segment == segment) %>% 
+   
+  Xi <- ifelse(include_wknds == TRUE, filter(hourly_baseline, weekday == "Weekday" | weekday == "Weekend"), filter(hourlybaseline, weekday == "Weekday")) %>% 
+    filter(month(Date) == month & year(Date) == year & segment == segment) %>% 
     group_by(Hour) %>% 
     summarise(Demand = mean(Demand)) %>% 
     select(Demand) %>% 
     unlist()
+  
   
   baseline_chargers <- filter(hourly_baseline, month(Date) == month & year(Date) == year & segment == segment) %>% 
     summarise(Ports = mean(Ports)) %>% 
