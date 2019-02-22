@@ -201,14 +201,18 @@ hourly_demand <- function(segment = sg,
    # as.numeric()
   
   
-  
-   
-  Xi <- ifelse(include_wknds == TRUE, filter(hourly_baseline, weekday == "Weekday" | weekday == "Weekend"), filter(hourlybaseline, weekday == "Weekday")) %>% 
-    filter(month(Date) == month & year(Date) == year & segment == segment) %>% 
-    group_by(Hour) %>% 
-    summarise(Demand = mean(Demand)) %>% 
-    select(Demand) %>% 
-    unlist()
+Xi_choose_weekends <- if(include_wknds == TRUE) {
+  filter(hourly_baseline, weekday == "Weekday" | weekday == "Weekend")
+} else {
+  filter(hourly_baseline, weekday == "Weekday")
+}
+
+Xi <- Xi_choose_weekends %>% 
+  filter(month(Date) == month & year(Date) == year & segment == segment) %>% 
+  group_by(Hour) %>% 
+  summarise(Demand = mean(Demand)) %>% 
+  select(Demand) %>% 
+  unlist()
   
   
   baseline_chargers <- filter(hourly_baseline, month(Date) == month & year(Date) == year & segment == segment) %>% 
