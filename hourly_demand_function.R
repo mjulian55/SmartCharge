@@ -53,26 +53,93 @@ Fleet_Daily_Usage <- read_csv("Fleet_Daily_Usage.csv")
 Destination_Center_Daily_Usage <- read_csv("Destination_Center_Daily_Usage.csv")
 
 
+#Event Usage
+DC_Event_Total_Usage <- read_csv("Model_Map/DC_Event_Total_Usage.csv")
+Workplace_Event_Total_Usage <- read_csv("Model_Map/Workplace_Event_Total_Usage.csv")
+Fleet_Event_Total_Usage <- read_csv("Model_Map/Fleet_Event_Total_Usage.csv")
+MUD_Event_Total_Usage <- read_csv("Model_Map/MUD_Event_Total_Usage.csv")
+
 #Putting all the hourly baseline in one place
 
-WP_gathered <- gather(Workplace_Daily_Usage,"Hour","Demand",3:26) %>% 
+WP_gathered <- gather(Workplace_Daily_Usage,"Hour","Demand",3:26, factor_key = TRUE) %>% 
   mutate(segment = "Workplace")
 
-MUD_gathered <- gather(Multi_Unit_Dwelling_Daily_Usage,"Hour","Demand",3:26) %>% 
+MUD_gathered <- gather(Multi_Unit_Dwelling_Daily_Usage,"Hour","Demand",3:26, factor_key = TRUE) %>% 
   mutate(segment = "Multi Unit Dwelling")
 
-F_gathered <- gather(Fleet_Daily_Usage,"Hour","Demand",3:26) %>% 
+F_gathered <- gather(Fleet_Daily_Usage,"Hour","Demand",3:26, factor_key = TRUE) %>% 
   mutate(segment = "Fleet")
 
-DC_gathered <- gather(Destination_Center_Daily_Usage,"Hour","Demand",3:26) %>% 
+DC_gathered <- gather(Destination_Center_Daily_Usage,"Hour","Demand",3:26, factor_key = TRUE) %>% 
   mutate(segment = "Destination Center")
+
+
 
 hourly_baseline <- rbind(WP_gathered,MUD_gathered,F_gathered,DC_gathered)
 
 
-#Change class of Hour to numeric and Date to Date
-hourly_baseline$Hour <- as.numeric(hourly_baseline$Hour)
+#Gathering Event usage into one place
+
+MUD_event_gathered <- gather(MUD_Event_Total_Usage[-c(1,2),],"Date","Demand",2:9) %>% 
+  mutate(segment = "Multi Unit Dwelling",
+         event_type = rep(
+    unlist(
+    filter(MUD_Event_Total_Usage, Hour == "event_type")[-1]),each = 24), participating_chargers = rep(
+      unlist(
+        filter(MUD_Event_Total_Usage, Hour == "participating_chargers")[-1]),each = 24))
+  
+
+F_event_gathered <- gather(Fleet_Event_Total_Usage[-c(1,2),],"Date","Demand",2:9) %>% 
+  mutate(segment = "Fleet",
+         event_type = rep(
+    unlist(
+      filter(Fleet_Event_Total_Usage, Hour == "event_type")[-1]),each = 24), participating_chargers = rep(
+        unlist(
+          filter(Fleet_Event_Total_Usage, Hour == "participating_chargers")[-1]),each = 24))
+
+DC_event_gathered <- gather(DC_Event_Total_Usage[-c(1,2),],"Date","Demand",2:9) %>%
+  mutate(segment = "Destination Center",
+         event_type = rep(
+    unlist(
+      filter(DC_Event_Total_Usage, Hour == "event_type")[-1]),each = 24), participating_chargers = rep(
+        unlist(
+          filter(DC_Event_Total_Usage, Hour == "participating_chargers")[-1]),each = 24))
+
+WP_event_gathered <- gather(Workplace_Event_Total_Usage[-c(1,2),],"Date","Demand",2:9) %>% 
+  mutate(segment = "Workplace",
+         event_type = rep(
+    unlist(
+      filter(Workplace_Event_Total_Usage, Hour == "event_type")[-1]),each = 24), participating_chargers = rep(
+        unlist(
+          filter(Workplace_Event_Total_Usage, Hour == "participating_chargers")[-1]),each = 24))
+
+
+event_data <- rbind(WP_event_gathered,MUD_event_gathered,F_event_gathered, DC_event_gathered)
+
+#Change class of Date to Date
+#hourly_baseline$Hour <- as.numeric(hourly_baseline$Hour)
 hourly_baseline$Date <- as.Date(hourly_baseline$Date, "%m/%d/%Y")
+event_data$Date <- as.Date(event_data$Date, "%m/%d/%Y")
+
+#add intervention prices
+#adds normal price with nested if statement and then adds intervention price based on type of event and hours
+
+event_data <- event_data %>% 
+  mutate(price = ifelse(month(Date) %in% seq(6,9,1), 
+                        ifelse(Hour %in% c(seq(1,8,1),24),
+                               0.05, 
+                               ifelse(Hour %in% c(seq(9,12,1),seq(19,23,1)),
+                                      0.12,
+                                      0.29)),
+                        ifelse(Hour %in% c(seq(1,8,1),24),
+                               0.06, 
+                               ifelse(Hour %in% c(seq(9,12,1),seq(19,23,1)),
+                                      0.09,
+                                      0.11)
+                        ))) %>% 
+  mutate(int_price = ifelse(event_type == "LS", ifelse(Hour %in% c(12:15), price-0.05, price), ifelse(Hour %in% c(17:21), price + 0.1, price)))
+
+
 
 
 #Add weekday column to label if weekend or weekday
@@ -122,11 +189,7 @@ add_baseline_chargers <- Chargers %>%
   slice(rep(1:n(),each=24))
 
 
-#Event Usage
-DC_Event_Total_Usage <- read_csv("Model_Map/DC_Event_Total_Usage.csv")
-Workplace_Event_Total_Usage <- read_csv("Model_Map/Workplace_Event_Total_Usage.csv")
-Fleet_Event_Total_Usage <- read_csv("Model_Map/Fleet_Event_Total_Usage.csv")
-MUD_Event_Total_Usage <- read_csv("Model_Map/MUD_Event_Total_Usage.csv")
+
 
 #Elasticities with format 9X3 with columns Base_Hr, Changed_Hr, and Elasticity
 #Changed_Hr is the Hour where the price change occurs, Base_Hr is the hour in which demand changes
