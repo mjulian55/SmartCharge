@@ -5,6 +5,7 @@ library(tidyverse)
 library(dplyr)
 library(RColorBrewer)
 library(lubridate)
+library(AER)
 
 #LOAD DATA
 #Price Schedule
@@ -78,6 +79,27 @@ DC_gathered <- gather(Destination_Center_Daily_Usage,"Hour","Demand",3:26, facto
 hourly_baseline <- rbind(WP_gathered,MUD_gathered,F_gathered,DC_gathered)
 
 
+#Add weekday column to label if weekend or weekday
+#Then add price column (TOU EV 4) with complicated nested ifelse statement to decide price at each hour based on if month is summer or winter and which rate period the hour is
+
+hourly_baseline <- hourly_baseline %>% 
+  mutate(weekday = wday(Date, label = TRUE)) %>% 
+  mutate(weekday = ifelse(weekday == "Sun" |weekday == "Sat", "Weekend","Weekday")) %>% 
+  mutate(price = ifelse(month(Date) %in% seq(6,9,1), 
+                        ifelse(Hour %in% c(seq(1,8,1),24),
+                               0.05, 
+                               ifelse(Hour %in% c(seq(9,12,1),seq(19,23,1)),
+                                      0.12,
+                                      0.29)),
+                        ifelse(Hour %in% c(seq(1,8,1),24),
+                               0.06, 
+                               ifelse(Hour %in% c(seq(9,12,1),seq(19,23,1)),
+                                      0.09,
+                                      0.11)
+                        )))
+
+
+
 #Gathering Event usage into one place
 
 MUD_event_gathered <- gather(MUD_Event_Total_Usage[-c(1,2),],"Date","Demand",2:9) %>% 
@@ -140,28 +162,35 @@ event_data <- event_data %>%
   mutate(int_price = ifelse(event_type == "LS", ifelse(Hour %in% c(12:15), price-0.05, price), ifelse(Hour %in% c(17:21), price + 0.1, price)))
 
 
+#Format the event data to be like hourly demand
+
+event_data_for_merge <- event_data %>% 
+  mutate(event = 1) %>% 
+  mutate(weekday = wday(Date, label = TRUE)) %>%
+  mutate(weekday = ifelse(weekday == "Sun" |weekday == "Sat", "Weekend","Weekday")) %>%
+  select(Date, Ports = participating_chargers, Hour, Demand, segment, weekday,price = int_price, event)
 
 
-#Add weekday column to label if weekend or weekday
-#Then add price column (TOU EV 4) with complicated nested ifelse statement to decide price at each hour based on if month is summer or winter and which rate period the hour is
 
-hourly_baseline <- hourly_baseline %>% 
-  mutate(weekday = wday(Date, label = TRUE)) %>% 
-  mutate(weekday = ifelse(weekday == "Sun" |weekday == "Sat", "Weekend","Weekday")) %>% 
-  mutate(price = ifelse(month(Date) %in% seq(6,9,1), 
-                        ifelse(Hour %in% c(seq(1,8,1),24),
-                               0.05, 
-                               ifelse(Hour %in% c(seq(9,12,1),seq(19,23,1)),
-                                      0.12,
-                                      0.29)),
-                        ifelse(Hour %in% c(seq(1,8,1),24),
-                               0.06, 
-                               ifelse(Hour %in% c(seq(9,12,1),seq(19,23,1)),
-                                      0.09,
-                                      0.11)
-                        )))
+#55584 entries
+
+hourly_baseline_with_events <- hourly_baseline %>% 
+  mutate(event = 0) %>% 
+  filter(!(Date %in% event_data_for_merge$Date)) %>% 
+  rbind(event_data_for_merge) 
+
+hourly_baseline_with_events$Hour <- as_factor(hourly_baseline_with_events$Hour)
+hourly_baseline_with_events$Demand <- as.numeric(hourly_baseline_with_events$Demand)
+hourly_baseline_with_events$Ports <- as.numeric(hourly_baseline_with_events$Ports)
+
+hourly_baseline_with_events <- hourly_baseline_with_events %>% 
+  mutate(demand_per_port = Demand/Ports)
 
 
+
+EV_lm <- lm(exp(demand_per_port) ~ price + Hour + segment, data = hourly_baseline_with_events)
+
+EV_IV <- ivreg(exp(demand_per_port) ~ exp(price) + Hour + segment | event + Hour + segment, data = hourly_baseline_with_events)
 
 Workplace_Daily_Usage$Date <- as.Date(Workplace_Daily_Usage$Date, "%m/%d/%Y")
 Workplace_Daily_Usage <- Workplace_Daily_Usage %>% 
