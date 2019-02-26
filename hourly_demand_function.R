@@ -78,7 +78,9 @@ DC_gathered <- gather(Destination_Center_Daily_Usage,"Hour","Demand",3:26, facto
 
 hourly_baseline <- rbind(WP_gathered,MUD_gathered,F_gathered,DC_gathered)
 
-
+#Change class of Date to Date
+#hourly_baseline$Hour <- as.numeric(hourly_baseline$Hour)
+hourly_baseline$Date <- as.Date(hourly_baseline$Date, "%m/%d/%Y")
 #Add weekday column to label if weekend or weekday
 #Then add price column (TOU EV 4) with complicated nested ifelse statement to decide price at each hour based on if month is summer or winter and which rate period the hour is
 
@@ -138,10 +140,7 @@ WP_event_gathered <- gather(Workplace_Event_Total_Usage[-c(1,2),],"Date","Demand
 
 event_data <- rbind(WP_event_gathered,MUD_event_gathered,F_event_gathered, DC_event_gathered)
 
-#Change class of Date to Date
-#hourly_baseline$Hour <- as.numeric(hourly_baseline$Hour)
-hourly_baseline$Date <- as.Date(hourly_baseline$Date, "%m/%d/%Y")
-event_data$Date <- as.Date(event_data$Date, "%m/%d/%Y")
+
 
 #add intervention prices
 #adds normal price with nested if statement and then adds intervention price based on type of event and hours
@@ -161,6 +160,7 @@ event_data <- event_data %>%
                         ))) %>% 
   mutate(int_price = ifelse(event_type == "LS", ifelse(Hour %in% c(12:15), price-0.05, price), ifelse(Hour %in% c(17:21), price + 0.1, price)))
 
+event_data$Date <- as.Date(event_data$Date, "%m/%d/%Y")
 
 #Format the event data to be like hourly demand
 
@@ -169,6 +169,7 @@ event_data_for_merge <- event_data %>%
   mutate(weekday = wday(Date, label = TRUE)) %>%
   mutate(weekday = ifelse(weekday == "Sun" |weekday == "Sat", "Weekend","Weekday")) %>%
   select(Date, Ports = participating_chargers, Hour, Demand, segment, weekday,price = int_price, event)
+
 
 
 
@@ -184,11 +185,31 @@ hourly_baseline_with_events$Demand <- as.numeric(hourly_baseline_with_events$Dem
 hourly_baseline_with_events$Ports <- as.numeric(hourly_baseline_with_events$Ports)
 
 hourly_baseline_with_events <- hourly_baseline_with_events %>% 
-  mutate(demand_per_port = Demand/Ports)
+  mutate(demand_per_port = Demand/Ports, cost = Demand*price)
 
+daily_baseline_with_events <- hourly_baseline_with_events %>% 
+  group_by(Date,segment) %>% 
+  summarise(Ports = mean(Ports), Demand = sum(Demand), price = sum(cost)) 
 
+daily_baseline_with_events <- as.data.frame(daily_baseline_with_events) %>%  
+  mutate(avg_price = price/Demand, demand_per_port = Demand/Ports,weekday = wday(Date, label = TRUE)) %>% 
+  mutate(weekday = ifelse(weekday == "Sun" |weekday == "Sat", "Weekend","Weekday")) %>% 
+  na.omit()
+  
+plot_weekdays <- filter(daily_baseline_with_events, weekday == "Weekday")
 
-EV_lm <- lm(exp(demand_per_port) ~ price + Hour + segment, data = hourly_baseline_with_events)
+ggplot(daily_baseline_with_events, aes(x = price)) +
+  geom_point(aes(y = Demand)) +
+  facet_wrap(~segment, scales = "free") +
+  theme_classic()
+
+daily_baseline_with_events$segment <- as_factor(daily_baseline_with_events$segment)
+
+daily_baseline_with_events$weekday <- as_factor(daily_baseline_with_events$weekday)
+
+EV_daily_lm <- lm(exp(demand_per_port)~ exp(avg_price) + segment + weekday, data = daily_baseline_with_events)
+
+EV_lm <- lm(exp(demand_per_port) ~ exp(price) + Hour + segment, data = hourly_baseline_with_events)
 
 EV_IV <- ivreg(exp(demand_per_port) ~ exp(price) + Hour + segment | event + Hour + segment, data = hourly_baseline_with_events)
 
