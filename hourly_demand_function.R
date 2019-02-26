@@ -5,6 +5,7 @@ library(tidyverse)
 library(dplyr)
 library(RColorBrewer)
 library(lubridate)
+library(AER)
 
 #LOAD DATA
 #Price Schedule
@@ -53,23 +54,33 @@ Fleet_Daily_Usage <- read_csv("Fleet_Daily_Usage.csv")
 Destination_Center_Daily_Usage <- read_csv("Destination_Center_Daily_Usage.csv")
 
 
+#Event Usage
+DC_Event_Total_Usage <- read_csv("Model_Map/DC_Event_Total_Usage.csv")
+Workplace_Event_Total_Usage <- read_csv("Model_Map/Workplace_Event_Total_Usage.csv")
+Fleet_Event_Total_Usage <- read_csv("Model_Map/Fleet_Event_Total_Usage.csv")
+MUD_Event_Total_Usage <- read_csv("Model_Map/MUD_Event_Total_Usage.csv")
+
 #Putting all the hourly baseline in one place
 
-WP_gathered <- gather(Workplace_Daily_Usage,"Hour","Demand",3:26) %>% 
-  mutate(segment = "WP")
+WP_gathered <- gather(Workplace_Daily_Usage,"Hour","Demand",3:26, factor_key = TRUE) %>% 
+  mutate(segment = "Workplace")
 
-MUD_gathered <- gather(Multi_Unit_Dwelling_Daily_Usage,"Hour","Demand",3:26) %>% 
-  mutate(segment = "MUD")
+MUD_gathered <- gather(Multi_Unit_Dwelling_Daily_Usage,"Hour","Demand",3:26, factor_key = TRUE) %>% 
+  mutate(segment = "Multi Unit Dwelling")
 
-F_gathered <- gather(Fleet_Daily_Usage,"Hour","Demand",3:26) %>% 
-  mutate(segment = "F")
+F_gathered <- gather(Fleet_Daily_Usage,"Hour","Demand",3:26, factor_key = TRUE) %>% 
+  mutate(segment = "Fleet")
 
-DC_gathered <- gather(Destination_Center_Daily_Usage,"Hour","Demand",3:26) %>% 
-  mutate(segment = "DC")
+DC_gathered <- gather(Destination_Center_Daily_Usage,"Hour","Demand",3:26, factor_key = TRUE) %>% 
+  mutate(segment = "Destination Center")
+
+
 
 hourly_baseline <- rbind(WP_gathered,MUD_gathered,F_gathered,DC_gathered)
 
-hourly_baseline$Date <- as.Date(hourly_baseline$Date, "%m/%d/%Y")
+
+#Add weekday column to label if weekend or weekday
+#Then add price column (TOU EV 4) with complicated nested ifelse statement to decide price at each hour based on if month is summer or winter and which rate period the hour is
 
 hourly_baseline <- hourly_baseline %>% 
   mutate(weekday = wday(Date, label = TRUE)) %>% 
@@ -85,10 +96,101 @@ hourly_baseline <- hourly_baseline %>%
                                ifelse(Hour %in% c(seq(9,12,1),seq(19,23,1)),
                                       0.09,
                                       0.11)
-                        ))) 
+                        )))
 
 
 
+#Gathering Event usage into one place
+
+MUD_event_gathered <- gather(MUD_Event_Total_Usage[-c(1,2),],"Date","Demand",2:9) %>% 
+  mutate(segment = "Multi Unit Dwelling",
+         event_type = rep(
+    unlist(
+    filter(MUD_Event_Total_Usage, Hour == "event_type")[-1]),each = 24), participating_chargers = rep(
+      unlist(
+        filter(MUD_Event_Total_Usage, Hour == "participating_chargers")[-1]),each = 24))
+  
+
+F_event_gathered <- gather(Fleet_Event_Total_Usage[-c(1,2),],"Date","Demand",2:9) %>% 
+  mutate(segment = "Fleet",
+         event_type = rep(
+    unlist(
+      filter(Fleet_Event_Total_Usage, Hour == "event_type")[-1]),each = 24), participating_chargers = rep(
+        unlist(
+          filter(Fleet_Event_Total_Usage, Hour == "participating_chargers")[-1]),each = 24))
+
+DC_event_gathered <- gather(DC_Event_Total_Usage[-c(1,2),],"Date","Demand",2:9) %>%
+  mutate(segment = "Destination Center",
+         event_type = rep(
+    unlist(
+      filter(DC_Event_Total_Usage, Hour == "event_type")[-1]),each = 24), participating_chargers = rep(
+        unlist(
+          filter(DC_Event_Total_Usage, Hour == "participating_chargers")[-1]),each = 24))
+
+WP_event_gathered <- gather(Workplace_Event_Total_Usage[-c(1,2),],"Date","Demand",2:9) %>% 
+  mutate(segment = "Workplace",
+         event_type = rep(
+    unlist(
+      filter(Workplace_Event_Total_Usage, Hour == "event_type")[-1]),each = 24), participating_chargers = rep(
+        unlist(
+          filter(Workplace_Event_Total_Usage, Hour == "participating_chargers")[-1]),each = 24))
+
+
+event_data <- rbind(WP_event_gathered,MUD_event_gathered,F_event_gathered, DC_event_gathered)
+
+#Change class of Date to Date
+#hourly_baseline$Hour <- as.numeric(hourly_baseline$Hour)
+hourly_baseline$Date <- as.Date(hourly_baseline$Date, "%m/%d/%Y")
+event_data$Date <- as.Date(event_data$Date, "%m/%d/%Y")
+
+#add intervention prices
+#adds normal price with nested if statement and then adds intervention price based on type of event and hours
+
+event_data <- event_data %>% 
+  mutate(price = ifelse(month(Date) %in% seq(6,9,1), 
+                        ifelse(Hour %in% c(seq(1,8,1),24),
+                               0.05, 
+                               ifelse(Hour %in% c(seq(9,12,1),seq(19,23,1)),
+                                      0.12,
+                                      0.29)),
+                        ifelse(Hour %in% c(seq(1,8,1),24),
+                               0.06, 
+                               ifelse(Hour %in% c(seq(9,12,1),seq(19,23,1)),
+                                      0.09,
+                                      0.11)
+                        ))) %>% 
+  mutate(int_price = ifelse(event_type == "LS", ifelse(Hour %in% c(12:15), price-0.05, price), ifelse(Hour %in% c(17:21), price + 0.1, price)))
+
+
+#Format the event data to be like hourly demand
+
+event_data_for_merge <- event_data %>% 
+  mutate(event = 1) %>% 
+  mutate(weekday = wday(Date, label = TRUE)) %>%
+  mutate(weekday = ifelse(weekday == "Sun" |weekday == "Sat", "Weekend","Weekday")) %>%
+  select(Date, Ports = participating_chargers, Hour, Demand, segment, weekday,price = int_price, event)
+
+
+
+#55584 entries
+
+hourly_baseline_with_events <- hourly_baseline %>% 
+  mutate(event = 0) %>% 
+  filter(!(Date %in% event_data_for_merge$Date)) %>% 
+  rbind(event_data_for_merge) 
+
+hourly_baseline_with_events$Hour <- as_factor(hourly_baseline_with_events$Hour)
+hourly_baseline_with_events$Demand <- as.numeric(hourly_baseline_with_events$Demand)
+hourly_baseline_with_events$Ports <- as.numeric(hourly_baseline_with_events$Ports)
+
+hourly_baseline_with_events <- hourly_baseline_with_events %>% 
+  mutate(demand_per_port = Demand/Ports)
+
+
+
+EV_lm <- lm(exp(demand_per_port) ~ price + Hour + segment, data = hourly_baseline_with_events)
+
+EV_IV <- ivreg(exp(demand_per_port) ~ exp(price) + Hour + segment | event + Hour + segment, data = hourly_baseline_with_events)
 
 Workplace_Daily_Usage$Date <- as.Date(Workplace_Daily_Usage$Date, "%m/%d/%Y")
 Workplace_Daily_Usage <- Workplace_Daily_Usage %>% 
@@ -103,7 +205,7 @@ Workplace_Weekday_Usage <- Workplace_Daily_Usage %>%
 
 
 Workplace_Weekday_Average <- apply(select(Workplace_Weekday_Usage, '1':'24'),2,mean) 
-View(Workplace_Weekday_Average)
+#View(Workplace_Weekday_Average)
 
 
 # Number of Chargers by Segment
@@ -116,11 +218,7 @@ add_baseline_chargers <- Chargers %>%
   slice(rep(1:n(),each=24))
 
 
-#Event Usage
-DC_Event_Total_Usage <- read_csv("Model_Map/DC_Event_Total_Usage.csv")
-Workplace_Event_Total_Usage <- read_csv("Model_Map/Workplace_Event_Total_Usage.csv")
-Fleet_Event_Total_Usage <- read_csv("Model_Map/Fleet_Event_Total_Usage.csv")
-MUD_Event_Total_Usage <- read_csv("Model_Map/MUD_Event_Total_Usage.csv")
+
 
 #Elasticities with format 9X3 with columns Base_Hr, Changed_Hr, and Elasticity
 #Changed_Hr is the Hour where the price change occurs, Base_Hr is the hour in which demand changes
@@ -143,7 +241,7 @@ t_a <- 0 #throttling amount
 t_h <- c(7:11) #throttling hours
 sch <- closest_elasticities #elasticities to use for price intervention (column in the elasticities dataframe) -  Non PV Summer Weekday EPEV L. The default now picks from the ratio 
 sg <- "Workplace" #segment
-mth <- "Mar_18" #month
+mth <- 11 #month
 pwr <- 6.6 #charger power
 pk <- c(17:21) #target window to shift out off (this is only used in the output calculations below, not for the function)
 int_ch <- filter(Chargers, Market_Segment == sg) %>% 
@@ -151,14 +249,16 @@ int_ch <- filter(Chargers, Market_Segment == sg) %>%
   as.numeric() # default is to MARCH 2018
 int_e_b <- TRUE
 i_c_e <- 1
-
-
+yr <- 2018
+wknds <- TRUE
 
 
 
 
 hourly_demand <- function(segment = sg, 
-                          month = mth, 
+                          month = mth,
+                          year = yr,
+                          include_wknds = wknds,
                           charger_power = pwr,
                           schedule = sch,
                           price_change = p_c,
@@ -188,21 +288,34 @@ hourly_demand <- function(segment = sg,
   #Baseline
   
   #filter the number of chargers by market segment and month, change to numeric (have to set the month and segment otherwise it will take the default, workplace and March 2018)
-  baseline_chargers <-filter(Chargers, Market_Segment == segment) %>% 
-    select(month) %>% 
-    as.numeric()
+  #baseline_chargers <-filter(Chargers, Market_Segment == segment) %>% 
+  #  select(month) %>% 
+   # as.numeric()
   
   
+Xi_choose_weekends <- if(include_wknds == TRUE) {
+  filter(hourly_baseline, weekday == "Weekday" | weekday == "Weekend")
+} else {
+  filter(hourly_baseline, weekday == "Weekday")
+}
+
+Xi <- Xi_choose_weekends %>% 
+  filter(month(Date) == month & year(Date) == year & segment == segment) %>% 
+  group_by(Hour) %>% 
+  summarise(Demand = mean(Demand)) %>% 
+  select(Demand) %>% 
+  unlist()
+  
+  
+  baseline_chargers <- filter(hourly_baseline, month(Date) == month & year(Date) == year & segment == segment) %>% 
+    summarise(Ports = mean(Ports)) %>% 
+    select(Ports) %>% 
+    unlist()
+    
   intervention_chargers <- ifelse(int_equals_baseline == TRUE, baseline_chargers, intervention_chargers)
   
- #baseline_month is dependent on selection of segment and month in the function
-  baseline_month<- baseline %>% 
-    filter(Segment == segment) %>% 
-    select(month) %>%
-    unlist()
-  
   #create a new table (EV_Demand) that lists initial price schedule, month, scaled # of chargers
-  EV_Demand <- mutate(price_schedule, I01 = 0 ,Xi = baseline_month, X0 = baseline_month/baseline_chargers*intervention_chargers) #I01 refers to the hours where there is an intervention. 
+  EV_Demand <- mutate(price_schedule, I01 = 0 ,Xi = Xi, X0 = Xi/baseline_chargers*intervention_chargers) #I01 refers to the hours where there is an intervention. 
   
   EV_Demand$I01[intervention_hours] <-1
   
