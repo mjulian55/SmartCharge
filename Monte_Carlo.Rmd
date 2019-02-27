@@ -1023,11 +1023,14 @@ Event: Workplace, November 28, 2018, TOU EV-4, $0.05 Discount (11AM-3PM)
 ```{r Scenario 14}
 
 #CHARGERS
+#filter Event Chargers DF to return the # of chargers in use at all workplaces on November 28, 2018
 nov_28_18_event <- Event_Chargers %>%
 filter(Market_Segment=="Workplace") %>%
 select(Nov_28_18_LS) %>%
 unlist()
 
+
+#scale the baseline number of chargers to the same number of chargers during the Nov 28 event
 Nov_28_18_scaled_model_run <- hourly_demand(price_change = -0.05,
                     throttle_amount = -0.5,
                     month = 11,
@@ -1038,18 +1041,19 @@ Nov_28_18_scaled_model_run <- hourly_demand(price_change = -0.05,
                     int_equals_baseline = FALSE,
                     intervention_comm_effect = 1)
 
+#specify the event kwh usage on November 28, 2018
+nov_28_18_Event_Usage <- Workplace_Event_Total_Usage$`11/28/2018`[3:26]
 
-nov_28_18_Event_Usage <- Workplace_Event_Total_Usage$Nov_28_18_LS
-
+#add new event usage column to the Nov 28 scaled model run (baseline, not interventions) in order to graph later
 Nov_28_18_scaled_model_run$EV_Demand <- Nov_28_18_scaled_model_run$EV_Demand %>%
   mutate(Event_Usage = nov_28_18_Event_Usage)
 
-
+#organize original demand (baseline, X0), and Event usage data into an hourly table; add a theoretical max column based on the number of chargers in the event date
 graph_table14 <- Nov_28_18_scaled_model_run$EV_Demand[c("Hr","X0","Event_Usage")] %>%
   gather(condition,value,c("X0","Event_Usage")) %>%
   mutate(Theoretical_Max=Nov_28_18_scaled_model_run$EV_Demand$MT[1])
 
-
+#graph scaled baseline data and event data onto a single graph
 Demand_Graph14 <- ggplot(data = graph_table14, aes(x = Hr)) +
   geom_line(aes(y = value, color=condition)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
@@ -1068,7 +1072,7 @@ Demand_Graph14 <- ggplot(data = graph_table14, aes(x = Hr)) +
   theme(legend.position="bottom") +
   scale_fill_manual('Interventions',values = c('green','yellow'),  guide = guide_legend(override.aes = list(alpha = 0.15)))
   
-
+#separate graph with the theoretical max as a line
 Potential_Graph14 <- Demand_Graph14 +
 geom_line(aes(y=Theoretical_Max))
 
@@ -1077,6 +1081,7 @@ Demand_Graph14
 ggsave("Nov_28_Event_Usage.pdf", Demand_Graph14, device = "pdf", width = 8, height = 4.5)
 
 #COST
+#create a table with the difference in cost between the intial demand (x0) and initial price (p0), vs event demand (Event_usage) and event price (P1)
 Cost_Table14 <- Nov_28_18_scaled_model_run$EV_Demand[c("Hr","X0","P0","Event_Usage","P1")] %>% 
   mutate(Cost0 = X0*P0) %>% 
   mutate(Cost1 = Event_Usage*P1) %>% 
