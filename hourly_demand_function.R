@@ -145,6 +145,9 @@ event_data <- rbind(WP_event_gathered,MUD_event_gathered,F_event_gathered, DC_ev
 #add intervention prices
 #adds normal price with nested if statement and then adds intervention price based on type of event and hours
 
+event_data$Date <- as.Date(event_data$Date, "%m/%d/%Y")
+
+
 event_data <- event_data %>% 
   mutate(price = ifelse(month(Date) %in% seq(6,9,1), 
                         ifelse(Hour %in% c(seq(1,8,1),24),
@@ -160,7 +163,6 @@ event_data <- event_data %>%
                         ))) %>% 
   mutate(int_price = ifelse(event_type == "LS", ifelse(Hour %in% c(12:15), price-0.05, price), ifelse(Hour %in% c(17:21), price + 0.1, price)))
 
-event_data$Date <- as.Date(event_data$Date, "%m/%d/%Y")
 
 #Format the event data to be like hourly demand
 
@@ -198,8 +200,8 @@ daily_baseline_with_events <- as.data.frame(daily_baseline_with_events) %>%
   
 plot_weekdays <- filter(daily_baseline_with_events, weekday == "Weekday")
 
-ggplot(daily_baseline_with_events, aes(x = price)) +
-  geom_point(aes(y = Demand)) +
+ggplot(daily_baseline_with_events, aes(x = avg_price)) +
+  geom_point(aes(y = demand_per_port)) +
   facet_wrap(~segment, scales = "free") +
   theme_classic()
 
@@ -207,7 +209,7 @@ daily_baseline_with_events$segment <- as_factor(daily_baseline_with_events$segme
 
 daily_baseline_with_events$weekday <- as_factor(daily_baseline_with_events$weekday)
 
-EV_daily_lm <- lm(exp(demand_per_port)~ exp(avg_price) + segment + weekday, data = daily_baseline_with_events)
+EV_daily_lm <- lm(demand_per_port~ avg_price + segment + weekday, data = daily_baseline_with_events)
 
 EV_lm <- lm(exp(demand_per_port) ~ exp(price) + Hour + segment, data = hourly_baseline_with_events)
 
