@@ -200,8 +200,10 @@ daily_baseline_with_events <- as.data.frame(daily_baseline_with_events) %>%
   
 plot_weekdays <- filter(daily_baseline_with_events, weekday == "Weekday")
 
-ggplot(daily_baseline_with_events, aes(x = avg_price)) +
-  geom_point(aes(y = demand_per_port)) +
+#& month(Date) %in% c(1:5, 10:12)
+
+ggplot(plot_weekdays, aes(x = avg_price)) +
+  geom_point(aes(y = demand_per_port, color = month(Date) %in% c(6:9))) +
   facet_wrap(~segment, scales = "free") +
   theme_classic()
 
@@ -274,11 +276,12 @@ int_e_b <- TRUE
 i_c_e <- 1
 yr <- 2018
 wknds <- TRUE
+mthd <- 1
 
 
 
-
-hourly_demand <- function(segment = sg, 
+hourly_demand <- function(method = mthd,
+                          segment = sg, 
                           month = mth,
                           year = yr,
                           include_wknds = wknds,
