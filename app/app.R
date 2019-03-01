@@ -13,7 +13,7 @@ ui <- fluidPage(
                         
                         tabPanel("About"),
                                  
-                       includeMarkdown("About_App.Rmd"),
+                     includeMarkdown("About_App.Rmd"),
                         
                         tabPanel("Demand Graphs",
                                  
