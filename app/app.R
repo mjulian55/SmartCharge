@@ -4,6 +4,7 @@
 library(shiny)
 library(shinydashboard)
 library(tidyverse)
+library(markdown)
 
 
 ui <- fluidPage(
@@ -11,9 +12,8 @@ ui <- fluidPage(
    
    mainPanel(navbarPage("SMART CHARGE",
                         
-                        tabPanel("About"),
-                                 
-                     includeMarkdown("About_App.Rmd"),
+                        tabPanel("About", 
+                        includeMarkdown("About_App.Rmd")),
                         
                         tabPanel("Demand Graphs",
                                  
@@ -139,7 +139,7 @@ server <- function(input, output) {
 # This website will make sure any changes in your Input UI tab will be shared amongst all tabs:
 # https://stackoverflow.com/questions/47226158/share-some-ui-between-tabs-with-different-output-on-shiny
   
-  output$hourly_demand <- renderPlot()
+  # output$hourly_demand <- renderPlot()
   
   
   
