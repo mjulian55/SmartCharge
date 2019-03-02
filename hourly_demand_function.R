@@ -78,7 +78,9 @@ DC_gathered <- gather(Destination_Center_Daily_Usage,"Hour","Demand",3:26, facto
 
 hourly_baseline <- rbind(WP_gathered,MUD_gathered,F_gathered,DC_gathered)
 
-
+#Change class of Date to Date
+#hourly_baseline$Hour <- as.numeric(hourly_baseline$Hour)
+hourly_baseline$Date <- as.Date(hourly_baseline$Date, "%m/%d/%Y")
 #Add weekday column to label if weekend or weekday
 #Then add price column (TOU EV 4) with complicated nested ifelse statement to decide price at each hour based on if month is summer or winter and which rate period the hour is
 
@@ -138,13 +140,13 @@ WP_event_gathered <- gather(Workplace_Event_Total_Usage[-c(1,2),],"Date","Demand
 
 event_data <- rbind(WP_event_gathered,MUD_event_gathered,F_event_gathered, DC_event_gathered)
 
-#Change class of Date to Date
-#hourly_baseline$Hour <- as.numeric(hourly_baseline$Hour)
-hourly_baseline$Date <- as.Date(hourly_baseline$Date, "%m/%d/%Y")
-event_data$Date <- as.Date(event_data$Date, "%m/%d/%Y")
+
 
 #add intervention prices
 #adds normal price with nested if statement and then adds intervention price based on type of event and hours
+
+event_data$Date <- as.Date(event_data$Date, "%m/%d/%Y")
+
 
 event_data <- event_data %>% 
   mutate(price = ifelse(month(Date) %in% seq(6,9,1), 
@@ -172,6 +174,7 @@ event_data_for_merge <- event_data %>%
 
 
 
+
 #55584 entries
 
 hourly_baseline_with_events <- hourly_baseline %>% 
@@ -184,11 +187,33 @@ hourly_baseline_with_events$Demand <- as.numeric(hourly_baseline_with_events$Dem
 hourly_baseline_with_events$Ports <- as.numeric(hourly_baseline_with_events$Ports)
 
 hourly_baseline_with_events <- hourly_baseline_with_events %>% 
-  mutate(demand_per_port = Demand/Ports)
+  mutate(demand_per_port = Demand/Ports, cost = Demand*price)
 
+daily_baseline_with_events <- hourly_baseline_with_events %>% 
+  group_by(Date,segment) %>% 
+  summarise(Ports = mean(Ports), Demand = sum(Demand), price = sum(cost)) 
 
+daily_baseline_with_events <- as.data.frame(daily_baseline_with_events) %>%  
+  mutate(avg_price = price/Demand, demand_per_port = Demand/Ports,weekday = wday(Date, label = TRUE)) %>% 
+  mutate(weekday = ifelse(weekday == "Sun" |weekday == "Sat", "Weekend","Weekday")) %>% 
+  na.omit()
+  
+plot_weekdays <- filter(daily_baseline_with_events, weekday == "Weekday")
 
-EV_lm <- lm(exp(demand_per_port) ~ price + Hour + segment, data = hourly_baseline_with_events)
+#& month(Date) %in% c(1:5, 10:12)
+
+ggplot(plot_weekdays, aes(x = avg_price)) +
+  geom_point(aes(y = demand_per_port, color = month(Date) %in% c(6:9))) +
+  facet_wrap(~segment, scales = "free") +
+  theme_classic()
+
+daily_baseline_with_events$segment <- as_factor(daily_baseline_with_events$segment)
+
+daily_baseline_with_events$weekday <- as_factor(daily_baseline_with_events$weekday)
+
+EV_daily_lm <- lm(demand_per_port~ avg_price + segment + weekday, data = daily_baseline_with_events)
+
+EV_lm <- lm(exp(demand_per_port) ~ exp(price) + Hour + segment, data = hourly_baseline_with_events)
 
 EV_IV <- ivreg(exp(demand_per_port) ~ exp(price) + Hour + segment | event + Hour + segment, data = hourly_baseline_with_events)
 
@@ -252,11 +277,14 @@ int_e_b <- TRUE
 i_c_e <- 1
 yr <- 2018
 wknds <- TRUE
+mthd <- 1
+avg_elst <- -0.4
 
 
 
-
-hourly_demand <- function(segment = sg, 
+hourly_demand <- function(method = mthd,
+                          avg_elasticity = avg_elst,
+                          segment = sg, 
                           month = mth,
                           year = yr,
                           include_wknds = wknds,
@@ -280,7 +308,11 @@ hourly_demand <- function(segment = sg,
   #Price Schedule is read in above
   
   # Elasticity 
-  Elasticities <- ifelse(method == 1, Elasticities_cross,Elasticities_no_cross)
+  if(method == 1) {
+    Elasticities <- Elasticities_cross
+  } else{
+    Elasticities <- Elasticities_no_cross
+  }
   chosen_elasticities <- Elasticities[c(1,2,schedule)] #this pulls out columns 1, 2, and the designated elasticity (from row 74 into a new dataframe) 
   colnames(chosen_elasticities) <- c("Base_Hr","Changed_Hr","Elasticity")
   
@@ -406,15 +438,19 @@ Xi <- Xi_choose_weekends %>%
     current_hr <- eval(parse(text = sub("XX", i, "Midpoints.XX")))
     #calls current hours midpoint table
     
-    HR <- seq(1,24,1)
-    no_cross_elas <- rep(0,24)
-    no_cross_elas[i] <- filter(current_hr, Elasticity != 0)
+    HR24 <- seq(0,24,1)
+    no_cross_elas <- rep(0,25)
+    self <- current_hr %>% 
+      filter(Hour == i) %>% 
+      select(Elasticity) %>% 
+      unlist()
+    no_cross_elas[i+1] <- self
     
     
     nam <- paste("Elasticities", i, sep = ".")
     
     
-    assign(nam,data.frame(ELAST=ELAST,HR24 = if_else(HR<=24,HR,HR-24)))
+    assign(nam,data.frame(HR = HR24, ELAST=no_cross_elas,HR24 = HR24))
     #makes a data frame with above variables: Hours, smoothed elasticities
     }
   }
@@ -470,8 +506,40 @@ Xi <- Xi_choose_weekends %>%
   X1p <- X1p[-1] # gets rid of the first dummy entry to the variable
   EV_Demand <- mutate(EV_Demand, X1p = X1p) #add percent change in demand due to price onto EV_Demand (X1p)
   
+  
   EV_Demand <- mutate(EV_Demand, X1 = (1+X1p)*X0) #adds new demand in kW variable (X1)
   
+  if(method == 3) {
+    X1_method3 <- EV_Demand$X1
+    X1_method3[-intervention_hours] <- X1_method3[-intervention_hours] -(EV_Demand$X0[-intervention_hours]/sum(EV_Demand$X0[-intervention_hours]))*sum(EV_Demand$X1-EV_Demand$X0)
+    
+    
+    EV_Demand <- EV_Demand %>% 
+      mutate(X1=X1_method3)
+    
+  }
+  else if(method == 4) {
+    base_avg_price_mthd_4 <- crossprod(EV_Demand$P0, EV_Demand$X0)/sum(EV_Demand$X0)
+    int_avg_price_mthd_4 <- crossprod(EV_Demand$P1, EV_Demand$X0)/sum(EV_Demand$X0)
+    avg_price_change_mthd_4 <- int_avg_price_mthd_4 - base_avg_price_mthd_4
+    
+    net_change_demand_pct <- avg_price_change_mthd_4*avg_elasticity
+    net_change_demand <- net_change_demand_pct*sum(EV_Demand$X0)
+    
+    net_change_demand_out_int <- net_change_demand - sum(EV_Demand$X1 - EV_Demand$X0)
+    
+    X1_method4 <- EV_Demand$X1
+    X1_method4[-intervention_hours] <- X1_method4[-intervention_hours] -(EV_Demand$X0[-intervention_hours]/sum(EV_Demand$X0[-intervention_hours]))*net_change_demand_out_int
+    
+    
+    EV_Demand <- EV_Demand %>% 
+      mutate(X1=X1_method4)
+    
+    
+  }
+  else{
+    EV_Demand <- EV_Demand
+  }
   ####
   
   
