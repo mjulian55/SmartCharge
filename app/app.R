@@ -4,6 +4,7 @@
 library(shiny)
 library(shinydashboard)
 library(tidyverse)
+library(markdown)
 
 
 ui <- fluidPage(
@@ -11,9 +12,14 @@ ui <- fluidPage(
    
    mainPanel(navbarPage("SMART CHARGE",
                         
+<<<<<<< HEAD
+                        tabPanel("About", 
+                        includeMarkdown("About_App.Rmd")),
+=======
                       tabPanel("About",
                                  
                       includeMarkdown("About_App.Rmd")),
+>>>>>>> 88503f6574a9e3fe538214bf014b1844aeb328d7
                         
                         tabPanel("Demand Graphs",
                                  
