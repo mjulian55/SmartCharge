@@ -24,17 +24,17 @@ ui <- fluidPage(
                                  # Number of chargers widget
                                  numericInput("intervention_chargers", label = h4("Number of Chargers"), value = 900),
                                  # Market Segment dropdown widget
-                                 selectInput("radio", label = h4("Market Segment"), 
-                                             choices = list("Workplace" = 1, 
-                                                            "Destination Center" = 2, 
-                                                            "Fleet" = 3, 
-                                                            "Multi-Unit Dwelling" = 4), 
-                                             selected = 1),
+                                 selectInput("segment", label = h4("Market Segment"), 
+                                             choices = list("Workplace" = "Workplace",
+                                             "Destination Center" = "Destination Center",
+                                             "Fleet" = "Fleet",
+                                             "Multi Unit Dwelling" = "Multi Unit Dwelling")),
                                  
                                  # Date Selection of Invervention (Month and Year)
-                                 selectInput("Date", 
+                                 selectInput("date", 
                                              label = h4("Month and Year"), 
-                                             c("November 2018" = "2018-11")),
+                                             c("November 2018" = "2018/11/01",
+                                               "October 2017" = "2017/10/01")),
                                  
                                  sliderInput("slider1", label = h4("Discount Price (in cents)"), 
                                              min = 0, max = 40, value = 5),
@@ -153,18 +153,18 @@ server <- function(input, output) {
 
   output$Demand_Graph <- renderPlot({
     
-    month <- month(as.Date(input$Date, "%Y-%m"))
-    year <- year(as.Date(input$Date, "%Y-%m"))
+    month <- month(as.Date(input$date, "%Y/%m/%d"))
+    year <- year(as.Date(input$date, "%Y/%m/%d"))
     
     
     # generate graph and change the things that are reactive from the sliders
-    app_model_run <- hourly_demand(int_equals_baseline = FALSE, intervention_chargers = input$intervention_chargers, month = month, year = year)
-    
+    app_model_run <- hourly_demand(int_equals_baseline = FALSE, intervention_chargers = input$intervention_chargers, month = month, year = year, segment = input$segment)
     
     
     
     ggplot(app_model_run$EV_Demand) +
-      geom_line(aes(x = Hr, y = Xf))
+      geom_line(aes(x = Hr, y = Xf)) + 
+      theme_classic()
  
     })
 
