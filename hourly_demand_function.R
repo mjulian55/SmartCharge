@@ -266,7 +266,7 @@ i_h <- c(12:15) #intervention hours
 t_a <- 0 #throttling amount
 t_h <- c(7:11) #throttling hours
 sch <- closest_elasticities #elasticities to use for price intervention (column in the elasticities dataframe) -  Non PV Summer Weekday EPEV L. The default now picks from the ratio 
-sg <- "Workplace" #segment
+sg <- "Workplace" #segment choose from "Workplace", "Destination Center", "Fleet", "Multi Unit Dwelling"
 mth <- 11 #month
 pwr <- 6.6 #charger power
 pk <- c(17:21) #target window to shift out off (this is only used in the output calculations below, not for the function)
@@ -281,7 +281,6 @@ mthd <- 1
 avg_elst <- -0.4
 
 
-
 hourly_demand <- function(method = mthd,
                           avg_elasticity = avg_elst,
                           segment = sg, 
@@ -289,7 +288,7 @@ hourly_demand <- function(method = mthd,
                           year = yr,
                           include_wknds = wknds,
                           charger_power = pwr,
-                          schedule = sch,
+                          elasticity_schedule = sch,
                           price_change = p_c,
                           intervention_hours = i_h, 
                           intervention_chargers = int_ch,#if intervention_chargers is ever changed, have to also set int_equals_baseline = FALSE
@@ -529,7 +528,7 @@ Xi <- Xi_choose_weekends %>%
     net_change_demand_out_int <- net_change_demand - sum(EV_Demand$X1 - EV_Demand$X0)
     
     X1_method4 <- EV_Demand$X1
-    X1_method4[-intervention_hours] <- X1_method4[-intervention_hours] +(EV_Demand$X0[-intervention_hours]/sum(EV_Demand$X0[-intervention_hours]))*net_change_demand_out_int
+    X1_method4[-intervention_hours] <- X1_method4[-intervention_hours] + (EV_Demand$X0[-intervention_hours]/sum(EV_Demand$X0[-intervention_hours])*c(net_change_demand_out_int))
     
     
     EV_Demand <- EV_Demand %>% 
