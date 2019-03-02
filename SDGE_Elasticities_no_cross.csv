@@ -1,0 +1,10 @@
+Base_Hr,Changed_Hr,NonPV_Summer_Weekday_EPEV_L,NonPV_Summer_Weekday_EPEV_M,NonPV_Summer_Weekday_EPEV_H,NonPV_Winter_Weekday_EPEV_L,NonPV_Winter_Weekday_EPEV_M,NonPV_Winter_Weekday_EPEV_H,NonPV_Summer_Weekend_EPEV_L,NonPV_Summer_Weekend_EPEV_M,NonPV_Summer_Weekend_EPEV_H,NonPV_Winter_Weekend_EPEV_L,NonPV_Winter_Weekend_EPEV_M,NonPV_Winter_Weekend_EPEV_H
+OP,OP,-0.44,-0.41,-0.4,-0.45,-0.42,-0.41,-0.46,-0.44,-0.43,-0.46,-0.45,-0.44
+OP,P,0,0,0,0,0,0,0,0,0,0,0,0
+OP,SOP,0,0,0,0,0,0,0,0,0,0,0,0
+P,OP,0,0,0,0,0,0,0,0,0,0,0,0
+P,P,-0.41,-0.37,-0.35,-0.43,-0.38,-0.36,-0.47,-0.46,-0.45,-0.48,-0.46,-0.46
+P,SOP,0,0,0,0,0,0,0,0,0,0,0,0
+SOP,OP,0,0,0,0,0,0,0,0,0,0,0,0
+SOP,P,0,0,0,0,0,0,0,0,0,0,0,0
+SOP,SOP,-0.23,-0.27,-0.29,-0.22,-0.26,-0.28,-0.26,-0.31,-0.32,-0.25,-0.29,-0.31

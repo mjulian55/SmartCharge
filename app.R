@@ -146,7 +146,7 @@ ui <- fluidPage(
 # Air Quality Implications (NOX)
 
 server <- function(input, output) {
-  source("../hourly_demand_function.R")
+  source("hourly_demand_function.R")
 
   output$Demand_Graph <- renderPlot({
     # generate graph and change the things that are reactive from the sliders
