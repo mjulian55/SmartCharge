@@ -247,7 +247,8 @@ add_baseline_chargers <- Chargers %>%
 
 #Elasticities with format 9X3 with columns Base_Hr, Changed_Hr, and Elasticity
 #Changed_Hr is the Hour where the price change occurs, Base_Hr is the hour in which demand changes
-Elasticities <- read_csv("SDGE_Elasticities.csv")
+Elasticities_cross <- read_csv("SDGE_Elasticities.csv")
+Elasticities_no_cross <- read_csv("SDGE_Elasticities_no_cross.csv")
 SDGE_P_SOP_Ratios <- read_csv("SDGE_P_SOP_Ratios.csv")
 
 
@@ -255,7 +256,7 @@ SDGE_P_SOP_Ratios <- read_csv("SDGE_P_SOP_Ratios.csv")
 P_SOP_Ratio <- max(price_schedule$P0)/min(price_schedule$P0)
 #Matches our closest Ratio to Inputted Ratio
 closest_schedule <- SDGE_P_SOP_Ratios$Rate_Schedule[which.min(abs(SDGE_P_SOP_Ratios$P_SOP_Ratio - P_SOP_Ratio))]
-closest_elasticities <- match(closest_schedule, names(Elasticities))
+closest_elasticities <- match(closest_schedule, names(Elasticities_cross))
 #Uses Elasticities of rate schedule with closest ratio
 
 
@@ -305,6 +306,7 @@ hourly_demand <- function(method = mthd,
   #Price Schedule is read in above
   
   # Elasticity 
+  Elasticities <- ifelse(method == 1, Elasticities_cross,Elasticities_no_cross)
   chosen_elasticities <- Elasticities[c(1,2,schedule)] #this pulls out columns 1, 2, and the designated elasticity (from row 74 into a new dataframe) 
   colnames(chosen_elasticities) <- c("Base_Hr","Changed_Hr","Elasticity")
   
@@ -404,23 +406,45 @@ Xi <- Xi_choose_weekends %>%
     
   }
   
-  #spline the midpoint table
-  for (i in x) {
+  if(method == 1) {
+    #spline the midpoint table
+    for (i in x) {
+      current_hr <- eval(parse(text = sub("XX", i, "Midpoints.XX")))
+      #calls current hours midpoint table
+      
+      Y = spline(x=current_hr$Hour,y=current_hr$Elasticity,xout=seq(min(current_hr$Hour),max(current_hr$Hour)))
+      #splines elasticities to smoooth
+      
+      HR = Y$x
+      
+      ELAST = Y$y
+      
+      nam <- paste("Elasticities", i, sep = ".")
+      
+      assign(nam,data.frame(HR=HR,ELAST=ELAST,HR24 = if_else(HR<=24,HR,HR-24)))
+      #makes a data frame with above variables: Hours, smoothed elasticities
+    }
+    
+  }
+  
+  else {
+    for (i in x) {
     current_hr <- eval(parse(text = sub("XX", i, "Midpoints.XX")))
     #calls current hours midpoint table
     
-    Y = spline(x=current_hr$Hour,y=current_hr$Elasticity,xout=seq(min(current_hr$Hour),max(current_hr$Hour)))
-    #splines elasticities to smoooth
+    HR <- seq(1,24,1)
+    no_cross_elas <- rep(0,24)
+    no_cross_elas[i] <- filter(current_hr, Elasticity != 0)
     
-    HR = Y$x
-    
-    ELAST = Y$y
     
     nam <- paste("Elasticities", i, sep = ".")
     
-    assign(nam,data.frame(HR=HR,ELAST=ELAST,HR24 = if_else(HR<=24,HR,HR-24)))
+    
+    assign(nam,data.frame(ELAST=ELAST,HR24 = if_else(HR<=24,HR,HR-24)))
     #makes a data frame with above variables: Hours, smoothed elasticities
+    }
   }
+  
   ####
   
   #MATRIX####
