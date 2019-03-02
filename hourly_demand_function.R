@@ -529,7 +529,7 @@ Xi <- Xi_choose_weekends %>%
     net_change_demand_out_int <- net_change_demand - sum(EV_Demand$X1 - EV_Demand$X0)
     
     X1_method4 <- EV_Demand$X1
-    X1_method4[-intervention_hours] <- X1_method4[-intervention_hours] -(EV_Demand$X0[-intervention_hours]/sum(EV_Demand$X0[-intervention_hours]))*net_change_demand_out_int
+    X1_method4[-intervention_hours] <- X1_method4[-intervention_hours] +(EV_Demand$X0[-intervention_hours]/sum(EV_Demand$X0[-intervention_hours]))*net_change_demand_out_int
     
     
     EV_Demand <- EV_Demand %>% 
