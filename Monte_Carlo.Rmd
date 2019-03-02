@@ -29,6 +29,7 @@ CONTEXT
 
 source("hourly_demand_function.R")
 
+
 hourly_demand()
 
 
@@ -181,8 +182,12 @@ SIMULATION
 
 
 simulation <- function(simulations = 12, 
+                       sim_method = mthd,
+                       sim_avg_elasticity = avg_elst,
                        sim_segment = sg,
                        sim_month = mth, 
+                       sim_year = yr,
+                       sim_include_wknds = wknds,
                        sim_charger_power = pwr,
                        sim_schedule = sch, 
                        sim_price_change = p_c, 
@@ -193,7 +198,17 @@ simulation <- function(simulations = 12,
                        sim_throttle_hours = t_h, 
                        sim_intervention_comm_effect = i_c_e ) {
   
+  method_draws <- sample(c(1:4), simulations, replace = TRUE)
+  
+   if(sim_method == 1) {
+    Elasticities <- Elasticities_cross
+  } else{
+    Elasticities <- Elasticities_no_cross
+  }
+  
+  
   intervention_draws <- sample(4:length(Elasticities),simulations,replace = FALSE)
+  
   comm_possibilities <- seq(from=0.2, to=1, by=.01)
   comm_draws <-  sample(comm_possibilities,simulations, replace = TRUE)
 
@@ -203,17 +218,21 @@ simulation <- function(simulations = 12,
 
 
   for(i in seq(simulations)){
-    run_i <- hourly_demand(segment = sim_segment, 
-                          month = sim_month, 
-                          charger_power = sim_charger_power, 
-                          schedule = intervention_draws[i], 
-                          price_change = sim_price_change,
-                          intervention_hours = sim_intervention_hours, 
-                          intervention_chargers = sim_intervention_chargers, 
-                          int_equals_baseline = sim_int_equals_baseline, 
-                          throttle_amount = sim_throttle_amount,
-                          throttle_hours = sim_throttle_hours, 
-                          intervention_comm_effect = comm_draws[i])
+    run_i <- hourly_demand(method = mthd,
+                       avg_elasticity = avg_elst,
+                       segment = sg,
+                       month = mth, 
+                       year = yr,
+                       include_wknds = wknds,
+                       charger_power = pwr,
+                       schedule = sch, 
+                       price_change = p_c, 
+                       intervention_hours = i_h,
+                       intervention_chargers = int_ch, 
+                       int_equals_baseline = int_e_b, 
+                       throttle_amount = t_a, 
+                       throttle_hours = t_h, 
+                       intervention_comm_effect = i_c_e)
     
     run_i_EV_Demand <- run_i$EV_Demand %>% 
       mutate(i_draw = intervention_draws[i], c_draw = comm_draws[i])
