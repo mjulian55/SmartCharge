@@ -17,6 +17,9 @@ ui <- fluidPage(
                       
                         
                         tabPanel("Demand Graphs",
+                        
+                          sidebarLayout(
+                            sidebarPanel(
                                  
                                  # Number of chargers widget
                                  numericInput("num", label = h4("Number of Chargers"), value = 900),
@@ -51,6 +54,14 @@ ui <- fluidPage(
                                  actionButton("action", label = "Charge")
                                  
                                  ),
+                            mainPanel(
+                              plotOutput("Demand_Graph")
+                            )
+                            )),
+                           
+                        
+                        
+                        
                         
                         tabPanel("GHG Implications",
                                  
@@ -135,16 +146,20 @@ ui <- fluidPage(
 # Air Quality Implications (NOX)
 
 server <- function(input, output) {
+  source("../hourly_demand_function.R")
 
-  
-# This website will make sure any changes in your Input UI tab will be shared amongst all tabs:
-# https://stackoverflow.com/questions/47226158/share-some-ui-between-tabs-with-different-output-on-shiny
-  
-  # output$hourly_demand <- renderPlot()
+  output$Demand_Graph <- renderPlot({
+    # generate graph and change the things that are reactive from the sliders
+    ggplot()
+ 
+    })
+
   
   
   
 }
+
+# This website will make sure any changes in your Input UI tab will be shared amongst all tabs: https://stackoverflow.com/questions/47226158/share-some-ui-between-tabs-with-different-output-on-shiny
 
 # Run the application 
 shinyApp(ui = ui, server = server)
