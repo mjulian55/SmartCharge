@@ -312,7 +312,7 @@ hourly_demand <- function(method = mthd,
   } else{
     Elasticities <- Elasticities_no_cross
   }
-  chosen_elasticities <- Elasticities[c(1,2,schedule)] #this pulls out columns 1, 2, and the designated elasticity (from row 74 into a new dataframe) 
+  chosen_elasticities <- Elasticities[c(1,2,elasticity_schedule)] #this pulls out columns 1, 2, and the designated elasticity (from row 74 into a new dataframe) 
   colnames(chosen_elasticities) <- c("Base_Hr","Changed_Hr","Elasticity")
   
   

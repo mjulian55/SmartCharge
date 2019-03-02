@@ -22,7 +22,7 @@ ui <- fluidPage(
                             sidebarPanel(
                                  
                                  # Number of chargers widget
-                                 numericInput("num", label = h4("Number of Chargers"), value = 900),
+                                 numericInput("intervention_chargers", label = h4("Number of Chargers"), value = 900),
                                  # Market Segment dropdown widget
                                  selectInput("radio", label = h4("Market Segment"), 
                                              choices = list("Workplace" = 1, 
@@ -30,24 +30,27 @@ ui <- fluidPage(
                                                             "Fleet" = 3, 
                                                             "Multi-Unit Dwelling" = 4), 
                                              selected = 1),
+                                 
                                  # Date Selection of Invervention (Month and Year)
-                                 (dateInput("date", label = h4("Month and Year"), 
-                                            format = "mm/yyyy", value = "2014-01-01")),
-                                 # Discount price selection widget
-                                 # NOTE: Ultimately this slider bar should be nested under some other things.
-                                 # For instance, a radio button of "Apply Discount - Y/N?"
-                                 # If yes, slider appears to choose amount, another slider appears for time period.
+                                 selectInput("Date", 
+                                             label = h4("Month and Year"), 
+                                             c("November 2018" = "2018-11")),
+                                 
                                  sliderInput("slider1", label = h4("Discount Price (in cents)"), 
                                              min = 0, max = 40, value = 5),
+                                 
                                  # Discount period widget
                                  sliderInput("slider2", label = h4("Discount Period"), min = 0, 
                                              max = 24, value = c(11, 15)),
+                                 
                                  # Rebate price selection widget
                                  sliderInput("slider1", label = h4("Rebate Price (in cents)"), 
                                              min = 0, max = 40, value = 10),
+                                 
                                  # Discount period widget
                                  sliderInput("slider2", label = h4("Rebate Period"), min = 0, 
                                              max = 24, value = c(18, 21)),
+                                 
                                  # Throttling percent widget
                                  numericInput("num", label = h4("Throttling"), min = 0, max = 1, value = 0.0),
                                  # Action Button (Simulate Demand)
@@ -149,8 +152,19 @@ server <- function(input, output) {
   source("hourly_demand_function.R")
 
   output$Demand_Graph <- renderPlot({
+    
+    month <- month(as.Date(input$Date, "%Y-%m"))
+    year <- year(as.Date(input$Date, "%Y-%m"))
+    
+    
     # generate graph and change the things that are reactive from the sliders
-    ggplot()
+    app_model_run <- hourly_demand(int_equals_baseline = FALSE, intervention_chargers = input$intervention_chargers, month = month, year = year)
+    
+    
+    
+    
+    ggplot(app_model_run$EV_Demand) +
+      geom_line(aes(x = Hr, y = Xf))
  
     })
 
