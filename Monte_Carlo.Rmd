@@ -41,7 +41,99 @@ hourly_demand()
 
 
 
-EMISSIONS OUTPUTS
+
+
+SIMULATION
+
+
+
+```{r simulation}
+
+
+simulation <- function(simulations = 100, 
+                       sim_method = mthd,
+                       sim_avg_elasticity = avg_elst,
+                       sim_segment = sg,
+                       sim_month = mth, 
+                       sim_year = yr,
+                       sim_include_wknds = wknds,
+                       sim_charger_power = pwr,
+                       sim_elasticity_schedule = sch, 
+                       sim_price_change = p_c, 
+                       sim_intervention_hours = i_h,
+                       sim_intervention_chargers = int_ch, 
+                       sim_int_equals_baseline = int_e_b, 
+                       sim_throttle_amount = t_a, 
+                       sim_throttle_hours = t_h, 
+                       sim_intervention_comm_effect = i_c_e ) {
+  
+  method_draws <- sample(c(1:4), simulations, replace = TRUE)
+  
+   if(sim_method == 1) {
+    Elasticities <- Elasticities_cross
+  } else{
+    Elasticities <- Elasticities_no_cross
+  }
+  
+  
+  elasticity_draws <- sample(3:length(Elasticities),simulations,replace = TRUE)
+  
+  avg_elasticity_possibilities <- seq(from = -0.8, to = -0.04, by = 0.01)
+  avg_elasticity_draws <- sample(avg_elasticity_possibilities, simulations, replace = TRUE)
+  
+  comm_possibilities <- seq(from=0.2, to=1, by=.01)
+  comm_draws <-  sample(comm_possibilities,simulations, replace = TRUE)
+
+  sim_result <- hourly_demand()
+  sim_result_EV_Demand <- sim_result$EV_Demand %>% 
+    mutate(method_draw = 0, elasticity_draw = 0) %>% 
+      mutate(avg_elasticity_draw = 0)
+  sim_result_EV_Demand <- sim_result_EV_Demand[0,]
+
+
+  for(i in seq(simulations)){
+    run_i <- hourly_demand(method = method_draws[i],
+                       avg_elasticity = avg_elasticity_draws[i],
+                       segment = sim_segment,
+                       month = sim_month, 
+                       year = sim_year,
+                       include_wknds = sim_include_wknds,
+                       charger_power = sim_charger_power,
+                       elasticity_schedule = elasticity_draws[i], 
+                       price_change = sim_price_change, 
+                       intervention_hours = sim_intervention_hours,
+                       intervention_chargers = sim_intervention_chargers, 
+                       int_equals_baseline = sim_int_equals_baseline, 
+                       throttle_amount = sim_throttle_amount, 
+                       throttle_hours = sim_throttle_hours, 
+                       intervention_comm_effect = sim_intervention_comm_effect)
+    
+    run_i_EV_Demand <- run_i$EV_Demand %>% 
+      mutate(method_draw = method_draws[i], elasticity_draw = elasticity_draws[i]) %>% 
+      mutate(avg_elasticity_draw = elasticity_draws[i])
+  
+    sim_result_EV_Demand <- rbind(sim_result_EV_Demand,run_i_EV_Demand)
+  
+  
+  }
+
+      sim_result_summary <- group_by(sim_result_EV_Demand, Hr) %>% 
+    summarise_at(vars(Xf, P0, Xi, X0, P1, X1, Xint_effect, Xf, I01),funs(mean,min,max))
+      
+      names(sim_result_summary[-1]) <- "NULL" #to avoid a dumb error
+
+  
+  return(list(sim_result_EV_Demand = sim_result_EV_Demand, sim_result_summary = sim_result_summary))
+}
+
+
+sim1 <- simulation()
+```
+
+
+
+
+EMISSIONS + ALL OUTPUTS
 
 
 
@@ -78,14 +170,14 @@ Emissions <- data.frame(Hr = c(1:24)) %>%
   mutate(CO2Marginal=Hourly_EF$CO2Marginal_gas) %>% 
   mutate(NOXBaseline=Hourly_EF$NOXBaseline) %>% 
   mutate(NOXMarginal=Hourly_EF$NOXMarginal_gas) %>% #want to change this so it selects the baseline and marginal based on year input and the gas/no gas scenario automatically in the function
-  mutate(I01 = EVDemand$EV_Demand$I01) %>% 
-  mutate(Xi = EVDemand$EV_Demand$Xi) %>% # column for initial demand at each hour not scaled
-  mutate(X0 = EVDemand$EV_Demand$X0) %>% # column for initial demand at each hour scaled by chargers
-  mutate(Xf = EVDemand$EV_Demand$Xf) %>% 
-  mutate(Xdelta = EVDemand$EV_Demand$Xint_effect) %>% 
+  mutate(I01 = EVDemand$sim_result_EV_Demand$I01_mean) %>% 
+  mutate(Xi = EVDemand$sim_result_EV_Demand$Xi_mean) %>% # column for initial demand at each hour not scaled
+  mutate(X0 = EVDemand$sim_result_EV_Demand$X0_mean) %>% # column for initial demand at each hour scaled by chargers
+  mutate(Xf = EVDemand$sim_result_EV_Demand$Xf_mean) %>% 
+  mutate(Xdelta = EVDemand$sim_result_EV_Demand$Xint_effect_mean) %>% 
      # column for new demand at each hour. we'll need to update "Xt" to reflect the new column post comms/all interventions
-  mutate(Pbase = EVDemand$EV_Demand$P0*EVDemand$EV_Demand$X0) %>% #total price paid in that hour ($/kwh * kwh)
-  mutate(Pnew = EVDemand$EV_Demand$P1*EVDemand$EV_Demand$Xf) #total price paid in that hour ($/kwh * kwh)
+  mutate(Pbase = EVDemand$sim_result_EV_Demand$P0_mean*EVDemand$sim_result_EV_Demand$X0_mean) %>% #total price paid in that hour ($/kwh * kwh)
+  mutate(Pnew = EVDemand$sim_result_EV_Demand$P1_mean*EVDemand$sim_result_EV_Demand$Xf_mean) #total price paid in that hour ($/kwh * kwh)
 
 #Calculate emissions for baseline demand (scaled and not)
 Emissions <- Emissions %>%
@@ -206,98 +298,6 @@ return(list(Emissions=Emissions, Emissions_Table=Emissions_Table))
 
 ```
 
-
-
-
-SIMULATION
-
-
-
-
-```{r simulation}
-
-
-simulation <- function(simulations = 100, 
-                       sim_method = mthd,
-                       sim_avg_elasticity = avg_elst,
-                       sim_segment = sg,
-                       sim_month = mth, 
-                       sim_year = yr,
-                       sim_include_wknds = wknds,
-                       sim_charger_power = pwr,
-                       sim_elasticity_schedule = sch, 
-                       sim_price_change = p_c, 
-                       sim_intervention_hours = i_h,
-                       sim_intervention_chargers = int_ch, 
-                       sim_int_equals_baseline = int_e_b, 
-                       sim_throttle_amount = t_a, 
-                       sim_throttle_hours = t_h, 
-                       sim_intervention_comm_effect = i_c_e ) {
-  
-  method_draws <- sample(c(1:4), simulations, replace = TRUE)
-  
-   if(sim_method == 1) {
-    Elasticities <- Elasticities_cross
-  } else{
-    Elasticities <- Elasticities_no_cross
-  }
-  
-  
-  elasticity_draws <- sample(3:length(Elasticities),simulations,replace = TRUE)
-  
-  avg_elasticity_possibilities <- seq(from = -0.8, to = -0.04, by = 0.01)
-  avg_elasticity_draws <- sample(avg_elasticity_possibilities, simulations, replace = TRUE)
-  
-  comm_possibilities <- seq(from=0.2, to=1, by=.01)
-  comm_draws <-  sample(comm_possibilities,simulations, replace = TRUE)
-
-  sim_result <- hourly_demand()
-  sim_result_EV_Demand <- sim_result$EV_Demand %>% 
-    mutate(method_draw = 0, elasticity_draw = 0) %>% 
-      mutate(avg_elasticity_draw = 0)
-  sim_result_EV_Demand <- sim_result_EV_Demand[0,]
-
-
-  for(i in seq(simulations)){
-    run_i <- hourly_demand(method = method_draws[i],
-                       avg_elasticity = avg_elasticity_draws[i],
-                       segment = sim_segment,
-                       month = sim_month, 
-                       year = sim_year,
-                       include_wknds = sim_include_wknds,
-                       charger_power = sim_charger_power,
-                       elasticity_schedule = elasticity_draws[i], 
-                       price_change = sim_price_change, 
-                       intervention_hours = sim_intervention_hours,
-                       intervention_chargers = sim_intervention_chargers, 
-                       int_equals_baseline = sim_int_equals_baseline, 
-                       throttle_amount = sim_throttle_amount, 
-                       throttle_hours = sim_throttle_hours, 
-                       intervention_comm_effect = sim_intervention_comm_effect)
-    
-    run_i_EV_Demand <- run_i$EV_Demand %>% 
-      mutate(method_draw = method_draws[i], elasticity_draw = elasticity_draws[i]) %>% 
-      mutate(avg_elasticity_draw = elasticity_draws[i])
-  
-    sim_result_EV_Demand <- rbind(sim_result_EV_Demand,run_i_EV_Demand)
-  
-  
-  }
-
-      sim_result_summary <- group_by(sim_result_EV_Demand, Hr) %>% 
-    summarise_at(vars(Xf, P0, Xi, X0, P1, X1, Xint_effect, Xf, I01),funs(mean,min,max))
-      
-      names(sim_result_summary[-1]) <- "NULL" #to avoid a dumb error
-
-  
-  return(list(sim_result_EV_Demand = sim_result_EV_Demand, sim_result_summary = sim_result_summary))
-}
-
-
-sim1 <- simulation()
-
-
-```
 
 
 
