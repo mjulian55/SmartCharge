@@ -290,6 +290,8 @@ Emissions_Table <- Emissions_Table %>%
 return(list(Emissions=Emissions, Emissions_Table=Emissions_Table))
   
 }
+#Test_emissions <- emissions_fcn(sim1) or Test_emissions <- emissions_fcn(EVDemand = simulation())
+
 #Emissions_run1 <- emissions_fcn(EVDemand = hourly_demand(SDGE_commm_effect = 0,intervention_comm_effect = 0, throttle_amount = 0)) #or run as 
 #Emissions_run1 <- emissions_fcn(EV_Demand_run1)
 
