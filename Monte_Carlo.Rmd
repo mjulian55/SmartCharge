@@ -245,7 +245,7 @@ simulation <- function(simulations = 100,
   
   elasticity_draws <- sample(3:length(Elasticities),simulations,replace = TRUE)
   
-  avg_elasticity_possibilities <- seq(from = -0.85, to = -0.04, by = 0.01)
+  avg_elasticity_possibilities <- seq(from = -0.8, to = -0.04, by = 0.01)
   avg_elasticity_draws <- sample(avg_elasticity_possibilities, simulations, replace = TRUE)
   
   comm_possibilities <- seq(from=0.2, to=1, by=.01)
