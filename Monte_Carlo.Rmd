@@ -170,14 +170,14 @@ Emissions <- data.frame(Hr = c(1:24)) %>%
   mutate(CO2Marginal=Hourly_EF$CO2Marginal_gas) %>% 
   mutate(NOXBaseline=Hourly_EF$NOXBaseline) %>% 
   mutate(NOXMarginal=Hourly_EF$NOXMarginal_gas) %>% #want to change this so it selects the baseline and marginal based on year input and the gas/no gas scenario automatically in the function
-  mutate(I01 = EVDemand$sim_result_EV_Demand$I01_mean) %>% 
-  mutate(Xi = EVDemand$sim_result_EV_Demand$Xi_mean) %>% # column for initial demand at each hour not scaled
-  mutate(X0 = EVDemand$sim_result_EV_Demand$X0_mean) %>% # column for initial demand at each hour scaled by chargers
-  mutate(Xf = EVDemand$sim_result_EV_Demand$Xf_mean) %>% 
-  mutate(Xdelta = EVDemand$sim_result_EV_Demand$Xint_effect_mean) %>% 
+  mutate(I01 = EVDemand$sim_result_summary$I01_mean) %>% 
+  mutate(Xi = EVDemand$sim_result_summary$Xi_mean) %>% # column for initial demand at each hour not scaled
+  mutate(X0 = EVDemand$sim_result_summary$X0_mean) %>% # column for initial demand at each hour scaled by chargers
+  mutate(Xf = EVDemand$sim_result_summary$Xf_mean) %>% 
+  mutate(Xdelta = EVDemand$sim_result_summary$Xint_effect_mean) %>% 
      # column for new demand at each hour. we'll need to update "Xt" to reflect the new column post comms/all interventions
-  mutate(Pbase = EVDemand$sim_result_EV_Demand$P0_mean*EVDemand$sim_result_EV_Demand$X0_mean) %>% #total price paid in that hour ($/kwh * kwh)
-  mutate(Pnew = EVDemand$sim_result_EV_Demand$P1_mean*EVDemand$sim_result_EV_Demand$Xf_mean) #total price paid in that hour ($/kwh * kwh)
+  mutate(Pbase = EVDemand$sim_result_summary$P0_mean*EVDemand$sim_result_summary$X0_mean) %>% #total price paid in that hour ($/kwh * kwh)
+  mutate(Pnew = EVDemand$sim_result_summary$P1_mean*EVDemand$sim_result_summary$Xf_mean) #total price paid in that hour ($/kwh * kwh)
 
 #Calculate emissions for baseline demand (scaled and not)
 Emissions <- Emissions %>%
