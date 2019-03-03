@@ -284,15 +284,13 @@ simulation <- function(simulations = 100,
   
   }
 
-    summary <- group_by(sim_result_EV_Demand, Hr) %>% 
-    summarise_at(vars(Xf),funs(mean,min,max))# %>% 
+      sim_result_summary <- group_by(sim_result_EV_Demand, Hr) %>% 
+    summarise_at(vars(Xf, P0, Xi, X0, P1, X1, Xint_effect, Xf, I01),funs(mean,min,max))
+      
+      names(sim_result_summary[-1]) <- "NULL" #to avoid a dumb error
 
-
-  sim_result_EV_Demand <- sim_result_EV_Demand %>% 
-    mutate(Hr_avg = summary$mean[Hr], min = summary$min[Hr], max = summary$max[Hr])
   
-  
-  return(sim_result_EV_Demand)
+  return(list(sim_result_EV_Demand = sim_result_EV_Demand, sim_result_summary = sim_result_summary))
 }
 
 
