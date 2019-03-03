@@ -6,6 +6,7 @@ library(dplyr)
 library(RColorBrewer)
 library(lubridate)
 library(AER)
+library(forcats) #added for as_factor
 
 #LOAD DATA
 #Price Schedule
