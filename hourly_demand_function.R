@@ -260,6 +260,7 @@ closest_elasticities <- match(closest_schedule, names(Elasticities_cross))
 #Uses Elasticities of rate schedule with closest ratio
 
 
+## MODEL STARTS HERE##
 
 p_c <- -0.05 #price change
 i_h <- c(12:15) #intervention hours
