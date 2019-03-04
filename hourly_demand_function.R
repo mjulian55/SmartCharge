@@ -523,8 +523,9 @@ Xi <- Xi_choose_weekends %>%
     base_avg_price_mthd_4 <- crossprod(EV_Demand$P0, EV_Demand$X0)/sum(EV_Demand$X0)
     int_avg_price_mthd_4 <- crossprod(EV_Demand$P1, EV_Demand$X0)/sum(EV_Demand$X0)
     avg_price_change_mthd_4 <- int_avg_price_mthd_4 - base_avg_price_mthd_4
+    # avg_price_change_pct_mthd_4 <- avg_price_change_mthd_4/base_avg_price_mthd_4
     
-    net_change_demand_pct <- avg_price_change_mthd_4*avg_elasticity
+    net_change_demand_pct <- avg_price_change_mthd_4*avg_elasticity #net_change_demand_pct <- avg_price_change_pct_mthd_4*avg_elasticity
     net_change_demand <- net_change_demand_pct*sum(EV_Demand$X0)
     
     net_change_demand_out_int <- net_change_demand - sum(EV_Demand$X1 - EV_Demand$X0)
