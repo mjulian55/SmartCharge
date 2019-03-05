@@ -286,7 +286,7 @@ p_co <- TRUE
 
 hourly_demand <- function(method = mthd,
                           avg_elasticity = avg_elst,
-                          segment = sg, 
+                          seg = sg, 
                           month = mth,
                           year = yr,
                           include_wknds = wknds,
@@ -330,21 +330,24 @@ hourly_demand <- function(method = mthd,
    # as.numeric()
   
   
-Xi_choose_weekends <- if(include_wknds == TRUE) {
-  filter(hourly_baseline, weekday == "Weekday" | weekday == "Weekend")
+if(include_wknds == TRUE) {
+  Xi_choose_weekends <- filter(hourly_baseline, weekday == "Weekday" | weekday == "Weekend")
 } else {
-  filter(hourly_baseline, weekday == "Weekday")
+  Xi_choose_weekends <- filter(hourly_baseline, weekday == "Weekday")
 }
 
 Xi <- Xi_choose_weekends %>% 
-  filter(month(Date) == month & year(Date) == year & segment == segment) %>% 
+  filter(segment == seg) %>% 
+  filter(month(Date) == month & year(Date) == year) %>% 
   group_by(Hour) %>% 
   summarise(Demand = mean(Demand)) %>% 
   select(Demand) %>% 
   unlist()
   
   
-  baseline_chargers <- filter(hourly_baseline, month(Date) == month & year(Date) == year & segment == segment) %>% 
+  baseline_chargers <- hourly_baseline %>% 
+    filter(segment == seg) %>% 
+    filter(month(Date) == month & year(Date) == year) %>% 
     summarise(Ports = mean(Ports)) %>% 
     select(Ports) %>% 
     unlist()
