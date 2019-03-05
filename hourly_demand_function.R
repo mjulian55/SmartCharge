@@ -276,11 +276,12 @@ int_ch <- filter(Chargers, Market_Segment == sg) %>%
   select(mth) %>% 
   as.numeric() # default is to MARCH 2018
 int_e_b <- TRUE
-i_c_e <- 1
 yr <- 2018
 wknds <- TRUE
 mthd <- 1
 avg_elst <- -0.4
+a_p_co <- FALSE
+p_co <- TRUE
 
 
 hourly_demand <- function(method = mthd,
@@ -297,7 +298,8 @@ hourly_demand <- function(method = mthd,
                           int_equals_baseline = int_e_b, 
                           throttle_amount = t_a,
                           throttle_hours = t_h, 
-                          intervention_comm_effect = i_c_e){
+                          air_pollution_comm = a_p_co,
+                          price_comm = p_co){
   
   library(tidyverse)
   library(lubridate)
@@ -489,7 +491,24 @@ Xi <- Xi_choose_weekends %>%
   
   EV_Demand$P1[intervention_hours] <-EV_Demand$P1[intervention_hours] + price_change #updates intervention column to implement intervention
   
+  #comms calculation
   
+  if (price_comm == TRUE & air_pollution_comm == TRUE) {
+    intervention_comm_effect <- 1.082
+  }
+  else if (price_comm == FALSE & air_pollution_comm == TRUE) {
+    intervention_comm_effect <- 1.047
+  } 
+  else if (price_comm == FALSE & air_pollution_comm == FALSE) {
+    intervention_comm_effect <- 0.965
+  }
+  else {
+    intervention_comm_effect <- 1 # price comm = true; air pollution false
+  }
+# if else statemetn for comms. Where if Air pollution + price notification = true, then intervention_comm_effect = 1.082. If price notification = true, intervention comm = 1. if air pollution = true, intervention comm = 1.047. If no price notification and no air pollution = 96.5. If no communication about anything intervention comm = 0 (i.e., nothing is going to happen)
+  
+  
+    
   #Adds percentage change in price (P1p)
   EV_Demand <- EV_Demand %>% 
     mutate(P1p = (P1-P0)/P0) %>% 
@@ -523,9 +542,9 @@ Xi <- Xi_choose_weekends %>%
     base_avg_price_mthd_4 <- crossprod(EV_Demand$P0, EV_Demand$X0)/sum(EV_Demand$X0)
     int_avg_price_mthd_4 <- crossprod(EV_Demand$P1, EV_Demand$X0)/sum(EV_Demand$X0)
     avg_price_change_mthd_4 <- int_avg_price_mthd_4 - base_avg_price_mthd_4
-    # avg_price_change_pct_mthd_4 <- avg_price_change_mthd_4/base_avg_price_mthd_4
+    avg_price_change_pct_mthd_4 <- avg_price_change_mthd_4/base_avg_price_mthd_4
     
-    net_change_demand_pct <- avg_price_change_mthd_4*avg_elasticity #net_change_demand_pct <- avg_price_change_pct_mthd_4*avg_elasticity
+    net_change_demand_pct <- avg_price_change_pct_mthd_4*avg_elasticity
     net_change_demand <- net_change_demand_pct*sum(EV_Demand$X0)
     
     net_change_demand_out_int <- net_change_demand - sum(EV_Demand$X1 - EV_Demand$X0)
