@@ -53,7 +53,7 @@ SIMULATION
 simulation <- function(simulations = 100, 
                        sim_method = mthd,
                        sim_avg_elasticity = avg_elst,
-                       sim_segment = sg,
+                       sim_seg = sg,
                        sim_month = mth, 
                        sim_year = yr,
                        sim_include_wknds = wknds,
@@ -94,7 +94,7 @@ simulation <- function(simulations = 100,
   for(i in seq(simulations)){
     run_i <- hourly_demand(method = method_draws[i],
                        avg_elasticity = avg_elasticity_draws[i],
-                       segment = sim_segment,
+                       seg = sim_segment,
                        month = sim_month, 
                        year = sim_year,
                        include_wknds = sim_include_wknds,
@@ -330,7 +330,7 @@ SCENARIOS
 
 
 
-WP_D_R_T <- hourly_demand(segment = "Workplace", 
+WP_D_R_T <- hourly_demand(seg = "Workplace", 
                         month = "June_18", 
                         intervention_hours = c(12:15, 17:21),
                         price_change = c(rep(-0.05,4),rep(0.1,5)),
@@ -347,7 +347,7 @@ jul_11_18_event <- Event_Chargers %>%
 Jul_11_18_baseline_usage_scaled <- hourly_demand(price_change = 0, 
                                                  throttle_amount = 0, 
                                                  month = "Jul_18", 
-                                                 segment =  "Destination Center", 
+                                                 seg =  "Destination Center", 
                                                  intervention_chargers = 
                                                    jul_11_18_event, 
                                                  int_equals_baseline = FALSE)
@@ -364,7 +364,7 @@ unlist()
 Nov_14_18_baseline_usage_scaled <- hourly_demand(price_change = 0, 
                                                  throttle_amount = 0, 
                                                  month = "Nov_18", 
-                                                 segment = "Workplace", 
+                                                 seg = "Workplace", 
                                                  intervention_chargers =nov_14_18_event, 
                                                   int_equals_baseline = FALSE)
 
@@ -375,7 +375,7 @@ Nov_14_18_baseline_usage_scaled <- hourly_demand(price_change = 0,
 Nov_14_18_scaled_model_run_comm <- hourly_demand(price_change = -0.05,
                                                   throttle_amount = -0.5,
                                                   month = "Nov_18",
-                                                  segment =  "Workplace",
+                                                  seg =  "Workplace",
                                                   intervention_chargers =
                                                   nov_14_18_event,
                                                   int_equals_baseline = FALSE,
@@ -390,7 +390,7 @@ mutate(with_comm = Nov_14_18_scaled_model_run_comm$EV_Demand$Xf)
 Nov_14_18_scaled_model_run_no_throttle <- hourly_demand(price_change = -0.05,
                                                  throttle_amount = 0,
                                                  month = "Nov_18",
-                                                 segment =  "Workplace",
+                                                 seg =  "Workplace",
                                                  intervention_chargers =
                                                  nov_14_18_event,
                                                  int_equals_baseline = FALSE,
@@ -465,7 +465,7 @@ Workplace (November 2018), TOU EV4, $0.05 Discount (11AM-3PM), 50% THrottle, 80%
 ```{r Scenario 1}
 
 #MODEL RUN
-WP_C_D_T_TOU_SUmmer_4 <- hourly_demand(segment = "Workplace", 
+WP_C_D_T_TOU_SUmmer_4 <- hourly_demand(seg = "Workplace", 
                                        month = "Nov_18",
                                        price_change = -0.05,
                                        intervention_hours = c(12:15),
@@ -516,7 +516,7 @@ MUD (June 2018), TOU EV-4, $0.10 rebate (4-9PM)
 ```{r Scenario 3}
 
 ##MODEL RUN
-MUD_R_C <- hourly_demand(segment = "Multi Unit Dwelling", 
+MUD_R_C <- hourly_demand(seg = "Multi Unit Dwelling", 
                          month = "June_18", 
                          price_change = 0.1 , 
                          intervention_hours = c(17:21))
@@ -564,7 +564,7 @@ Destination Center (June 2018), TOU EV-4, $0.05 discount (11AM-3PM), 50% throttl
 
 
 #MODEL RUN
-DC_D_T_NC <- hourly_demand(segment = "Destination Center", 
+DC_D_T_NC <- hourly_demand(seg = "Destination Center", 
                            month = "June_18", 
                            intervention_hours = c(12:15),
                            price_change = -0.05, 
@@ -613,7 +613,7 @@ Fleet (August 2018), TOU EV-4, $0.10 rebate (4-9PM)
 
 
 #MODEL RUN
-Fleet_R <-  hourly_demand(segment = "Fleet", 
+Fleet_R <-  hourly_demand(seg = "Fleet", 
                         month = "Aug_18", 
                         intervention_hours = c(17:21), 
                         price_change = 0.1)
@@ -656,7 +656,7 @@ Workplace (November 2018), TOU EV-4, $0.05 Discount (11AM-3PM), 50% throttle
 
 
 #MODEL RUN
-WP_D_T <- hourly_demand(segment = "Workplace", 
+WP_D_T <- hourly_demand(seg = "Workplace", 
                         month = "Nov_18", 
                         intervention_hours = c(12:15),
                         price_change = -0.05,
@@ -713,7 +713,7 @@ unlist()
 Nov_14_18_scaled_model_run <- hourly_demand(price_change = -0.05,
 throttle_amount = -0.5,
 month = "Nov_18",
-segment =  "Workplace",
+seg =  "Workplace",
 intervention_chargers =
 nov_14_18_event,
 int_equals_baseline = FALSE,
@@ -762,7 +762,7 @@ Workplace (November 2018), $0.05 Discount, SELF ONLY
 
 #No Cross Elasticities
 #needs to use No_Cross_Matrix for this to run correctly
-no_cross_discount <- hourly_demand(segment = "Workplace", 
+no_cross_discount <- hourly_demand(seg = "Workplace", 
                                        month = "Nov_18",
                                        price_change = -0.05,
                                        intervention_hours = c(12:15),
@@ -808,7 +808,7 @@ Workplace (November 2018), $0.05 Discount, SELF & CROSS
 #Scenario 9
 ###Workplace discount only self and cross (Hour 12)
 
-WP_Cross_D <- hourly_demand(segment = "Workplace", 
+WP_Cross_D <- hourly_demand(seg = "Workplace", 
                                        month = "Nov_18",
                                        price_change = -0.05,
                                        intervention_hours = c(12:15),
@@ -874,7 +874,7 @@ unlist()
 Nov_14_18_scaled_model_run_no_throttle <- hourly_demand(price_change = -0.05,
       throttle_amount = 0,
       month = "Nov_18",
-      segment =  "Workplace",
+      seg =  "Workplace",
       intervention_chargers = nov_14_18_event,
       int_equals_baseline = FALSE,
       intervention_comm_effect = 0.5)
@@ -927,7 +927,7 @@ Workplace (November 2018), $0.05 Discount
 #Just Price Change
 #-Workplaces: Communication + Discount on current TOU rate
 
-WP_C_D <- hourly_demand(segment = "Workplace", 
+WP_C_D <- hourly_demand(seg = "Workplace", 
                                        month = "Nov_18",
                                        price_change = -0.05,
                                        intervention_hours = c(12:15),
@@ -969,7 +969,7 @@ ggsave("Workplace_Result_Just_Price.pdf", Demand_Graph11, device = "pdf", width 
 Workplace (November 2018), $0.05 Discount (11AM-3Pm), 80% reduction in comm
 
 ```{r Scenario 12}
-WP_C_D_comm <- hourly_demand(segment = "Workplace", 
+WP_C_D_comm <- hourly_demand(seg = "Workplace", 
                                        month = "Nov_18",
                                        price_change = -0.05,
                                        intervention_hours = c(12:15),
@@ -1029,7 +1029,7 @@ Nov_14_18_scaled_model_run <- hourly_demand(price_change = -0.05,
                     throttle_amount = -0.5,
                     month = 11,
                     year= 2018,
-                    segment =  "Workplace",
+                    seg =  "Workplace",
                     intervention_chargers =
                     nov_14_18_event,
                     int_equals_baseline = FALSE,
@@ -1100,7 +1100,7 @@ Nov_28_18_scaled_model_run <- hourly_demand(price_change = -0.05,
                     throttle_amount = -0.5,
                     month = 11,
                     year=2018,
-                    segment =  "Workplace",
+                    seg =  "Workplace",
                     intervention_chargers =
                     nov_28_18_event,
                     int_equals_baseline = FALSE,
@@ -1173,7 +1173,7 @@ Oct_30_18_scaled_model_run <- hourly_demand(price_change = -0.05,
                     throttle_amount = -0.5,
                     month = 10,
                     year = 2018,
-                    segment =  "Workplace",
+                    seg =  "Workplace",
                     intervention_chargers =
                     Oct_30_18_event,
                     int_equals_baseline = FALSE,
@@ -1244,7 +1244,7 @@ Oct_16_18_scaled_model_run <- hourly_demand(price_change = -0.05,
                     throttle_amount = -0.5,
                     month = 10,
                     year = 2018,
-                    segment =  "Workplace",
+                    seg =  "Workplace",
                     intervention_chargers =
                     Oct_16_18_event,
                     int_equals_baseline = FALSE,
@@ -1320,7 +1320,7 @@ Sep_27_18_scaled_model_run <- hourly_demand(price_change = -.10,
                     throttle_amount = -.5,
                     month = 9,
                     year = 2018,
-                    segment =  "Workplace",
+                    seg =  "Workplace",
                     intervention_chargers =
                     Sep_27_18_event,
                     int_equals_baseline = FALSE,
@@ -1391,7 +1391,7 @@ unlist()
 Aug_30_18_scaled_model_run <- hourly_demand(price_change = -.10,
                     throttle_amount = -.5,
                     month = "Sep_18",
-                    segment =  "Workplace",
+                    seg =  "Workplace",
                     intervention_chargers =
                     Aug_30_18_event,
                     int_equals_baseline = FALSE,
@@ -1466,7 +1466,7 @@ unlist()
 Jul_31_18_scaled_model_run <- hourly_demand(price_change = -.10,
                     throttle_amount = -.5,
                     month = "Sep_18",
-                    segment =  "Workplace",
+                    seg =  "Workplace",
                     intervention_chargers =
                     Jul_31_18_event,
                     int_equals_baseline = FALSE,
@@ -1538,7 +1538,7 @@ unlist()
 Nov_28_18_DC_scaled_model_run <- hourly_demand(price_change = -.05,
                     throttle_amount = -.5,
                     month = "Nov_18",
-                    segment =  "Destination Center",
+                    seg =  "Destination Center",
                     intervention_chargers =
                     nov_28_18_DC_event,
                     int_equals_baseline = FALSE,
@@ -1622,7 +1622,7 @@ unlist()
 Nov_14_18_scaled_model_run <- hourly_demand(price_change = -0.05,
                                             throttle_amount = -0.5,
                                             month = "Nov_18",
-                                            segment =  "Workplace",
+                                            seg =  "Workplace",
                                             intervention_chargers =
                                             nov_14_18_event,
                                             int_equals_baseline = FALSE,
@@ -1695,7 +1695,7 @@ freq_graph
 ```{r figures}
 
 #need to stack both demand curves in one data frame for a legend
-EV_Demand_run1 <- hourly_demand(segment = "Workplace", month = "June_18",intervention_comm_effect = 1, throttle_amount = 0,throttle_hours = c(6:11), price_change = -0.05, intervention_hours = c(12:15))
+EV_Demand_run1 <- hourly_demand(seg = "Workplace", month = "June_18",intervention_comm_effect = 1, throttle_amount = 0,throttle_hours = c(6:11), price_change = -0.05, intervention_hours = c(12:15))
 
 graph_table <- EV_Demand_run1$EV_Demand[c("Hr","X0","Xf")] %>% 
   gather(condition,value,X0:Xf) %>% 
