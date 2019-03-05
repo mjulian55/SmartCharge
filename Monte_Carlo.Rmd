@@ -1107,10 +1107,13 @@ Nov_28_18_scaled_model_run <- hourly_demand(price_change = -0.05,
                     intervention_comm_effect = 1)
 
 
-nov_28_18_Event_Usage <- Workplace_Event_Total_Usage$Nov_28_18_LS
+nov_28_18_Event_Usage <- filter(event_data, Date == "2018-11-28" & segment == "Workplace") %>%
+select(Demand) %>%
+unlist()
+
 
 Nov_28_18_scaled_model_run$EV_Demand <- Nov_28_18_scaled_model_run$EV_Demand %>%
-  mutate(Event_Usage = nov_28_18_Event_Usage)
+  mutate(Event_Usage = nov_28_18_Event_Usage) 
 
 
 graph_table14 <- Nov_28_18_scaled_model_run$EV_Demand[c("Hr","X0","Event_Usage")] %>%
@@ -1179,11 +1182,14 @@ Oct_30_18_scaled_model_run <- hourly_demand(price_change = -0.05,
                     int_equals_baseline = FALSE,
                     intervention_comm_effect = 1)
 
+Oct_30_18_Event_Usage <- filter(event_data, Date == "2018-10-30" & segment == "Workplace") %>%
+select(Demand) %>%
+unlist()
 
-Oct_30_18_Event_Usage <- Workplace_Event_Total_Usage$Oct_30_18_LS
 
 Oct_30_18_scaled_model_run$EV_Demand <- Oct_30_18_scaled_model_run$EV_Demand %>%
-  mutate(Event_Usage = Oct_30_18_Event_Usage)
+  mutate(Event_Usage = Oct_30_18_Event_Usage) 
+
 
 
 graph_table15 <- Oct_30_18_scaled_model_run$EV_Demand[c("Hr","X0","Event_Usage")] %>%
@@ -1251,7 +1257,9 @@ Oct_16_18_scaled_model_run <- hourly_demand(price_change = -0.05,
                     intervention_comm_effect = 1)
 
 
-Oct_16_18_Event_Usage <- Workplace_Event_Total_Usage$Oct_16_18_LS
+Oct_16_18_Event_Usage <- filter(event_data, Date == "2018-10-16" & segment == "Workplace") %>%
+select(Demand) %>%
+unlist()
 
 Oct_16_18_scaled_model_run$EV_Demand <- Oct_16_18_scaled_model_run$EV_Demand %>%
   mutate(Event_Usage = Oct_16_18_Event_Usage)
@@ -1327,7 +1335,10 @@ Sep_27_18_scaled_model_run <- hourly_demand(price_change = -.10,
                     intervention_comm_effect = 1)
 
 
-Sep_27_18_Event_Usage <- Workplace_Event_Total_Usage$Sep_27_18_LR
+Sep_27_18_Event_Usage <- filter(event_data, Date == "2018-9-27" & segment == "Workplace") %>%
+select(Demand) %>%
+unlist()
+
 
 Sep_27_18_scaled_model_run$EV_Demand <- Sep_27_18_scaled_model_run$EV_Demand %>%
   mutate(Event_Usage = Sep_27_18_Event_Usage)
@@ -1398,7 +1409,9 @@ Aug_30_18_scaled_model_run <- hourly_demand(price_change = -.10,
                     intervention_comm_effect = 1)
 
 
-Aug_30_18_Event_Usage <- Workplace_Event_Total_Usage$Aug_30_18_LR
+Aug_30_18_Event_Usage <- filter(event_data, Date == "2018-8-30" & segment == "Workplace") %>%
+select(Demand) %>%
+unlist()
 
 Aug_30_18_scaled_model_run$EV_Demand <- Aug_30_18_scaled_model_run$EV_Demand %>%
   mutate(Event_Usage = Aug_30_18_Event_Usage)
@@ -1473,7 +1486,10 @@ Jul_31_18_scaled_model_run <- hourly_demand(price_change = -.10,
                     intervention_comm_effect = 1)
 
 
-Jul_31_18_Event_Usage <- Workplace_Event_Total_Usage$Jul_31_18_LR
+Jul_31_18_Event_Usage <- filter(event_data, Date == "2018-7-31" & segment == "Workplace") %>%
+select(Demand) %>%
+unlist()
+
 
 Jul_31_18_scaled_model_run$EV_Demand <- Jul_31_18_scaled_model_run$EV_Demand %>%
   mutate(Event_Usage = Jul_31_18_Event_Usage)
