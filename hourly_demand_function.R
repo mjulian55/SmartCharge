@@ -600,7 +600,7 @@ Xi <- Xi_choose_weekends %>%
   
   EV_Demand <- mutate(EV_Demand, Xint_effect = Xt - X0)
   
-  EV_Demand <- mutate(EV_Demand, MT = Max_Theory ,Xf = Xt)
+  EV_Demand <- mutate(EV_Demand, MT = Max_Theory ,Xf = ifelse(Xt > MT, MT, Xt))
   
   
   

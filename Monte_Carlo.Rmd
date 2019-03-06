@@ -64,8 +64,7 @@ simulation <- function(simulations = 100,
                        sim_intervention_chargers = int_ch, 
                        sim_int_equals_baseline = int_e_b, 
                        sim_throttle_amount = t_a, 
-                       sim_throttle_hours = t_h, 
-                       sim_intervention_comm_effect = i_c_e ) {
+                       sim_throttle_hours = t_h ) {
   
   method_draws <- sample(c(1:4), simulations, replace = TRUE)
   
@@ -94,7 +93,7 @@ simulation <- function(simulations = 100,
   for(i in seq(simulations)){
     run_i <- hourly_demand(method = method_draws[i],
                        avg_elasticity = avg_elasticity_draws[i],
-                       seg = sim_segment,
+                       seg = sim_seg,
                        month = sim_month, 
                        year = sim_year,
                        include_wknds = sim_include_wknds,
@@ -105,8 +104,7 @@ simulation <- function(simulations = 100,
                        intervention_chargers = sim_intervention_chargers, 
                        int_equals_baseline = sim_int_equals_baseline, 
                        throttle_amount = sim_throttle_amount, 
-                       throttle_hours = sim_throttle_hours, 
-                       intervention_comm_effect = sim_intervention_comm_effect)
+                       throttle_hours = sim_throttle_hours)
     
     run_i_EV_Demand <- run_i$EV_Demand %>% 
       mutate(method_draw = method_draws[i], elasticity_draw = elasticity_draws[i]) %>% 
