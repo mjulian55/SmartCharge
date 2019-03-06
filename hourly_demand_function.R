@@ -139,7 +139,10 @@ WP_event_gathered <- gather(Workplace_Event_Total_Usage[-c(1,2),],"Date","Demand
           filter(Workplace_Event_Total_Usage, Hour == "participating_chargers")[-1]),each = 24))
 
 
-event_data <- rbind(WP_event_gathered,MUD_event_gathered,F_event_gathered, DC_event_gathered)
+event_data <- rbind(WP_event_gathered,MUD_event_gathered,F_event_gathered, DC_event_gathered) 
+event_data$Demand <- as.numeric(event_data$Demand)
+event_data$participating_chargers <- as.numeric(event_data$participating_chargers)
+#change event data to numeric
 
 
 
