@@ -288,6 +288,7 @@ mthd <- 1
 avg_elst <- -0.4
 a_p_co <- FALSE
 p_co <- TRUE
+c_yr <- 2018 #default year for curtailment and emissions factors
 
 
 hourly_demand <- function(method = mthd,
@@ -305,7 +306,8 @@ hourly_demand <- function(method = mthd,
                           throttle_amount = t_a,
                           throttle_hours = t_h, 
                           air_pollution_comm = a_p_co,
-                          price_comm = p_co){
+                          price_comm = p_co,
+                          curt_year = c_yr){
   
   library(tidyverse)
   library(lubridate)
@@ -385,7 +387,7 @@ Xi <- Xi_choose_weekends %>%
   
   #CURTAILMENT###
   
-  if (year == 2030) {
+  if (curt_year == 2030) {
     curtailment <- curtailment_2030
   } else{
     curtailment <- curtailment_2018

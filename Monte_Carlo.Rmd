@@ -66,7 +66,8 @@ simulation <- function(simulations = 100,
                        sim_throttle_amount = t_a, 
                        sim_throttle_hours = t_h,
                        sim_air_pollution_comm = a_p_co,
-                       sim_price_comm = p_co) {
+                       sim_price_comm = p_co,
+                       sim_curt_year=c_yr) {
 
   
   method_draws <- sample(c(1:4), simulations, replace = TRUE)
@@ -109,7 +110,8 @@ simulation <- function(simulations = 100,
                        throttle_amount = sim_throttle_amount, 
                        throttle_hours = sim_throttle_hours,
                        air_pollution_comm = sim_air_pollution_comm,
-                       price_comm = sim_price_comm)
+                       price_comm = sim_price_comm,
+                       curt_year=sim_curt_year)
 
     
     run_i_EV_Demand <- run_i$EV_Demand %>% 
@@ -158,11 +160,11 @@ CO2cost <-0.05 #$/kg
 # add a column to output of hourly demand that specifies intervention hours (binary 1: 0; intervention hours = 1; not = 0); read that in for intervention hour; read in peak hours as another input; then calculate everything else other hour of concern (peak), and other
 #}
 
-emissions_fcn <- function(EVDemand, peak_hours = pk, year = yr) {
+emissions_fcn <- function(EVDemand, peak_hours = pk, emissions_year = yr) {
 
 #Load emissiosn factors  based on year
    # Elasticity 
-  if(year == 2030) {
+  if(emissions_year == 2030) {
     Hourly_EF <- read_csv("Hrly_EF_2030.csv")
   } else{
    Hourly_EF <- read_csv("Hrly_EF_2018.csv")
