@@ -64,7 +64,9 @@ simulation <- function(simulations = 100,
                        sim_intervention_chargers = int_ch, 
                        sim_int_equals_baseline = int_e_b, 
                        sim_throttle_amount = t_a, 
-                       sim_throttle_hours = t_h ) {
+                       sim_throttle_hours = t_h,
+                       sim_air_pollution_comm = a_p_co,
+                       sim_price_comm = p_co) {
 
   
   method_draws <- sample(c(1:4), simulations, replace = TRUE)
@@ -105,7 +107,9 @@ simulation <- function(simulations = 100,
                        intervention_chargers = sim_intervention_chargers, 
                        int_equals_baseline = sim_int_equals_baseline, 
                        throttle_amount = sim_throttle_amount, 
-                       throttle_hours = sim_throttle_hours)
+                       throttle_hours = sim_throttle_hours,
+                       air_pollution_comm = sim_air_pollution_comm,
+                       price_comm = sim_price_comm)
 
     
     run_i_EV_Demand <- run_i$EV_Demand %>% 
