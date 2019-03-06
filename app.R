@@ -12,7 +12,7 @@ ui <- fluidPage(
    
    mainPanel(navbarPage("SMART CHARGE",
                         
-                        tabPanel("About", 
+                        tabPanel("Overview", 
                         includeMarkdown("About_App.Rmd")),
                       
                         
@@ -59,83 +59,12 @@ ui <- fluidPage(
                                  ),
                             mainPanel(
                               plotOutput("Demand_Graph")
-                            )
-                            )),
-                           
-                        
-                        
-                        
-                        
-                        tabPanel("GHG Implications",
+    )
+  )
+),
+
+                        tabPanel("Instructions")
                                  
-                                 # Number of chargers widget
-                                 numericInput("num", label = h4("Number of Chargers"), value = 900),
-                                 # Market Segment dropdown widget
-                                 selectInput("radio", label = h4("Market Segment"), 
-                                             choices = list("Workplace" = 1, 
-                                                            "Destination Center" = 2, 
-                                                            "Fleet" = 3, 
-                                                            "Multi-Unit Dwelling" = 4), 
-                                             selected = 1),
-                                 # Date Selection of Invervention (Month and Year)
-                                 (dateInput("date", label = h4("Month and Year"), 
-                                            format = "mm/yyyy", value = "2014-01-01")),
-                                 # Discount price selection widget
-                                 # NOTE: Ultimately this slider bar should be nested under some other things.
-                                 # For instance, a radio button of "Apply Discount - Y/N?"
-                                 # If yes, slider appears to choose amount, another slider appears for time period.
-                                 sliderInput("slider1", label = h4("Discount Price (in cents)"), 
-                                             min = 0, max = 40, value = 5),
-                                 # Discount period widget
-                                 sliderInput("slider2", label = h4("Discount Period"), min = 0, 
-                                             max = 24, value = c(11, 15)),
-                                 # Rebate price selection widget
-                                 sliderInput("slider1", label = h4("Rebate Price (in cents)"), 
-                                             min = 0, max = 40, value = 10),
-                                 # Discount period widget
-                                 sliderInput("slider2", label = h4("Rebate Period"), min = 0, 
-                                             max = 24, value = c(18, 21)),
-                                 # Throttling percent widget
-                                 numericInput("num", label = h4("Throttling"), min = 0, max = 1, value = 0.0),
-                                 # Action Button (Simulate Demand)
-                                 actionButton("action", label = "Charge")
-                                 
-                                 ),
-                        
-                        tabPanel("Air Quality Impacts",
-                                 
-                                 # Number of chargers widget
-                                 numericInput("num", label = h4("Number of Chargers"), value = 900),
-                                 # Market Segment dropdown widget
-                                 selectInput("radio", label = h4("Market Segment"), 
-                                             choices = list("Workplace" = 1, 
-                                                            "Destination Center" = 2, 
-                                                            "Fleet" = 3, 
-                                                            "Multi-Unit Dwelling" = 4), 
-                                             selected = 1),
-                                 # Date Selection of Invervention (Month and Year)
-                                 (dateInput("date", label = h4("Month and Year"), 
-                                            format = "mm/yyyy", value = "2014-01-01")),
-                                 # Discount price selection widget
-                                 # NOTE: Ultimately this slider bar should be nested under some other things.
-                                 # For instance, a radio button of "Apply Discount - Y/N?"
-                                 # If yes, slider appears to choose amount, another slider appears for time period.
-                                 sliderInput("slider1", label = h4("Discount Price (in cents)"), 
-                                             min = 0, max = 40, value = 5),
-                                 # Discount period widget
-                                 sliderInput("slider2", label = h4("Discount Period"), min = 0, 
-                                             max = 24, value = c(11, 15)),
-                                 # Rebate price selection widget
-                                 sliderInput("slider1", label = h4("Rebate Price (in cents)"), 
-                                             min = 0, max = 40, value = 10),
-                                 # Discount period widget
-                                 sliderInput("slider2", label = h4("Rebate Period"), min = 0, 
-                                             max = 24, value = c(18, 21)),
-                                 # Throttling percent widget
-                                 numericInput("num", label = h4("Throttling"), min = 0, max = 1, value = 0.0),
-                                 # Action Button (Simulate Demand)
-                                 actionButton("action", label = "Charge")
-      )
     )
   )
 )
