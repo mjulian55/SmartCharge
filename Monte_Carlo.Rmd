@@ -53,7 +53,7 @@ SIMULATION
 simulation <- function(simulations = 100, 
                        sim_method = mthd,
                        sim_avg_elasticity = avg_elst,
-                       sim_segment = sg,
+                       sim_seg = sg,
                        sim_month = mth, 
                        sim_year = yr,
                        sim_include_wknds = wknds,
@@ -178,20 +178,15 @@ Emissions <- data.frame(Hr = c(1:24)) %>%
   mutate(Xi = EVDemand$sim_result_summary$Xi_mean) %>% # column for initial demand at each hour not scaled
   mutate(X0 = EVDemand$sim_result_summary$X0_mean) %>% # column for initial demand at each hour scaled by chargers
   mutate(Xf = EVDemand$sim_result_summary$Xf_mean) %>% 
-  mutate(curt = EVDemand$sim_result_summary$Curt_mean)
-
-
-#Emissions <- Emissions %>% 
-#if Xf > curt, Xf = curt AND Xextra = curt - Xf
-#if Xf < curt, Xf = Xf
-
-
-Emissions <- Emissions %>% 
+  mutate(curt = EVDemand$sim_result_summary$Curt_mean) %>% 
   mutate(Xdelta = EVDemand$sim_result_summary$Xint_effect_mean) %>% 
      # column for new demand at each hour. we'll need to update "Xt" to reflect the new column post comms/all interventions
   mutate(Pbase = EVDemand$sim_result_summary$P0_mean*EVDemand$sim_result_summary$X0_mean) %>% #total price paid in that hour ($/kwh * kwh)
-  mutate(Pnew = EVDemand$sim_result_summary$P1_mean*EVDemand$sim_result_summary$Xf_mean) %>% #total price paid in that hour ($/kwh * kwh)
-  
+  mutate(Pnew = EVDemand$sim_result_summary$P1_mean*EVDemand$sim_result_summary$Xf_mean) #total price paid in that hour ($/kwh * kwh)
+
+Emissions <- Emissions %>% 
+  mutate(Xcurt = ifelse(Xdelta<curt,ifelse(curt == 0,0,Xdelta),curt)) %>% #sum and run percentages on Xcurt 
+  mutate(Xextra = ifelse(Xdelta>curt, ifelse(Xcurt-Xdelta< 0,0, Xcurt-Xdelta),0))
 
 #Calculate emissions for baseline demand (scaled and not)
 Emissions <- Emissions %>%
@@ -303,10 +298,18 @@ Emissions_Table <- Emissions_Table %>%
  
 #Curtailment Cost Reduction
 #sum hours of demand change in target window
-Curtailmentcost_i_h <- Xdelta_i_h*0.75*-Curtailmentcost
+#Calculate sum of curtailment
+#sum Xcurt. divide by curt. = proportion of curtailment that could be addressed then multiply that by Curtailmentcost
+Xcurt_i_h <- sum(Emissions$Xcurt[intervention_emission_hours])
+Xcurt_o_h <- sum(Emissions$Xcurt[-intervention_emission_hours])
+Xcurtpotential <- sum(Xcurt_i_h,Xcurt_o_h)*0.75 #eek. this 75% is weird and doesn't match the solar fuel mix %. we need another column for solar reduction potential in the fuel mix. 
+Xcurtextra <- sum(Emissions$Xextra) #check sums correctly)
+Xcurtproportion <- Xcurtpotential/sum(Emissions$curt)
+
+Curtailmentcost <- Xcurtpotential*0.75*-Curtailmentcost
 #add to output table
 Emissions_Table <- Emissions_Table %>% 
-   mutate(ChangeCurtCost = c(Curtailmentcost_i_h, "NA", "NA", Curtailmentcost_i_h))
+   mutate(ChangeCurtCost = c("NA", "NA", "NA", Curtailmentcost))
 
 return(list(Emissions=Emissions, Emissions_Table=Emissions_Table))
   
