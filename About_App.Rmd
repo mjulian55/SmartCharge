@@ -14,13 +14,13 @@ This Shiny application is meant to simulate the change in electric vehicle charg
 
 This Application was developed as part of the Smart Charge Master's Group Project at the UCSB Bren School of Environmental Science & Management. Information on the Bren School's master's projects can be found at https://www.bren.ucsb.edu/research/masters_projects_landing.htm.  Information on the Smart Charge group project can be found at https://www.bren.ucsb.edu/research/masters_projects_landing.htm.
 
-![](bren_school.jpeg){width=150px}
+![](bren_school.jpeg)
 
 ## Electric Vehicle Charging
 
 
 
 
-![](RStudio-Logo-Flat.png){width=150px}
+![](RStudio_Shiny.png)
 
 
