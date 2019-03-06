@@ -162,10 +162,10 @@ emissions_fcn <- function(EVDemand, peak_hours = pk, year = yr) {
 
 #Load emissiosn factors  based on year
    # Elasticity 
-  if(year == 2018) {
-    Hourly_EF <- read_csv("Hrly_EF_2018.csv")
+  if(year == 2030) {
+    Hourly_EF <- read_csv("Hrly_EF_2030.csv")
   } else{
-   Hourly_EF <- read_csv("Hrly_EF_2025.csv")
+   Hourly_EF <- read_csv("Hrly_EF_2018.csv")
   }
   
 #Create Date Frame for Emissions Outputs

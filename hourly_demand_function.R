@@ -257,7 +257,7 @@ SDGE_P_SOP_Ratios <- read_csv("SDGE_P_SOP_Ratios.csv")
 
 #curtailment baseline
 curtailment_2018 <- read_csv("Curtailment_2018.csv")
-#curtailment_2030 <- read_csv("Curtailment_2030.csv")
+curtailment_2030 <- read_csv("Curtailment_2030.csv")
 
 #Ratio for selecting Default Elasticities
 P_SOP_Ratio <- max(price_schedule$P0)/min(price_schedule$P0)
@@ -384,7 +384,7 @@ Xi <- Xi_choose_weekends %>%
   }
   
   curtailment_test <- curtailment %>% 
-    select(month) #this will work once order hours and then remove the hour column. 
+    select(month) #works because removed hours
   
   colnames(curtailment_test) <- c("Curt")
   
