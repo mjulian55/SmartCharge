@@ -65,6 +65,7 @@ simulation <- function(simulations = 100,
                        sim_int_equals_baseline = int_e_b, 
                        sim_throttle_amount = t_a, 
                        sim_throttle_hours = t_h ) {
+
   
   method_draws <- sample(c(1:4), simulations, replace = TRUE)
   
@@ -105,6 +106,7 @@ simulation <- function(simulations = 100,
                        int_equals_baseline = sim_int_equals_baseline, 
                        throttle_amount = sim_throttle_amount, 
                        throttle_hours = sim_throttle_hours)
+
     
     run_i_EV_Demand <- run_i$EV_Demand %>% 
       mutate(method_draw = method_draws[i], elasticity_draw = elasticity_draws[i]) %>% 
@@ -116,7 +118,7 @@ simulation <- function(simulations = 100,
   }
 
       sim_result_summary <- group_by(sim_result_EV_Demand, Hr) %>% 
-    summarise_at(vars(Xf, P0, Xi, X0, P1, X1, Xint_effect, Xf, I01),funs(mean,min,max))
+    summarise_at(vars(Xf, P0, Xi, X0, P1, X1, Xint_effect, Xf, Curt, I01),funs(mean,min,max))
       
       names(sim_result_summary[-1]) <- "NULL" #to avoid a dumb error
 
@@ -172,10 +174,20 @@ Emissions <- data.frame(Hr = c(1:24)) %>%
   mutate(Xi = EVDemand$sim_result_summary$Xi_mean) %>% # column for initial demand at each hour not scaled
   mutate(X0 = EVDemand$sim_result_summary$X0_mean) %>% # column for initial demand at each hour scaled by chargers
   mutate(Xf = EVDemand$sim_result_summary$Xf_mean) %>% 
+  mutate(curt = EVDemand$sim_result_summary$Curt_mean)
+
+
+#Emissions <- Emissions %>% 
+#if Xf > curt, Xf = curt AND Xextra = curt - Xf
+#if Xf < curt, Xf = Xf
+
+
+Emissions <- Emissions %>% 
   mutate(Xdelta = EVDemand$sim_result_summary$Xint_effect_mean) %>% 
      # column for new demand at each hour. we'll need to update "Xt" to reflect the new column post comms/all interventions
   mutate(Pbase = EVDemand$sim_result_summary$P0_mean*EVDemand$sim_result_summary$X0_mean) %>% #total price paid in that hour ($/kwh * kwh)
-  mutate(Pnew = EVDemand$sim_result_summary$P1_mean*EVDemand$sim_result_summary$Xf_mean) #total price paid in that hour ($/kwh * kwh)
+  mutate(Pnew = EVDemand$sim_result_summary$P1_mean*EVDemand$sim_result_summary$Xf_mean) %>% #total price paid in that hour ($/kwh * kwh)
+  
 
 #Calculate emissions for baseline demand (scaled and not)
 Emissions <- Emissions %>%
