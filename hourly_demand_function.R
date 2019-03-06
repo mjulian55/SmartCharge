@@ -322,6 +322,14 @@ hourly_demand <- function(method = mthd,
   } else{
     Elasticities <- Elasticities_no_cross
   }
+  
+  
+  if(include_wknds == TRUE) {
+    Elasticities <- Elasticities
+  } else {
+    Elasticities <- Elasticities[1:8]
+  }
+  
   chosen_elasticities <- Elasticities[c(1,2,elasticity_schedule)] #this pulls out columns 1, 2, and the designated elasticity (from row 74 into a new dataframe) 
   colnames(chosen_elasticities) <- c("Base_Hr","Changed_Hr","Elasticity")
   
@@ -618,8 +626,8 @@ Xi <- Xi_choose_weekends %>%
   
   EV_Demand <- mutate(EV_Demand, Xint_effect = Xt - X0)
   
-  EV_Demand <- mutate(EV_Demand, MT = Max_Theory, Curt = curtailment_test$Curt, Xf = Xt,Xf = ifelse(Xt > MT, MT, Xt))
-
+  EV_Demand <- mutate(EV_Demand, MT = Max_Theory, Curt = curtailment_test$Curt, Xf = ifelse(Xt > MT, MT, Xt)) %>% 
+    mutate(Xf = ifelse(Xf < 0 , 0, Xf))
   
   
   
