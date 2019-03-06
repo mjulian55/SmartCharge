@@ -174,6 +174,7 @@ Emissions <- data.frame(Hr = c(1:24)) %>%
   mutate(CO2Marginal=Hourly_EF$CO2Marginal_gas) %>% 
   mutate(NOXBaseline=Hourly_EF$NOXBaseline) %>% 
   mutate(NOXMarginal=Hourly_EF$NOXMarginal_gas) %>% #want to change this so it selects the baseline and marginal based on year input and the gas/no gas scenario automatically in the function
+  mutate(PercSolar=Hourly_EF$SolarPerc) %>% 
   mutate(I01 = EVDemand$sim_result_summary$I01_mean) %>% 
   mutate(Xi = EVDemand$sim_result_summary$Xi_mean) %>% # column for initial demand at each hour not scaled
   mutate(X0 = EVDemand$sim_result_summary$X0_mean) %>% # column for initial demand at each hour scaled by chargers
@@ -185,8 +186,11 @@ Emissions <- data.frame(Hr = c(1:24)) %>%
   mutate(Pnew = EVDemand$sim_result_summary$P1_mean*EVDemand$sim_result_summary$Xf_mean) #total price paid in that hour ($/kwh * kwh)
 
 Emissions <- Emissions %>% 
-  mutate(Xcurt = ifelse(Xdelta<curt,ifelse(curt == 0,0,Xdelta),curt)) %>% #sum and run percentages on Xcurt 
-  mutate(Xextra = ifelse(Xdelta>curt, ifelse(Xcurt-Xdelta< 0,0, Xcurt-Xdelta),0))
+  mutate(Xcurtpot = Xdelta*PercSolar) 
+
+Emissions <- Emissions %>% 
+  mutate(Xcurt = ifelse(Xcurtpot<curt,ifelse(curt == 0,0,Xcurtpot),curt)) %>% #sum and run percentages on Xcurt 
+  mutate(Xextra = ifelse(Xcurtpot>curt, ifelse(Xcurt-Xcurtpot< 0,0, Xcurt-Xcurtpot),0))
 
 #Calculate emissions for baseline demand (scaled and not)
 Emissions <- Emissions %>%
@@ -207,7 +211,7 @@ Emissions <- Emissions %>%
 
 #Set intervention hours, peak hours, other hours based on intervention hours selected for hourly demand fcn and peak hours input above. 
 #Find interventions hours
-intervention_emission_hours <- which(Emissions[,6] == 1) #pulls intervention hours from initial hourly demand fcn
+intervention_emission_hours <- which(Emissions[,7] == 1) #pulls intervention hours from initial hourly demand fcn
 #Find other hours based on intervention hours set in hourly function and peak hour input
 other_emission_hours <- c(1:24) #create 1:24 for all other hours
 other_emission_hours <-other_emission_hours[!other_emission_hours %in% intervention_emission_hours] #remove the intervention hours
@@ -300,16 +304,15 @@ Emissions_Table <- Emissions_Table %>%
 #sum hours of demand change in target window
 #Calculate sum of curtailment
 #sum Xcurt. divide by curt. = proportion of curtailment that could be addressed then multiply that by Curtailmentcost
-Xcurt_i_h <- sum(Emissions$Xcurt[intervention_emission_hours])
-Xcurt_o_h <- sum(Emissions$Xcurt[-intervention_emission_hours])
-Xcurtpotential <- sum(Xcurt_i_h,Xcurt_o_h)*0.75 #eek. this 75% is weird and doesn't match the solar fuel mix %. we need another column for solar reduction potential in the fuel mix. 
-Xcurtextra <- sum(Emissions$Xextra) #check sums correctly)
+
+Xcurtpotential <- sum(Emissions$Xcurt) #eek. this 75% is weird and doesn't match the solar fuel mix %. we need another column for solar reduction potential in the fuel mix. 
+Xcurtextra <- sum(Emissions$Xextra) 
 Xcurtproportion <- Xcurtpotential/sum(Emissions$curt)
 
-Curtailmentcost <- Xcurtpotential*0.75*-Curtailmentcost
+Curtailmentcost <- Xcurtpotential*-Curtailmentcost
 #add to output table
 Emissions_Table <- Emissions_Table %>% 
-   mutate(ChangeCurtCost = c("NA", "NA", "NA", Curtailmentcost))
+   mutate(RedCurtProp = c("NA", "NA", "NA", Xcurtproportion), SolarNonCurt= c("NA", "NA", "NA", Xcurtextra), ChangeCurtCost = c("NA", "NA", "NA", Curtailmentcost))
 
 return(list(Emissions=Emissions, Emissions_Table=Emissions_Table))
   
