@@ -24,8 +24,8 @@ ui <- fluidPage(
                                  # Number of chargers widget
                                  numericInput("intervention_chargers", label = h4("Number of Chargers"), value = 900),
                                  # Market Segment dropdown widget
-                                 selectInput("segment", label = h4("Market Segment"), 
-                                             choices = list("Workplace" = "Workplace",
+                                 selectInput("seg", label = h4("Market Segment"), 
+                                             c("Workplace" = "Workplace",
                                              "Destination Center" = "Destination Center",
                                              "Fleet" = "Fleet",
                                              "Multi Unit Dwelling" = "Multi Unit Dwelling")),
@@ -84,10 +84,11 @@ server <- function(input, output) {
     
     month <- month(as.Date(input$date, "%Y/%m/%d"))
     year <- year(as.Date(input$date, "%Y/%m/%d"))
+    shiny_seg <- as.character(input$seg)
     
     
     # generate graph and change the things that are reactive from the sliders
-    app_model_run <- hourly_demand(int_equals_baseline = FALSE, intervention_chargers = input$intervention_chargers, month = month, year = year, segment = input$segment)
+    app_model_run <- hourly_demand(int_equals_baseline = FALSE, intervention_chargers = input$intervention_chargers, month = month, year = year, seg = shiny_seg)
     
     
     
