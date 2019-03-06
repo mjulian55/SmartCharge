@@ -255,6 +255,9 @@ Elasticities_cross <- read_csv("SDGE_Elasticities.csv")
 Elasticities_no_cross <- read_csv("SDGE_Elasticities_no_cross.csv")
 SDGE_P_SOP_Ratios <- read_csv("SDGE_P_SOP_Ratios.csv")
 
+#curtailment baseline
+curtailment_2018 <- read_csv("Curtailment_2018.csv")
+curtailment_2030 <- read_csv("Curtailment_2030.csv")
 
 #Ratio for selecting Default Elasticities
 P_SOP_Ratio <- max(price_schedule$P0)/min(price_schedule$P0)
@@ -319,6 +322,14 @@ hourly_demand <- function(method = mthd,
   } else{
     Elasticities <- Elasticities_no_cross
   }
+  
+  
+  if(include_wknds == TRUE) {
+    Elasticities <- Elasticities
+  } else {
+    Elasticities <- Elasticities[1:8]
+  }
+  
   chosen_elasticities <- Elasticities[c(1,2,elasticity_schedule)] #this pulls out columns 1, 2, and the designated elasticity (from row 74 into a new dataframe) 
   colnames(chosen_elasticities) <- c("Base_Hr","Changed_Hr","Elasticity")
   
@@ -372,6 +383,18 @@ Xi <- Xi_choose_weekends %>%
   
   ####
   
+  #CURTAILMENT###
+  
+  if (year == 2030) {
+    curtailment <- curtailment_2030
+  } else{
+    curtailment <- curtailment_2018
+  }
+  
+  curtailment_test <- curtailment %>% 
+    select(month) #works because removed hours
+  
+  colnames(curtailment_test) <- c("Curt")
   
   
   #SPLINING####
@@ -603,8 +626,8 @@ Xi <- Xi_choose_weekends %>%
   
   EV_Demand <- mutate(EV_Demand, Xint_effect = Xt - X0)
   
-  EV_Demand <- mutate(EV_Demand, MT = Max_Theory ,Xf = Xt)
-  
+  EV_Demand <- mutate(EV_Demand, MT = Max_Theory, Curt = curtailment_test$Curt, Xf = ifelse(Xt > MT, MT, Xt)) %>% 
+    mutate(Xf = ifelse(Xf < 0 , 0, Xf))
   
   
   

@@ -53,7 +53,7 @@ SIMULATION
 simulation <- function(simulations = 100, 
                        sim_method = mthd,
                        sim_avg_elasticity = avg_elst,
-                       sim_segment = sg,
+                       sim_seg = sg,
                        sim_month = mth, 
                        sim_year = yr,
                        sim_include_wknds = wknds,
@@ -64,8 +64,10 @@ simulation <- function(simulations = 100,
                        sim_intervention_chargers = int_ch, 
                        sim_int_equals_baseline = int_e_b, 
                        sim_throttle_amount = t_a, 
-                       sim_throttle_hours = t_h, 
-                       sim_intervention_comm_effect = i_c_e ) {
+                       sim_throttle_hours = t_h,
+                       sim_air_pollution_comm = a_p_co,
+                       sim_price_comm = p_co) {
+
   
   method_draws <- sample(c(1:4), simulations, replace = TRUE)
   
@@ -94,7 +96,7 @@ simulation <- function(simulations = 100,
   for(i in seq(simulations)){
     run_i <- hourly_demand(method = method_draws[i],
                        avg_elasticity = avg_elasticity_draws[i],
-                       segment = sim_segment,
+                       seg = sim_seg,
                        month = sim_month, 
                        year = sim_year,
                        include_wknds = sim_include_wknds,
@@ -105,8 +107,10 @@ simulation <- function(simulations = 100,
                        intervention_chargers = sim_intervention_chargers, 
                        int_equals_baseline = sim_int_equals_baseline, 
                        throttle_amount = sim_throttle_amount, 
-                       throttle_hours = sim_throttle_hours, 
-                       intervention_comm_effect = sim_intervention_comm_effect)
+                       throttle_hours = sim_throttle_hours,
+                       air_pollution_comm = sim_air_pollution_comm,
+                       price_comm = sim_price_comm)
+
     
     run_i_EV_Demand <- run_i$EV_Demand %>% 
       mutate(method_draw = method_draws[i], elasticity_draw = elasticity_draws[i]) %>% 
@@ -118,7 +122,7 @@ simulation <- function(simulations = 100,
   }
 
       sim_result_summary <- group_by(sim_result_EV_Demand, Hr) %>% 
-    summarise_at(vars(Xf, P0, Xi, X0, P1, X1, Xint_effect, Xf, I01),funs(mean,min,max))
+    summarise_at(vars(Xf, P0, Xi, X0, P1, X1, Xint_effect, Xf, Curt, I01),funs(mean,min,max))
       
       names(sim_result_summary[-1]) <- "NULL" #to avoid a dumb error
 
@@ -158,10 +162,10 @@ emissions_fcn <- function(EVDemand, peak_hours = pk, year = yr) {
 
 #Load emissiosn factors  based on year
    # Elasticity 
-  if(year == 2018) {
-    Hourly_EF <- read_csv("Hrly_EF_2018.csv")
+  if(year == 2030) {
+    Hourly_EF <- read_csv("Hrly_EF_2030.csv")
   } else{
-   Hourly_EF <- read_csv("Hrly_EF_2025.csv")
+   Hourly_EF <- read_csv("Hrly_EF_2018.csv")
   }
   
 #Create Date Frame for Emissions Outputs
@@ -170,14 +174,23 @@ Emissions <- data.frame(Hr = c(1:24)) %>%
   mutate(CO2Marginal=Hourly_EF$CO2Marginal_gas) %>% 
   mutate(NOXBaseline=Hourly_EF$NOXBaseline) %>% 
   mutate(NOXMarginal=Hourly_EF$NOXMarginal_gas) %>% #want to change this so it selects the baseline and marginal based on year input and the gas/no gas scenario automatically in the function
+  mutate(PercSolar=Hourly_EF$SolarPerc) %>% 
   mutate(I01 = EVDemand$sim_result_summary$I01_mean) %>% 
   mutate(Xi = EVDemand$sim_result_summary$Xi_mean) %>% # column for initial demand at each hour not scaled
   mutate(X0 = EVDemand$sim_result_summary$X0_mean) %>% # column for initial demand at each hour scaled by chargers
   mutate(Xf = EVDemand$sim_result_summary$Xf_mean) %>% 
+  mutate(curt = EVDemand$sim_result_summary$Curt_mean) %>% 
   mutate(Xdelta = EVDemand$sim_result_summary$Xint_effect_mean) %>% 
      # column for new demand at each hour. we'll need to update "Xt" to reflect the new column post comms/all interventions
   mutate(Pbase = EVDemand$sim_result_summary$P0_mean*EVDemand$sim_result_summary$X0_mean) %>% #total price paid in that hour ($/kwh * kwh)
   mutate(Pnew = EVDemand$sim_result_summary$P1_mean*EVDemand$sim_result_summary$Xf_mean) #total price paid in that hour ($/kwh * kwh)
+
+Emissions <- Emissions %>% 
+  mutate(Xcurtpot = Xdelta*PercSolar) 
+
+Emissions <- Emissions %>% 
+  mutate(Xcurt = ifelse(Xcurtpot<curt,ifelse(curt == 0,0,Xcurtpot),curt)) %>% #sum and run percentages on Xcurt 
+  mutate(Xextra = ifelse(Xcurtpot>curt, ifelse(Xcurt-Xcurtpot< 0,0, Xcurt-Xcurtpot),0))
 
 #Calculate emissions for baseline demand (scaled and not)
 Emissions <- Emissions %>%
@@ -198,7 +211,7 @@ Emissions <- Emissions %>%
 
 #Set intervention hours, peak hours, other hours based on intervention hours selected for hourly demand fcn and peak hours input above. 
 #Find interventions hours
-intervention_emission_hours <- which(Emissions[,6] == 1) #pulls intervention hours from initial hourly demand fcn
+intervention_emission_hours <- which(Emissions[,7] == 1) #pulls intervention hours from initial hourly demand fcn
 #Find other hours based on intervention hours set in hourly function and peak hour input
 other_emission_hours <- c(1:24) #create 1:24 for all other hours
 other_emission_hours <-other_emission_hours[!other_emission_hours %in% intervention_emission_hours] #remove the intervention hours
@@ -289,10 +302,17 @@ Emissions_Table <- Emissions_Table %>%
  
 #Curtailment Cost Reduction
 #sum hours of demand change in target window
-Curtailmentcost_i_h <- Xdelta_i_h*0.75*-Curtailmentcost
+#Calculate sum of curtailment
+#sum Xcurt. divide by curt. = proportion of curtailment that could be addressed then multiply that by Curtailmentcost
+
+Xcurtpotential <- sum(Emissions$Xcurt) #eek. this 75% is weird and doesn't match the solar fuel mix %. we need another column for solar reduction potential in the fuel mix. 
+Xcurtextra <- sum(Emissions$Xextra) 
+Xcurtproportion <- Xcurtpotential/sum(Emissions$curt)
+
+Curtailmentcost <- Xcurtpotential*-Curtailmentcost
 #add to output table
 Emissions_Table <- Emissions_Table %>% 
-   mutate(ChangeCurtCost = c(Curtailmentcost_i_h, "NA", "NA", Curtailmentcost_i_h))
+   mutate(RedCurtProp = c("NA", "NA", "NA", Xcurtproportion), SolarNonCurt= c("NA", "NA", "NA", Xcurtextra), ChangeCurtCost = c("NA", "NA", "NA", Curtailmentcost))
 
 return(list(Emissions=Emissions, Emissions_Table=Emissions_Table))
   
