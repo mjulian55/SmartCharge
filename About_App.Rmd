@@ -19,3 +19,8 @@ This Application was developed as part of the Smart Charge Master's Group Projec
 ## Electric Vehicle Charging
 
 
+
+
+![](RStudio-Logo-Flat.png){width=150px}
+
+
