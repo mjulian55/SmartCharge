@@ -3,14 +3,17 @@
 
 library(shiny)
 library(shinydashboard)
+library(shinythemes)
 library(tidyverse)
 library(markdown)
 
 
 ui <- fluidPage(
 
-   
-   mainPanel(navbarPage("SMART CHARGE",
+theme = shinytheme("sandstone"),
+  
+ navbarPage("SMART CHARGE - An Electric Vehicle Charging Demand Simulation App"),
+             tabsetPanel(
                         
                         tabPanel("Overview", 
                         includeMarkdown("About_App.Rmd")),
@@ -63,9 +66,9 @@ ui <- fluidPage(
   )
 ),
 
-                        tabPanel("Instructions")
+                        tabPanel("Instructions",
+                          includeMarkdown("Instructions_App.Rmd"))
                                  
-    )
   )
 )
 
