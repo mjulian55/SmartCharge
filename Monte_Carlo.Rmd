@@ -670,8 +670,11 @@ PM1 <- simulation(sim_seg = "Multi Unit Dwelling",
 #CSV + OUTPUTS
 #write simulation summary results to csv to use for graph!
 write_csv(PM1$sim_result_summary, "Results/MUDs_PM1_Demand_Summary.csv")
+
 #run emissions and write to csv
 PM1_output_table <- emissions_fcn(PM1) 
+#View(PM1_output_table$Emissions_Table)
+#Viw(PM1_output_table$Emissions)
 write_csv(PM1_output_table$Emissions_Table, "Results/MUDs_PM1_Output_Summary.csv") #write emissions to csv
 write_csv(PM1_output_table$Emissions, "Results/MUDs_PM1_Output_All_Hours.csv")
 
