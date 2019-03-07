@@ -379,6 +379,8 @@ return(list(Emissions=Emissions, Emissions_Table=Emissions_Table))
 
 ```{r fleet_scenarios}
 
+# PF1: Present, Fleet, 1
+
 PF1 <- simulation(simulations = 100, 
                        sim_method = mthd,
                        sim_avg_elasticity = avg_elst,
@@ -395,8 +397,21 @@ PF1 <- simulation(simulations = 100,
                        sim_throttle_amount = t_a, 
                        sim_throttle_hours = t_h,
                        sim_air_pollution_comm = a_p_co,
-                       sim_price_comm = TRUE,
-                       sim_curt_year=c_yr)
+                       sim_price_comm = TRUE)
+
+# PF2: Present, Fleet, 2
+
+#  **** Need to add TOU 2019
+
+
+
+# PF3S: Present, Fleet, 3, Summer
+
+# PF4S: Present, Fleet, 4, Summer
+
+
+
+# PF5S: Present, Fleet, 5, Summer
 
 
 ```
