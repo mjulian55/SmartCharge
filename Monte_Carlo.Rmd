@@ -372,9 +372,6 @@ return(list(Emissions=Emissions, Emissions_Table=Emissions_Table))
 
 ```{r destination_center_scenarios}
 
-PDC1S <- simulation()
-
-
 ```
 
 
@@ -392,7 +389,7 @@ PDC1S <- simulation()
 PM1 <- simulation(sim_seg = "Multi Unit Dwelling",
                        sim_month = 7, 
                        sim_year = 2018,
-                       sim_include_wknds = TRUE,
+                       sim_include_wknds = FALSE,
                        sim_price_change = 0.1, 
                        sim_intervention_hours = c(17:21),
                        sim_air_pollution_comm = FALSE,
