@@ -31,10 +31,10 @@ read_csv("Model_Map/2018_Winter_TOU_EV_4.csv")
 read_csv("Model_Map/2018_Winter_TOU_EV_D.csv")
 
 #2019 Summer 8
-price_schedule_2019_summer_tou <- read_csv("Model_Map/2019_Summer_TOU_EV_8.csv")
+read_csv("Model_Map/2019_Summer_TOU_EV_8.csv")
 
 #2019 Winter 8
-price_schedule_2019_winter_tou <- read_csv("Model_Map/2019_Winter_TOU_EV_8.csv")
+read_csv("Model_Map/2019_Winter_TOU_EV_8.csv")
 
 
 #Baseline Usage
@@ -259,6 +259,19 @@ curtailment_2018 <- read_csv("Curtailment_2018.csv")
 curtailment_2030 <- read_csv("Curtailment_2030.csv")
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## MODEL STARTS HERE##
 
 p_c <- -0.05 #price change
@@ -281,7 +294,7 @@ avg_elst <- -0.4 #average elasticity
 a_p_co <- FALSE #air pollution communication
 p_co <- TRUE #price communication
 c_yr <- 2018 #default year for curtailment and emissions factors
-n_tou <- 1 #new tou year (options are summer or winter -- all are 2019). 1 = 2018 tous; 2 = summer 2019; 3 = winter 2019. 
+n_tou <- 2018 #new tou year (options are 2019 or 2018)
 
 hourly_demand <- function(method = mthd,
                           avg_elasticity = avg_elst,
@@ -510,19 +523,22 @@ Xi <- Xi_choose_weekends %>%
   EV_Demand <- EV_Demand %>% 
     mutate(P1 = price_schedule$P0) #Copies the initial price schedule into a new column (P1) that can then be modified to reflect the intervention
   
+  #new tou as an intervention. 
+  #select the potential new tou based on month
+  if(month%in%c(6:9)) {
+    price_schedule_tou_int <- read_csv("Model_Map/2019_Summer_TOU_EV_8.csv")
+  } else {
+    price_schedule_tou_int <- read_csv("Model_Map/2019_Winter_TOU_EV_8.csv")
+  }
+  #if applying the tou intervention, make that the initial P1. If not, then keep it as the initial priace schedule (all of this then gets modified in the next chunck with the discount and rebate)
+  if (new_tou == 2019) {
+    EV_Demand$P1 <- price_schedule_tou_int$P0
+  } 
+  else {
+    EV_Demand$P1 <- EV_Demand$P1
+  }
   
-  #n_tou <- 1 #new tou year (options are summer or winter -- all are 2019). 1 = 2018 tous; 2 = summer 2019; 3 = winter 2019. 
- # price_schedule_2019_summer_tou <- read_csv("Model_Map/2019_Summer_TOU_EV_8.csv")
   
-  #If (new_tou = 2) {
-  #  EV_Demand$P1 <- price_schedule_summer_2019_tou$P0
-#  } else if (new_tou =3) {
- #   EV_Demand$P1 <- price_schedule_winter_2019_tou$P0
-#  } else {
- #   EV_Demand$P1 <- EV_Demand$P1
-#  }
-  #2019 TOUs
-  #price_schedule_2019_winter_tou <- read_csv("Model_Map/2019_Winter_TOU_EV_8.csv")
   
   EV_Demand$P1[intervention_hours] <-EV_Demand$P1[intervention_hours] + price_change #updates intervention column to implement intervention
   

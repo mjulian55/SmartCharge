@@ -62,7 +62,8 @@ simulation <- function(simulations = 100,
                        sim_throttle_hours = t_h,
                        sim_air_pollution_comm = a_p_co,
                        sim_price_comm = p_co,
-                       sim_curt_year=c_yr) {
+                       sim_curt_year=c_yr,
+                       sim_new_tou = n_tou) {
 
   ##create lists to sample from for each variable to sample from
   #method
@@ -117,7 +118,8 @@ simulation <- function(simulations = 100,
                        throttle_hours = sim_throttle_hours,
                        air_pollution_comm = sim_air_pollution_comm,
                        price_comm = sim_price_comm,
-                       curt_year=sim_curt_year)
+                       curt_year=sim_curt_year,
+                       new_tou=sim_new_tou)
 
     
     run_i_EV_Demand <- run_i$EV_Demand %>% 
