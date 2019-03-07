@@ -49,8 +49,8 @@ simulation <- function(simulations = 100,
                        sim_method = mthd,
                        sim_avg_elasticity = avg_elst,
                        sim_seg = sg,
-                       sim_month = mth, 
-                       sim_year = yr,
+                       sim_month = mth, #baseline month
+                       sim_year = yr, #baseline year
                        sim_include_wknds = wknds,
                        sim_charger_power = pwr,
                        sim_elasticity_schedule = sch, 
@@ -294,7 +294,7 @@ other_emission_hours <-other_emission_hours[!other_emission_hours %in% peak_hour
  Pdelta_i_h <- Pf_i_h - P0_i_h 
  Pdelta_pk <- Pf_pk - P0_pk
  Pdelta_o_h <- Pf_o_h - P0_o_h
- Pdelta_sum <- sum(Pdelta_i_h, Pdelta_pk, Pdelta_o_h)
+ Pdelta_sum <- Pf_sum - P0_sum
  
 #Sum base emissions by period (intervention window, peak window, other)
  CO2X0_i_h <- sum(Emissions$CO2X0[intervention_emission_hours]) 
@@ -357,8 +357,9 @@ return(list(Emissions=Emissions, Emissions_Table=Emissions_Table))
 
 #Test_emissions <- emissions_fcn(sim1) or Test_emissions <- emissions_fcn(EVDemand = simulation())
 
-#Emissions_run1 <- emissions_fcn(EVDemand = hourly_demand(SDGE_commm_effect = 0,intervention_comm_effect = 0, throttle_amount = 0)) #or run as 
-#Emissions_run1 <- emissions_fcn(EV_Demand_run1)
+#defaults below
+#emissions_fcn defaults. peak_hours 17:21 and emissions year 2018. only change if need to make 2030 run. Then: emissions_year = 2030. Always run on the output from your simulation table. see example below with defaults. #PM1_output_table <- emissions_fcn(PM1) to run defaults
+#PM1_output_table <- emissions_fcn(EVDemand = PM1, peak_hours = c(17:21), emissions_year = 2019)
 
 ```
 
@@ -474,8 +475,6 @@ PDC4S <- simulation(sim_seg = "Destination Center",sim_throttle_amount =-0.5, si
 
 #FLEETS
 
-<<<<<<< HEAD
-
 ```{r fleet_scenarios}
 
 # PF1: Present, Fleet, 1
@@ -558,7 +557,7 @@ PF4S <- simulation(simulations = 100,
                        sim_intervention_chargers = int_ch, 
                        sim_int_equals_baseline = int_e_b, 
                        sim_throttle_amount = 0.5, 
-                       sim_throttle_hours = c(7:11, 18:21),  ????
+                       sim_throttle_hours = c(7:11, 17:21),  ????
                        sim_air_pollution_comm = a_p_co,
                        sim_price_comm = TRUE,
                        sim_curt_year=c_yr)
@@ -612,18 +611,98 @@ FF1 <- simulation(simulations = 100,
 
 #MUDS
 
-```{r MUDs_scenarios}
+```{r MUDs_scenarios, message=FALSE, warning=FALSE}
 
+#PM1 = rebate + price communication
 PM1 <- simulation(sim_seg = "Multi Unit Dwelling",
-                       sim_month = 7, 
+                       sim_month = 11,
                        sim_year = 2018,
                        sim_include_wknds = FALSE,
                        sim_price_change = 0.1, 
                        sim_intervention_hours = c(17:21),
                        sim_air_pollution_comm = FALSE,
                        sim_price_comm = TRUE,
-                       sim_curt_year=2018
-                  ) 
+                       sim_curt_year=2018) 
+#View(PM1$sim_result_summary)
+#PM1_output_table <- emissions_fcn(PM1) to run defaults
+#PM1_output_table <- emissions_fcn(EVDemand = PM1, peak_hours = c(17:21), emissions_year = 2019)
+
+#PM2 = throttling + price comms (can't run throttling with no comms b/c comms is contingent on a price change). so this is a little weird. 
+PM2 <- simulation(sim_seg = "Multi Unit Dwelling",
+                       sim_month = 11,
+                       sim_year = 2018,
+                       sim_include_wknds = FALSE,
+                       sim_price_change = 0,
+                       sim_intervention_hours = c(17:21), #set so calculates values based on that period
+                       sim_throttle_amount = 0.5, 
+                       sim_throttle_hours = c(17:21),
+                       sim_air_pollution_comm = FALSE,
+                       sim_price_comm = TRUE,
+                       sim_curt_year=2018)
+#View(PM2$sim_result_summary)
+#PM2_output_table <- emissions_fcn(PM2) 
+
+#PM3 = new tou + rebate + price communication
+PM3 <- simulation (sim_seg = "Multi Unit Dwelling",
+                       sim_month = 11,
+                       sim_year = 2018,
+                       sim_include_wknds = FALSE,
+                       sim_price_change = 0.1, 
+                       sim_intervention_hours = c(17:21),
+                       sim_air_pollution_comm = FALSE,
+                       sim_price_comm = TRUE,
+                       sim_curt_year=2018,
+                       sim_new_tou = 2019)
+
+#View(PM3$sim_result_summary)
+#PM3_output_table <- emissions_fcn(PM3) 
+
+#PM4 = new tou + all communication
+PM4 <- simulation (sim_seg = "Multi Unit Dwelling",
+                       sim_month = 11,
+                       sim_year = 2018,
+                       sim_include_wknds = FALSE,
+                       sim_price_change = 0,
+                       sim_intervention_hours = c(1:24),
+                       sim_air_pollution_comm = TRUE,
+                       sim_price_comm = TRUE,
+                       sim_curt_year=2018,
+                       sim_new_tou = 2019)
+#View(PM4$sim_result_summary)
+#PM4_output_table <- emissions_fcn(PM4) 
+
+#PM 5 = new tou + air pollution communication
+PM5 <- simulation (sim_seg = "Multi Unit Dwelling",
+                       sim_month = 11,
+                       sim_year = 2018,
+                       sim_include_wknds = FALSE,
+                       sim_price_change = 0,
+                       sim_intervention_hours = c(1:24),
+                       sim_air_pollution_comm = TRUE,
+                       sim_price_comm = FALSE,
+                       sim_curt_year=2018,
+                       sim_new_tou = 2019)
+#View(PM5$sim_result_summary)
+#PM5_output_table <- emissions_fcn(PM5) 
+
+#add scenario for air pollution + discount? 
+
+#FM1 = 2030 + 2019 tou + rebate
+FM1 <- simulation (sim_seg = "Multi Unit Dwelling",
+                       sim_month = 11,
+                       sim_year = 2018,
+                       sim_include_wknds = FALSE,
+                       sim_price_change = 0.1, 
+                       sim_intervention_hours = c(17:21),
+                       sim_intervention_chargers = 1846, 
+                       sim_int_equals_baseline = FALSE, 
+                       sim_air_pollution_comm = TRUE,
+                       sim_price_comm = TRUE,
+                       sim_curt_year=2030,
+                       sim_new_tou = 2019)
+#View(FM1$sim_result_summary)
+#FM1_output_table <- emissions_fcn(EVDemand = FM1, peak_hours = c(17:21), emissions_year = 2030)
+
 
 ```
 
