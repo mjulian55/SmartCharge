@@ -399,6 +399,9 @@ PW2S <- simulation( sim_seg = "Workplace",
 
 ```{r destination_center_scenarios}
 
+PDC1S <- simulation()
+
+
 ```
 
 
