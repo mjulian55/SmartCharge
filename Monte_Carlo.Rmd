@@ -75,6 +75,12 @@ simulation <- function(simulations = 100,
   } else{
     Elasticities <- Elasticities_no_cross
   }
+  
+   if(sim_include_wknds == TRUE) {
+    Elasticities <- Elasticities
+  } else {
+    Elasticities <- Elasticities[1:8] # filters for first 6 elasticities (first two columsn are hour and period)
+  }
 
   elasticity_draws <- sample(3:length(Elasticities),simulations,replace = TRUE)
   
@@ -358,7 +364,7 @@ return(list(Emissions=Emissions, Emissions_Table=Emissions_Table))
 
 ```{r workplace_scenarios}
 
-test_run <- 
+
 
 ```
 
@@ -378,7 +384,18 @@ test_run <-
 
 #MUDS
 
-```{r destination_center_scenarios}
+```{r MUDs_scenarios}
+
+PM1 <- simulation(sim_seg = "Multi Unit Dwelling",
+                       sim_month = 7, 
+                       sim_year = 2018,
+                       sim_include_wknds = TRUE,
+                       sim_price_change = 0.1, 
+                       sim_intervention_hours = c(17:21),
+                       sim_air_pollution_comm = FALSE,
+                       sim_price_comm = TRUE,
+                       sim_curt_year=2018
+                  ) 
 
 ```
 
