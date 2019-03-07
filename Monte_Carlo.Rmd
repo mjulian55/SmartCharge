@@ -494,18 +494,113 @@ PF1 <- simulation(simulations = 100,
                        sim_price_comm = TRUE)
 
 # PF2: Present, Fleet, 2
-
 #  **** Need to add TOU 2019
 
+PF2 <- simulation(simulations = 100, 
+                       sim_method = mthd,
+                       sim_avg_elasticity = avg_elst,
+                       sim_seg = "Fleet",
+                       sim_month = 11, 
+                       sim_year = 2018,
+                       sim_include_wknds = FALSE,
+                       sim_charger_power = pwr,
+                       sim_elasticity_schedule = sch, 
+                       sim_price_change = 0.10, 
+                       sim_intervention_hours = c(17:21),
+                       sim_intervention_chargers = int_ch, 
+                       sim_int_equals_baseline = int_e_b, 
+                       sim_throttle_amount = t_a, 
+                       sim_throttle_hours = t_h,
+                       sim_air_pollution_comm = a_p_co,
+                       sim_price_comm = TRUE,
+                       sim_curt_year=c_yr)
 
 
 # PF3S: Present, Fleet, 3, Summer
 
+PF3S <- simulation(simulations = 100, 
+                       sim_method = mthd,
+                       sim_avg_elasticity = avg_elst,
+                       sim_seg = "Fleet",
+                       sim_month = 7, 
+                       sim_year = 2018,
+                       sim_include_wknds = FALSE,
+                       sim_charger_power = pwr,
+                       sim_elasticity_schedule = sch, 
+                       sim_price_change = 0.05, 
+                       sim_intervention_hours = c(12:15),
+                       sim_intervention_chargers = int_ch, 
+                       sim_int_equals_baseline = int_e_b, 
+                       sim_throttle_amount = t_a, 
+                       sim_throttle_hours = t_h,
+                       sim_air_pollution_comm = a_p_co,
+                       sim_price_comm = TRUE,
+                       sim_curt_year=c_yr)
+
 # PF4S: Present, Fleet, 4, Summer
 
+PF4S <- simulation(simulations = 100, 
+                       sim_method = mthd,
+                       sim_avg_elasticity = avg_elst,
+                       sim_seg = "Fleet",
+                       sim_month = 7, 
+                       sim_year = 2018,
+                       sim_include_wknds = FALSE,
+                       sim_charger_power = pwr,
+                       sim_elasticity_schedule = sch, 
+                       sim_price_change = 0.05, 
+                       sim_intervention_hours = c(12:15),
+                       sim_intervention_chargers = int_ch, 
+                       sim_int_equals_baseline = int_e_b, 
+                       sim_throttle_amount = 0.5, 
+                       sim_throttle_hours = c(7:11, 18:21),  ????
+                       sim_air_pollution_comm = a_p_co,
+                       sim_price_comm = TRUE,
+                       sim_curt_year=c_yr)
 
 
 # PF5S: Present, Fleet, 5, Summer
+
+PF5S <- simulation(simulations = 100, 
+                       sim_method = mthd,
+                       sim_avg_elasticity = avg_elst,
+                       sim_seg = "Fleet",
+                       sim_month = 7, 
+                       sim_year = 2018,
+                       sim_include_wknds = FALSE,
+                       sim_charger_power = pwr,
+                       sim_elasticity_schedule = sch, 
+                       sim_price_change = 0.05, 
+                       sim_intervention_hours = c(12:15, 18:21), ???
+                       sim_intervention_chargers = int_ch, 
+                       sim_int_equals_baseline = int_e_b, 
+                       sim_throttle_amount = t_a, 
+                       sim_throttle_hours = t_h,
+                       sim_air_pollution_comm = a_p_co,
+                       sim_price_comm = TRUE,
+                       sim_curt_year=c_yr)
+
+
+# FF1: Future, Fleet, 1
+
+FF1 <- simulation(simulations = 100, 
+                       sim_method = mthd,
+                       sim_avg_elasticity = avg_elst,
+                       sim_seg = "Fleet",
+                       sim_month = mth, 
+                       sim_year = yr,
+                       sim_include_wknds = wknds,
+                       sim_charger_power = pwr,
+                       sim_elasticity_schedule = sch, 
+                       sim_price_change = 0.05,
+                       sim_intervention_hours = c(18:21),
+                       sim_intervention_chargers = 4378, ????
+                       sim_int_equals_baseline = int_e_b, 
+                       sim_throttle_amount = t_a, 
+                       sim_throttle_hours = t_h,
+                       sim_air_pollution_comm = a_p_co,
+                       sim_price_comm = TRUE,
+                       sim_curt_year=c_yr)
 
 
 ```
