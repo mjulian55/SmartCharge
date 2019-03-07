@@ -321,6 +321,33 @@ return(list(Emissions=Emissions, Emissions_Table=Emissions_Table))
 
 ```
 
+#WORKPLACES 
+
+```{r workplace_scenarios}
+
+test_run <- 
+
+```
+
+#DESTINATION CENTERS
+
+```{r destination_center_scenarios}
+
+```
+
+
+#FLEETS
+
+```{r destination_center_scenarios}
+
+```
+
+
+#MUDS
+
+```{r destination_center_scenarios}
+
+```
 
 
 
