@@ -25,7 +25,7 @@ CONTEXT
 
 
 
-```{r hourly_demand, message= FALSE, warning= FALSE}
+```{r loadlib, message=FALSE, warning=FALSE}
 
 source("hourly_demand_function.R")
 
@@ -133,10 +133,43 @@ simulation <- function(simulations = 100,
 }
 
 
-sim1 <- simulation()
+#sim1 <- simulation()
 ```
 
+Chunk below takes a LONG TIME to run
 
+```{r simulation_aggregation}
+
+
+sim_agg <- data.frame(month = rep(1:12, each = 4), segment = rep(c("Workplace", "Multi Unit Dwelling", "Fleet", "Destination Center"),12))
+
+summer_i_h <- c(12:15) #option 1
+winter_i_h <- c(17:21) #option 2
+
+sim_agg <- sim_agg %>% 
+  mutate(price_change = ifelse(month %in% c(6:9),-0.05,0.1), intervention_hours = (ifelse(month %in% c(6:9), 1, 2)))
+
+sim_annual_aggregated <- data.frame()
+
+
+for (i in seq(1,48,1)) {
+  
+  sim_i <- simulation(simulations = 10,
+             sim_price_change = sim_agg$price_change[i],
+             sim_seg = sim_agg$segment[i],
+             sim_intervention_hours = ifelse(sim_agg$intervention_hours[i] == 1, summer_i_h, winter_i_h),
+             sim_month = sim_agg$month[i])
+  
+  
+  sim_i_summary <- sim_i$sim_result_EV_Demand %>% 
+    mutate(price_change = sim_agg$price_change[i], segmnt = sim_agg$segment[i], int_hrs =  sim_agg$intervention_hours[i], sim_month  = sim_agg$month[i])
+  
+  sim_annual_aggregated <- rbind(sim_annual_aggregated, sim_i_summary)
+  
+}
+
+
+```
 
 EMISSIONS + ALL OUTPUTS
 
@@ -1998,7 +2031,7 @@ geom_line(aes(y=Theoretical_Max))
 
 Demand_Graph27
 
-ggsave("Jul_31_18_DC_Event_Usage.pdf", Demand_Graph27, device = "pdf", width = 8, height = 4.5)
+ggsave("Jul_11_18_DC_Event_Usage.pdf", Demand_Graph27, device = "pdf", width = 8, height = 4.5)
 
 #COST
 Cost_Table27 <- Aug_30_18_DC_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_Usage","P1")] %>% 
