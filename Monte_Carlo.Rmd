@@ -464,11 +464,25 @@ PW6S <- simulation( sim_seg = "Workplace",
 
 ```{r destination_center_scenarios}
 
-
+#PDC1S:  discount -0.05 (default) 12-15+ price comms only + morning throttling
 PDC1S <- simulation(sim_seg = "Destination Center",sim_throttle_amount = -0.5, sim_month = 7)
+#View(PDC1S$sim_result_summary)
+#PDC1S_output_table <- emissions_fcn(PDC1S) 
+
+#PDC2S:  discount -0.05 (default) 12-15+ all comms + morning throttling
 PDC2S <- simulation(sim_seg = "Destination Center",sim_throttle_amount = -0.5,sim_air_pollution_comm = TRUE, sim_price_comm = TRUE,sim_month = 7)
+#View(PDC2S$sim_result_summary)
+#PDC2S_output_table <- emissions_fcn(PDC2S) 
+
+#PDC3S: discount -0.05 (default) 12-15+ air poll comms + morning throttling
 PDC3S <- simulation(sim_seg = "Destination Center",sim_throttle_amount = -0.5,sim_air_pollution_comm = TRUE, sim_price_comm = FALSE,sim_month = 7)
+#View(PDC3S$sim_result_summary)
+#PDC3S_output_table <- emissions_fcn(PDC3S) 
+
+#PDC4S: discount -0.05 (default) 12-15+ no comms + morning throttling
 PDC4S <- simulation(sim_seg = "Destination Center",sim_throttle_amount =-0.5, sim_month = 7,sim_air_pollution_comm = FALSE,sim_price_comm = FALSE)
+#View(PDC4S$sim_result_summary)
+#PDC4S_output_table <- emissions_fcn(PDC4S) 
 
 ```
 
@@ -496,6 +510,8 @@ PF1 <- simulation(simulations = 100,
                        sim_throttle_hours = t_h,
                        sim_air_pollution_comm = a_p_co,
                        sim_price_comm = TRUE)
+#View(PF1S$sim_result_summary)
+#PF1S_output_table <- emissions_fcn(PF1S) 
 
 # PF2: Present, Fleet, 2
 #  **** Need to add TOU 2019
@@ -518,7 +534,8 @@ PF2 <- simulation(simulations = 100,
                        sim_air_pollution_comm = a_p_co,
                        sim_price_comm = TRUE,
                        sim_curt_year=c_yr)
-
+#View(PF2S$sim_result_summary)
+#PF2S_output_table <- emissions_fcn(PF2S) 
 
 # PF3S: Present, Fleet, 3, Summer
 
@@ -540,6 +557,8 @@ PF3S <- simulation(simulations = 100,
                        sim_air_pollution_comm = a_p_co,
                        sim_price_comm = TRUE,
                        sim_curt_year=c_yr)
+#View(PF3S$sim_result_summary)
+#PF3S_output_table <- emissions_fcn(PF3S) 
 
 # PF4S: Present, Fleet, 4, Summer
 
@@ -561,7 +580,8 @@ PF4S <- simulation(simulations = 100,
                        sim_air_pollution_comm = a_p_co,
                        sim_price_comm = TRUE,
                        sim_curt_year=c_yr)
-
+#View(PF4S$sim_result_summary)
+#PF4S_output_table <- emissions_fcn(PF4S) 
 
 # PF5S: Present, Fleet, 5, Summer
 
@@ -583,7 +603,8 @@ PF5S <- simulation(simulations = 100,
                        sim_air_pollution_comm = a_p_co,
                        sim_price_comm = TRUE,
                        sim_curt_year=c_yr)
-
+#View(PF5S$sim_result_summary)
+#PF5S_output_table <- emissions_fcn(PF5S) 
 
 # FF1: Future, Fleet, 1
 
@@ -605,6 +626,8 @@ FF1 <- simulation(simulations = 100,
                        sim_air_pollution_comm = a_p_co,
                        sim_price_comm = TRUE,
                        sim_curt_year=c_yr)
+#View(FF1$sim_result_summary)
+#FF1_output_table <- emissions_fcn(FF1,emissions_year = 2030) 
 
 ```
 
