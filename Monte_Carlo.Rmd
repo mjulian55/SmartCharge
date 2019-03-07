@@ -364,7 +364,96 @@ return(list(Emissions=Emissions, Emissions_Table=Emissions_Table))
 
 ```{r workplace_scenarios}
 
+PW1S <- simulation( sim_seg = "Workplace",
+                       sim_month = 7, 
+                       sim_year = 2018,
+                       sim_include_wknds = FALSE,
+                       sim_charger_power = pwr,
+                       sim_price_change = 0.05, 
+                       sim_intervention_hours = c(12:15),
+                       sim_throttle_amount = .5, 
+                       sim_throttle_hours = c(6:11),
+                       sim_air_pollution_comm = FALSE, #no comm
+                       sim_price_comm = TRUE, #yes comm
+                       sim_curt_year=2018)
 
+graph_tablePW1S <- PW1S$sim_result_summary[c("Hr","X0_mean","Xf_mean")] %>%
+  gather(condition,value,c("X0_mean","Xf_mean")) 
+#%>% mutate(Theoretical_Max=PW1S$sim_result_EV_Demand$MT[1])
+
+Demand_GraphPW1S <- ggplot(data = graph_tablePW1S, aes(x = Hr)) +
+  geom_line(aes(y = value, color=condition)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+  panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+  labs(title="Destination Center Hourly Demand Forecast",
+  subtitle="Baseline October 2018 Scaled for October 30, 2018 Event (150 Chargers) \n November 14th, 2018 Event Usage",
+  y="EV Charging Demand (kW)",
+  x="Hour",
+  color=NULL) +
+  geom_rect(aes(xmin=6,xmax=11,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
+  geom_rect(aes(xmin=11,xmax=15,ymin=-Inf,ymax=Inf, fill = "Discount"),alpha=0.0075) +
+  scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
+  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("purple", "blue")) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(plot.subtitle = element_text(hjust = 0.5))+
+  theme(legend.position="bottom") +
+  scale_fill_manual('Interventions',values = c('green','yellow'),  guide = guide_legend(override.aes = list(alpha = 0.15)))
+  
+
+Demand_GraphPW1S
+
+
+PW3S <- simulation( sim_seg = "Workplace",
+                       sim_month = 7, 
+                       sim_year = 2018,
+                       sim_include_wknds = FALSE,
+                       sim_charger_power = pwr,
+                       sim_price_change = 0.05, 
+                       sim_intervention_hours = c(12:15),
+                       sim_throttle_amount = .5, 
+                       sim_throttle_hours = c(6:11),
+                       sim_air_pollution_comm = TRUE, #yes comm
+                       sim_price_comm = TRUE, #yes comm
+                       sim_curt_year=2018) 
+
+PW4S <- simulation( sim_seg = "Workplace",
+                       sim_month = 7, 
+                       sim_year = 2018,
+                       sim_include_wknds = FALSE,
+                       sim_charger_power = pwr,
+                       sim_price_change = 0.05, 
+                       sim_intervention_hours = c(12:15),
+                       sim_throttle_amount = 0, #No throttling 
+                       sim_throttle_hours = 0,
+                       sim_air_pollution_comm = FALSE, 
+                       sim_price_comm = TRUE,
+                       sim_curt_year=2018) 
+
+PW5S <- simulation( sim_seg = "Workplace",
+                       sim_month = 7, 
+                       sim_year = 2018,
+                       sim_include_wknds = FALSE,
+                       sim_charger_power = pwr,
+                       sim_price_change = 0.05, 
+                       sim_intervention_hours = c(12:15),
+                       sim_throttle_amount = 0.5, 
+                       sim_throttle_hours = c(6:11),
+                       sim_air_pollution_comm = FALSE, #no comm
+                       sim_price_comm = FALSE, # no comm
+                       sim_curt_year=2018) 
+
+PW6S <- simulation( sim_seg = "Workplace",
+                       sim_month = 7, 
+                       sim_year = 2018,
+                       sim_include_wknds = FALSE,
+                       sim_charger_power = pwr,
+                       sim_price_change = 0.05, 
+                       sim_intervention_hours = c(12:15),
+                       sim_throttle_amount = 0.5, 
+                       sim_throttle_hours = c(6:11),
+                       sim_air_pollution_comm = TRUE, #yes comm
+                       sim_price_comm = FALSE, 
+                       sim_curt_year=2018) 
 
 ```
 
@@ -372,6 +461,14 @@ return(list(Emissions=Emissions, Emissions_Table=Emissions_Table))
 
 ```{r destination_center_scenarios}
 
+<<<<<<< HEAD
+PDC1S <- simulation(sim_seg = "Destination Center",sim_throttle_amount = -0.5, sim_month = 7)
+PDC2S <- simulation(sim_seg = "Destination Center",sim_throttle_amount = -0.5,sim_air_pollution_comm = TRUE, sim_price_comm = TRUE,sim_month = 7)
+#PDC3S <- simulation
+
+
+=======
+>>>>>>> d09e47c522290bc37027752808fb4a221cf1027b
 ```
 
 
