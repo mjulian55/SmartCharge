@@ -442,6 +442,14 @@ PW6S <- simulation( sim_seg = "Workplace",
 
 ```{r destination_center_scenarios}
 
+<<<<<<< HEAD
+PDC1S <- simulation(sim_seg = "Destination Center",sim_throttle_amount = -0.5, sim_month = 7)
+PDC2S <- simulation(sim_seg = "Destination Center",sim_throttle_amount = -0.5,sim_air_pollution_comm = TRUE, sim_price_comm = TRUE,sim_month = 7)
+#PDC3S <- simulation
+
+
+=======
+>>>>>>> d09e47c522290bc37027752808fb4a221cf1027b
 ```
 
 
