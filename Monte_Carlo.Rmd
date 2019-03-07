@@ -399,15 +399,32 @@ PW2S <- simulation( sim_seg = "Workplace",
 
 ```{r destination_center_scenarios}
 
-PDC1S <- simulation()
-
-
 ```
 
 
 #FLEETS
 
-```{r destination_center_scenarios}
+```{r fleet_scenarios}
+
+PF1 <- simulation(simulations = 100, 
+                       sim_method = mthd,
+                       sim_avg_elasticity = avg_elst,
+                       sim_seg = "Fleet",
+                       sim_month = 11, 
+                       sim_year = 2018,
+                       sim_include_wknds = FALSE,
+                       sim_charger_power = pwr,
+                       sim_elasticity_schedule = sch, 
+                       sim_price_change = 0.10, 
+                       sim_intervention_hours = c(17:21),
+                       sim_intervention_chargers = int_ch, 
+                       sim_int_equals_baseline = int_e_b, 
+                       sim_throttle_amount = t_a, 
+                       sim_throttle_hours = t_h,
+                       sim_air_pollution_comm = a_p_co,
+                       sim_price_comm = TRUE,
+                       sim_curt_year=c_yr)
+
 
 ```
 
