@@ -666,8 +666,19 @@ PM1 <- simulation(sim_seg = "Multi Unit Dwelling",
                        sim_price_comm = TRUE,
                        sim_curt_year=2018) 
 #View(PM1$sim_result_summary)
-#PM1_output_table <- emissions_fcn(PM1) to run defaults
+
+#CSV + OUTPUTS
+#write simulation summary results to csv to use for graph!
+write_csv(PM1$sim_result_summary, "Results/PM1_Demand_Summary.csv")
+#run emissions and write to csv
+PM1_output_table <- emissions_fcn(PM1) 
+write_csv(PM1_output_table$Emissions_Table, "Results/PM1_Output_Summary.csv") #write emissions to csv
+write_csv(PM1_output_table$Emissions, "Results/PM1_Output_All_Hours.csv")
+
+
+#to run defaults
 #PM1_output_table <- emissions_fcn(EVDemand = PM1, peak_hours = c(17:21), emissions_year = 2019)
+#things to CSV: summary table from montecarlo (for graphing); sim_result_summary$summary; PM1_output_table (emissions$Emissions_Table); PM1_output_emissions_all (Emissions$Emissions); 
 
 #PM2 = throttling + price comms (can't run throttling with no comms b/c comms is contingent on a price change). so this is a little weird. 
 PM2 <- simulation(sim_seg = "Multi Unit Dwelling",
