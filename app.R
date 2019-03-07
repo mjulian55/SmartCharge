@@ -66,8 +66,8 @@ theme = shinytheme("sandstone"),
   )
 ),
 
-                        tabPanel("Instructions")
-                          # includeMarkdown("Instructions_App.Rmd")
+                        tabPanel("Instructions",
+                          includeMarkdown("Instructions_App.Rmd"))
                                  
   )
 )
