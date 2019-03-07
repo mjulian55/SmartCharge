@@ -367,18 +367,22 @@ return(list(Emissions=Emissions, Emissions_Table=Emissions_Table))
 
 ```{r workplace_scenarios}
 
+#PW1S = discount + price comm + morning throttling
 PW1S <- simulation( sim_seg = "Workplace",
                        sim_month = 7, 
                        sim_year = 2018,
                        sim_include_wknds = FALSE,
                        sim_charger_power = pwr,
-                       sim_price_change = 0.05, 
+                       sim_price_change = -0.05, 
                        sim_intervention_hours = c(12:15),
                        sim_throttle_amount = -0.5, 
                        sim_throttle_hours = c(6:11),
                        sim_air_pollution_comm = FALSE, #no comm
                        sim_price_comm = TRUE, #yes comm
                        sim_curt_year=2018)
+#View(PW1S$sim_result_summary)
+#PW1S_output_table <- emissions_fcn(PW1S) 
+
 
 graph_tablePW1S <- PW1S$sim_result_summary[c("Hr","X0_mean","Xf_mean")] %>%
   gather(condition,value,c("X0_mean","Xf_mean")) 
@@ -405,58 +409,73 @@ Demand_GraphPW1S <- ggplot(data = graph_tablePW1S, aes(x = Hr)) +
 
 Demand_GraphPW1S
 
-
+#PW3S = discount + throttling + all comm
 PW3S <- simulation( sim_seg = "Workplace",
                        sim_month = 7, 
                        sim_year = 2018,
                        sim_include_wknds = FALSE,
                        sim_charger_power = pwr,
-                       sim_price_change = 0.05, 
+                       sim_price_change = -0.05, 
                        sim_intervention_hours = c(12:15),
                        sim_throttle_amount = -0.5, 
                        sim_throttle_hours = c(6:11),
                        sim_air_pollution_comm = TRUE, #yes comm
                        sim_price_comm = TRUE, #yes comm
                        sim_curt_year=2018) 
+#View(PW3S$sim_result_summary)
+#PW3S_output_table <- emissions_fcn(PW3S) 
 
+
+#PW4S = discount + price comm
 PW4S <- simulation( sim_seg = "Workplace",
                        sim_month = 7, 
                        sim_year = 2018,
                        sim_include_wknds = FALSE,
                        sim_charger_power = pwr,
-                       sim_price_change = 0.05, 
+                       sim_price_change = -0.05, 
                        sim_intervention_hours = c(12:15),
                        sim_throttle_amount = 0, #No throttling 
                        sim_throttle_hours = 0,
                        sim_air_pollution_comm = FALSE, 
                        sim_price_comm = TRUE,
                        sim_curt_year=2018) 
+#View(PW4S$sim_result_summary)
+#PW4S_output_table <- emissions_fcn(PW4S) 
 
+
+#PW5S = discount + throttling + no comm
 PW5S <- simulation( sim_seg = "Workplace",
                        sim_month = 7, 
                        sim_year = 2018,
                        sim_include_wknds = FALSE,
                        sim_charger_power = pwr,
-                       sim_price_change = 0.05, 
+                       sim_price_change = -0.05, 
                        sim_intervention_hours = c(12:15),
                        sim_throttle_amount = -0.5, 
                        sim_throttle_hours = c(6:11),
                        sim_air_pollution_comm = FALSE, #no comm
                        sim_price_comm = FALSE, # no comm
                        sim_curt_year=2018) 
+#View(PW5S$sim_result_summary)
+#PW5S_output_table <- emissions_fcn(PW5S) 
 
+
+#PW6S = discount + throttling + air poll comm
 PW6S <- simulation( sim_seg = "Workplace",
                        sim_month = 7, 
                        sim_year = 2018,
                        sim_include_wknds = FALSE,
                        sim_charger_power = pwr,
-                       sim_price_change = 0.05, 
+                       sim_price_change = -0.05, 
                        sim_intervention_hours = c(12:15),
                        sim_throttle_amount = -0.5, 
                        sim_throttle_hours = c(6:11),
                        sim_air_pollution_comm = TRUE, #yes comm
                        sim_price_comm = FALSE, 
                        sim_curt_year=2018) 
+#View(PW6S$sim_result_summary)
+#PW6S_output_table <- emissions_fcn(PW6S) 
+
 
 ```
 
