@@ -38,15 +38,6 @@ read_csv("Model_Map/2019_Winter_TOU_EV_8.csv")
 
 #Baseline Usage
 
-DC_baseline <- read_csv("Model_Map/DC_Avg_Usage.csv")
-WP_baseline <- read_csv("Model_Map/Workplace_Avg_Usage.csv")
-MUD_baseline <- read_csv("Model_Map/MUD_Avg_Usage.csv")
-F_baseline <- read_csv("Model_Map/Fleet_Avg_Usage.csv")
-
-
-baseline <- bind_rows("Destination Center" = DC_baseline, "Fleet" = F_baseline, "Multi Unit Dwelling" = MUD_baseline,"Workplace" = WP_baseline, .id = "Segment") 
-#View(baseline)
-
 ##~~~~~~~~~~REMOVING WEEKENDS~~~~~~~~~~##
 
 Workplace_Daily_Usage <- read_csv("Workplace_Daily_Usage.csv")
@@ -82,12 +73,12 @@ hourly_baseline <- rbind(WP_gathered,MUD_gathered,F_gathered,DC_gathered)
 #Change class of Date to Date
 #hourly_baseline$Hour <- as.numeric(hourly_baseline$Hour)
 hourly_baseline$Date <- as.Date(hourly_baseline$Date, "%m/%d/%Y")
-#Add weekday column to label if weekend or weekday
-#Then add price column (TOU EV 4) with complicated nested ifelse statement to decide price at each hour based on if month is summer or winter and which rate period the hour is
+
+
 
 hourly_baseline <- hourly_baseline %>% 
   mutate(weekday = wday(Date, label = TRUE)) %>% 
-  mutate(weekday = ifelse(weekday == "Sun" |weekday == "Sat", "Weekend","Weekday")) %>% 
+  mutate(weekday = ifelse(weekday == "Sun" |weekday == "Sat", "Weekend","Weekday")) %>% #Add weekday column to label if weekend or weekday
   mutate(price = ifelse(month(Date) %in% seq(6,9,1), 
                         ifelse(Hour %in% c(seq(1,8,1),24),
                                0.05, 
@@ -99,7 +90,7 @@ hourly_baseline <- hourly_baseline %>%
                                ifelse(Hour %in% c(seq(9,12,1),seq(19,23,1)),
                                       0.09,
                                       0.11)
-                        )))
+                        )))#Then add price column (TOU EV 4) with complicated nested ifelse statement to decide price at each hour based on if month is summer or winter and which rate period the hour is
 
 
 
@@ -181,6 +172,7 @@ event_data_for_merge <- event_data %>%
 
 #55584 entries
 
+#replaces all hourly baseline data with the baselines used in the events (in case we want to run analysis on this)
 hourly_baseline_with_events <- hourly_baseline %>% 
   mutate(event = 0) %>% 
   filter(!(Date %in% event_data_for_merge$Date)) %>% 
@@ -202,6 +194,8 @@ daily_baseline_with_events <- as.data.frame(daily_baseline_with_events) %>%
   mutate(weekday = ifelse(weekday == "Sun" |weekday == "Sat", "Weekend","Weekday")) %>% 
   na.omit()
   
+
+#REGRESSION (NO LONGER USING)
 plot_weekdays <- filter(daily_baseline_with_events, weekday == "Weekday")
 
 #& month(Date) %in% c(1:5, 10:12)
@@ -221,6 +215,7 @@ EV_lm <- lm(exp(demand_per_port) ~ exp(price) + Hour + segment, data = hourly_ba
 
 EV_IV <- ivreg(exp(demand_per_port) ~ exp(price) + Hour + segment | event + Hour + segment, data = hourly_baseline_with_events)
 
+
 Workplace_Daily_Usage$Date <- as.Date(Workplace_Daily_Usage$Date, "%m/%d/%Y")
 Workplace_Daily_Usage <- Workplace_Daily_Usage %>% 
   mutate(weekday = wday(Date, label=TRUE), month = month(Date,label = TRUE), Year = year(Date)) #add columns to the end of sheet to identify day of week, month, year
@@ -228,15 +223,14 @@ Workplace_Daily_Usage <- Workplace_Daily_Usage %>%
 
 
 
-
+# DATA EXPLORATION (CAN REMOVE)
 Workplace_Weekday_Usage <- Workplace_Daily_Usage %>% 
   filter(!wday(Date) %in% c(1, 7) & month(Date) == 11 & year(Date) == 2018 )#keep everything that's nopt sunday(1) and satuday(7)
-
-
 Workplace_Weekday_Average <- apply(select(Workplace_Weekday_Usage, '1':'24'),2,mean) 
 #View(Workplace_Weekday_Average)
 
 
+## LOAD ALL OTHER CONTEXTUAL DATA (Chargers, elasticities, curtailment)
 # Number of Chargers by Segment
 #chargers <- read_csv("Model_Map/Chargers_Installed_03-18.csv")
 Chargers <- read_csv("Model_Map/Chargers.csv")
@@ -246,18 +240,11 @@ add_baseline_chargers <- Chargers %>%
   filter(Market_Segment!= "Total") %>% 
   slice(rep(1:n(),each=24))
 
-
-
-
 #Elasticities with format 9X3 with columns Base_Hr, Changed_Hr, and Elasticity
 #Changed_Hr is the Hour where the price change occurs, Base_Hr is the hour in which demand changes
 Elasticities_cross <- read_csv("SDGE_Elasticities.csv")
 Elasticities_no_cross <- read_csv("SDGE_Elasticities_no_cross.csv")
-SDGE_P_SOP_Ratios <- read_csv("SDGE_P_SOP_Ratios.csv")
-
-#curtailment baseline
-curtailment_2018 <- read_csv("Curtailment_2018.csv")
-curtailment_2030 <- read_csv("Curtailment_2030.csv")
+SDGE_P_SOP_Ratios <- read_csv("SDGE_P_SOP_Ratios.csv") #gets used if we don't tell it what elasticity to use (it runs it on the closest ratio)
 
 #Ratio for selecting Default Elasticities
 P_SOP_Ratio <- max(price_schedule$P0)/min(price_schedule$P0)
@@ -266,6 +253,10 @@ closest_schedule <- SDGE_P_SOP_Ratios$Rate_Schedule[which.min(abs(SDGE_P_SOP_Rat
 closest_elasticities <- match(closest_schedule, names(Elasticities_cross))
 #Uses Elasticities of rate schedule with closest ratio
 
+#Curtailment Data 
+curtailment_2018 <- read_csv("Curtailment_2018.csv")
+curtailment_2030 <- read_csv("Curtailment_2030.csv")
+
 
 ## MODEL STARTS HERE##
 
@@ -273,21 +264,21 @@ p_c <- -0.05 #price change
 i_h <- c(12:15) #intervention hours
 t_a <- 0 #throttling amount
 t_h <- c(7:11) #throttling hours
-sch <- closest_elasticities #elasticities to use for price intervention (column in the elasticities dataframe) -  Non PV Summer Weekday EPEV L. The default now picks from the ratio 
+sch <- closest_elasticities #elasticities to use for price intervention (column in the elasticities dataframe) -  Non PV Summer Weekday EPEV L. The default now picks from the ratio. 
 sg <- "Workplace" #segment choose from "Workplace", "Destination Center", "Fleet", "Multi Unit Dwelling"
 mth <- 11 #month
 pwr <- 6.6 #charger power
 pk <- c(17:21) #target window to shift out off (this is only used in the output calculations below, not for the function)
 int_ch <- filter(Chargers, Market_Segment == sg) %>% 
   select(mth) %>% 
-  as.numeric() # default is to MARCH 2018
-int_e_b <- TRUE
-yr <- 2018
-wknds <- TRUE
-mthd <- 1
-avg_elst <- -0.4
-a_p_co <- FALSE
-p_co <- TRUE
+  as.numeric() # number of chargers. default is to MARCH 2018
+int_e_b <- TRUE # if true, number of intervention chargers equals baseline number of chargers
+yr <- 2018 #baseline data year
+wknds <- TRUE #include weekends in the baseline data and in the elasticity options
+mthd <- 1 #method
+avg_elst <- -0.4 #average elasticity
+a_p_co <- FALSE #air pollution communication
+p_co <- TRUE #price communication
 c_yr <- 2018 #default year for curtailment and emissions factors
 
 
@@ -329,29 +320,30 @@ hourly_demand <- function(method = mthd,
   if(include_wknds == TRUE) {
     Elasticities <- Elasticities
   } else {
-    Elasticities <- Elasticities[1:8]
+    Elasticities <- Elasticities[1:8] # filters for first 6 elasticities (first two columsn are hour and period)
   }
   
-  chosen_elasticities <- Elasticities[c(1,2,elasticity_schedule)] #this pulls out columns 1, 2, and the designated elasticity (from row 74 into a new dataframe) 
+  chosen_elasticities <- Elasticities[c(1,2,elasticity_schedule)] #this pulls out columns 1, 2, and the designated elasticity (from the parameter elasticity_schedule)  (from row 74 into a new dataframe)
   colnames(chosen_elasticities) <- c("Base_Hr","Changed_Hr","Elasticity")
   
   
   #price_schedule$period <- factor(price_schedule$period, levels = c("P","MP","OP"))
   
-  #Baseline
   
+  #Baseline
   #filter the number of chargers by market segment and month, change to numeric (have to set the month and segment otherwise it will take the default, workplace and March 2018)
   #baseline_chargers <-filter(Chargers, Market_Segment == segment) %>% 
   #  select(month) %>% 
    # as.numeric()
   
-  
+  #baseline demand
 if(include_wknds == TRUE) {
   Xi_choose_weekends <- filter(hourly_baseline, weekday == "Weekday" | weekday == "Weekend")
 } else {
   Xi_choose_weekends <- filter(hourly_baseline, weekday == "Weekday")
 }
 
+  #calculate Xi for each hour
 Xi <- Xi_choose_weekends %>% 
   filter(segment == seg) %>% 
   filter(month(Date) == month & year(Date) == year) %>% 
@@ -360,17 +352,18 @@ Xi <- Xi_choose_weekends %>%
   select(Demand) %>% 
   unlist()
   
-  
+  #baseline chargers (gets one number)
   baseline_chargers <- hourly_baseline %>% 
     filter(segment == seg) %>% 
     filter(month(Date) == month & year(Date) == year) %>% 
     summarise(Ports = mean(Ports)) %>% 
     select(Ports) %>% 
     unlist()
-    
+   
+  #intervention chargers 
   intervention_chargers <- ifelse(int_equals_baseline == TRUE, baseline_chargers, intervention_chargers)
   
-  #create a new table (EV_Demand) that lists initial price schedule, month, scaled # of chargers
+  #Create a new table (EV_Demand) that lists initial price schedule, month, scaled by # of chargers
   EV_Demand <- mutate(price_schedule, I01 = 0 ,Xi = Xi, X0 = Xi/baseline_chargers*intervention_chargers) #I01 refers to the hours where there is an intervention. 
   
   EV_Demand$I01[intervention_hours] <-1
@@ -379,12 +372,9 @@ Xi <- Xi_choose_weekends %>%
   #MAX_THEORETICAL#### 
   #Theoretical max is based on the current number of chargers in the SCE Charge Ready pilot program, multiplied by the average power rating of Level 2 EV chargers (6.6 kW), multiplied by 1 hour.  This gives us the total number of kWh for each hour that could be achieved if every charger were utilized during the target load shift window of 11 AM - 3 PM.
   
-  
   Max_Theory <- intervention_chargers*charger_power
-  
-  
-  ####
-  
+
+
   #CURTAILMENT###
   
   if (curt_year == 2030) {
@@ -399,12 +389,11 @@ Xi <- Xi_choose_weekends %>%
   colnames(curtailment_test) <- c("Curt")
   
   
-  #SPLINING####
-  x <- c(1:24) #used for the 24 hours in for loops (24 elasticity columns)
-  
+  #SPLINING / ELASTICITY MATRIX CREATION ####
   
   #This makes a table for each hour that lists the midpoint hours that will be splined, hours as <24, rate period, and elasticity relative to the hour.
   
+  x <- c(1:24) #used for the 24 hours in for loops (24 elasticity columns)
   
   #Finds the hours in the rate schedule just before the period changes
   change_points <- which(price_schedule$Period != dplyr::lag(price_schedule$Period)) - 1
@@ -440,17 +429,14 @@ Xi <- Xi_choose_weekends %>%
     own_period_elasticities <- filter(chosen_elasticities, Base_Hr == own_period)
     midpoint_elasticities <- own_period_elasticities$Elasticity[match(periods, Elasticities$Changed_Hr)]
     
-    
     assign(nam,data.frame(Hour=Hrs,Hrs24=Hrs24, Period=periods,Elasticity = midpoint_elasticities))
     #makes a data frame named after the current hour with each of the above variables
-    
   }
   
   if(method == 1) {
     #spline the midpoint table
     for (i in x) {
-      current_hr <- eval(parse(text = sub("XX", i, "Midpoints.XX")))
-      #calls current hours midpoint table
+      current_hr <- eval(parse(text = sub("XX", i, "Midpoints.XX"))) #calls current hours midpoint table
       
       Y = spline(x=current_hr$Hour,y=current_hr$Elasticity,xout=seq(min(current_hr$Hour),max(current_hr$Hour)))
       #splines elasticities to smoooth
@@ -464,7 +450,6 @@ Xi <- Xi_choose_weekends %>%
       assign(nam,data.frame(HR=HR,ELAST=ELAST,HR24 = if_else(HR<=24,HR,HR-24)))
       #makes a data frame with above variables: Hours, smoothed elasticities
     }
-    
   }
   
   else {
@@ -480,9 +465,7 @@ Xi <- Xi_choose_weekends %>%
       unlist()
     no_cross_elas[i+1] <- self
     
-    
     nam <- paste("Elasticities", i, sep = ".")
-    
     
     assign(nam,data.frame(HR = HR24, ELAST=no_cross_elas,HR24 = HR24))
     #makes a data frame with above variables: Hours, smoothed elasticities
@@ -512,8 +495,7 @@ Xi <- Xi_choose_weekends %>%
   #matrix <- read_csv("No_Cross_Matrix.csv")
   
   
-  #INTERVENTION & COMMUNICATION####
-  
+  #PRICE INTERVENTION & COMMUNICATION####
   
   #price_change <- -0.05
   #intervention_hours <- c(12:15)
@@ -522,8 +504,7 @@ Xi <- Xi_choose_weekends %>%
   
   EV_Demand$P1[intervention_hours] <-EV_Demand$P1[intervention_hours] + price_change #updates intervention column to implement intervention
   
-  #comms calculation
-  
+  #Comms calculation (because air pollution impact is 8.2%, price is 3.5%)
   if (price_comm == TRUE & air_pollution_comm == TRUE) {
     intervention_comm_effect <- 1.082
   }
@@ -536,59 +517,57 @@ Xi <- Xi_choose_weekends %>%
   else {
     intervention_comm_effect <- 1 # price comm = true; air pollution false
   }
-# if else statemetn for comms. Where if Air pollution + price notification = true, then intervention_comm_effect = 1.082. If price notification = true, intervention comm = 1. if air pollution = true, intervention comm = 1.047. If no price notification and no air pollution = 96.5. If no communication about anything intervention comm = 0 (i.e., nothing is going to happen)
-  
-  
     
   #Adds percentage change in price (P1p)
   EV_Demand <- EV_Demand %>% 
     mutate(P1p = (P1-P0)/P0) %>% 
     mutate(P1pC = P1p*intervention_comm_effect)
   
-  
+  #Find percent change in demand as a result of price (due to self and cross elasticities)
   X1p <- as.vector(0)
   for (val in x) {
     mat <- sub("XX",val, "matrix$`XX`")
     sum_prod <- crossprod(EV_Demand$P1pC,eval(parse(text = mat)))
     X1p<- append(X1p,sum_prod)
-    
-  } #crossprod() multiplies sumproduct of the percent change in price with each column in the matrix. This is done 24 times by the for loop rather than 24 individual times
+  } 
+  #crossprod() multiplies sumproduct of the percent change in price with each column in the matrix. This is done 24 times by the for loop rather than 24 individual times
   
   X1p <- X1p[-1] # gets rid of the first dummy entry to the variable
   EV_Demand <- mutate(EV_Demand, X1p = X1p) #add percent change in demand due to price onto EV_Demand (X1p)
   
-  
+  #find magnitude of new demand
   EV_Demand <- mutate(EV_Demand, X1 = (1+X1p)*X0) #adds new demand in kW variable (X1)
-  
+
+  # for methods 3 and 4 amend new demand with alternative methods
+  #method 3 = find non-intervention hours in order to make net zero (through forced load shifting)
   if(method == 3) {
     X1_method3 <- EV_Demand$X1
     X1_method3[-intervention_hours] <- X1_method3[-intervention_hours] -(EV_Demand$X0[-intervention_hours]/sum(EV_Demand$X0[-intervention_hours]))*sum(EV_Demand$X1-EV_Demand$X0)
     
-    
     EV_Demand <- EV_Demand %>% 
       mutate(X1=X1_method3)
-    
   }
+  
+  #method 4 = find non-intervention hours such that it ensures the net load change suggested by the average elasticity remains true
   else if(method == 4) {
-    base_avg_price_mthd_4 <- crossprod(EV_Demand$P0, EV_Demand$X0)/sum(EV_Demand$X0)
-    int_avg_price_mthd_4 <- crossprod(EV_Demand$P1, EV_Demand$X0)/sum(EV_Demand$X0)
-    avg_price_change_mthd_4 <- int_avg_price_mthd_4 - base_avg_price_mthd_4
-    avg_price_change_pct_mthd_4 <- avg_price_change_mthd_4/base_avg_price_mthd_4
+    base_avg_price_mthd_4 <- crossprod(EV_Demand$P0, EV_Demand$X0)/sum(EV_Demand$X0) #average initial price
+    int_avg_price_mthd_4 <- crossprod(EV_Demand$P1, EV_Demand$X0)/sum(EV_Demand$X0) #average new price (this still uses the base demand, which is weird)
+    avg_price_change_mthd_4 <- int_avg_price_mthd_4 - base_avg_price_mthd_4 #average change in price
+    avg_price_change_pct_mthd_4 <- avg_price_change_mthd_4/base_avg_price_mthd_4 #average percentage change in price
     
-    net_change_demand_pct <- avg_price_change_pct_mthd_4*avg_elasticity
-    net_change_demand <- net_change_demand_pct*sum(EV_Demand$X0)
+    net_change_demand_pct <- avg_price_change_pct_mthd_4*avg_elasticity #average change in demand due to change and price and elasticity
+    net_change_demand <- net_change_demand_pct*sum(EV_Demand$X0) #average magnitude of the change in demand
     
-    net_change_demand_out_int <- net_change_demand - sum(EV_Demand$X1 - EV_Demand$X0)
+    net_change_demand_out_int <- net_change_demand - sum(EV_Demand$X1 - EV_Demand$X0) #magnitude of demand change in the non-intervention windows
     
     X1_method4 <- EV_Demand$X1
     X1_method4[-intervention_hours] <- X1_method4[-intervention_hours] + (EV_Demand$X0[-intervention_hours]/sum(EV_Demand$X0[-intervention_hours])*c(net_change_demand_out_int))
     
-    
     EV_Demand <- EV_Demand %>% 
       mutate(X1=X1_method4)
-    
-    
   }
+  
+  #for methods 1 and 2
   else{
     EV_Demand <- EV_Demand
   }
@@ -608,7 +587,6 @@ Xi <- Xi_choose_weekends %>%
     mutate(Tp=Tp) %>% 
     mutate(Xt = (1+Tp)*X1)
   
-  
   ####
   
   
@@ -616,12 +594,12 @@ Xi <- Xi_choose_weekends %>%
   
   #The variables below quantify the shift and net change in demand as a result of interventions, and need to be adjusted based on intervention (does not count throttling)
   
-  Total_x0 <- sum(EV_Demand$X0)
-  Total_xt <-sum(EV_Demand$Xt)
+#  Total_x0 <- sum(EV_Demand$X0)
+# Total_xt <-sum(EV_Demand$Xt)
   
-  Net_Change <- Total_xt-Total_x0
-  Change_intervention <- sum(EV_Demand$Xt[intervention_hours]) - sum(EV_Demand$X0[intervention_hours])
-  Change_outside_intervention <- sum(EV_Demand$Xt[-intervention_hours])- sum(EV_Demand$X0[-intervention_hours])
+#  Net_Change <- Total_xt-Total_x0
+#  Change_intervention <- sum(EV_Demand$Xt[intervention_hours]) - sum(EV_Demand$X0[intervention_hours])
+#  Change_outside_intervention <- sum(EV_Demand$Xt[-intervention_hours])- sum(EV_Demand$X0[-intervention_hours])
   
   
   
@@ -632,10 +610,9 @@ Xi <- Xi_choose_weekends %>%
     mutate(Xf = ifelse(Xf < 0 , 0, Xf))
   
   
-  
   ####
   
   
-  return(list(EV_Demand=EV_Demand,matrix=matrix)) #This is how to output multiple data frames from the fcn. 
+  return(list(EV_Demand=EV_Demand,matrix=matrix)) #This makes the model output two data frames. To call each of thoes EV_Demand$EV_Demand or EV_Demand$matrix.  
   
 }

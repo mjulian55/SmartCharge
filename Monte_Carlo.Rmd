@@ -12,7 +12,7 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r}
+```{r loadlib}
 library(tidyverse)
 library(dplyr)
 library(RColorBrewer)
@@ -25,21 +25,16 @@ CONTEXT
 
 
 
-```{r loadlib, message= FALSE, warning= FALSE}
+```{r hourly_demand, message= FALSE, warning= FALSE}
 
 source("hourly_demand_function.R")
 
 
-hourly_demand()
+#hourly_demand()
 
-
-#EV_Demand_run1 <- hourly_demand(month = "Nov_18",intervention_comm_effect = 1, throttle_amount = -0.5, price_change = -0.05, intervention_hours = c(12:15))
-#EV_Demand_run1 <- hourly_demand(month = "Jul_18", int_equals_baseline = FALSE, intervention_chargers = 234) #creates a data frame with the output from the function, which is needed to find the emission factors.
+#test <- hourly_demand(method = 2, ....)
 
 ```
-
-
-
 
 
 
@@ -69,24 +64,29 @@ simulation <- function(simulations = 100,
                        sim_price_comm = p_co,
                        sim_curt_year=c_yr) {
 
-  
+  ##create lists to sample from for each variable to sample from
+  #method
   method_draws <- sample(c(1:4), simulations, replace = TRUE)
   
+  #self and cross elasticities 
+  #eliminate cross elasticities from 0 to 1
    if(sim_method == 1) {
     Elasticities <- Elasticities_cross
   } else{
     Elasticities <- Elasticities_no_cross
   }
-  
-  
+
   elasticity_draws <- sample(3:length(Elasticities),simulations,replace = TRUE)
   
+  #average elasticty 
   avg_elasticity_possibilities <- seq(from = -0.8, to = -0.04, by = 0.01)
   avg_elasticity_draws <- sample(avg_elasticity_possibilities, simulations, replace = TRUE)
   
+  #comm (not set to be a sample, but could be)
   comm_possibilities <- seq(from=0.2, to=1, by=.01)
   comm_draws <-  sample(comm_possibilities,simulations, replace = TRUE)
 
+  #create empty data frame for simulation fcn to populate
   sim_result <- hourly_demand()
   sim_result_EV_Demand <- sim_result$EV_Demand %>% 
     mutate(method_draw = 0, elasticity_draw = 0) %>% 
@@ -138,7 +138,6 @@ sim1 <- simulation()
 
 
 
-
 EMISSIONS + ALL OUTPUTS
 
 
@@ -146,12 +145,12 @@ EMISSIONS + ALL OUTPUTS
 ```{r emissions_outputs}
 
 #Load default periods (intervention hour is set above); decide if moving these defaults above; and default year
-pk <- c(18:21) #target window to shift out off (this is only used in the output calculations below, not for the function)
-yr <- 2018
+pk <- c(17:21) #target window to shift out off (this is only used in the output calculations below, not for the function)
+yr <- 2018 # only real options are 2030 or 2018. if you pick anything else it defualts to 2018. 
 
 #Insert costs ($/kg)
 NOXcost <- 21.93 #$/kg
-Curtailmentcost <- 0.15 #$/MWH This number needs to be sourced and updated! 
+Curtailmentcost <- 0.15 #$/MWH
 CO2cost <-0.05 #$/kg
 
 #emissions_x <- emission_output(run_x$EV_Demand)
@@ -303,10 +302,6 @@ Emissions_Table <- Emissions_Table %>%
   mutate(CO2ChangeCost = CO2Change*CO2cost)
  
 #Curtailment Cost Reduction
-#sum hours of demand change in target window
-#Calculate sum of curtailment
-#sum Xcurt. divide by curt. = proportion of curtailment that could be addressed then multiply that by Curtailmentcost
-
 Xcurtpotential <- sum(Emissions$Xcurt) #eek. this 75% is weird and doesn't match the solar fuel mix %. we need another column for solar reduction potential in the fuel mix. 
 Xcurtextra <- sum(Emissions$Xextra) 
 Xcurtproportion <- Xcurtpotential/sum(Emissions$curt)
@@ -317,15 +312,12 @@ Emissions_Table <- Emissions_Table %>%
    mutate(RedCurtProp = c("NA", "NA", "NA", Xcurtproportion), SolarNonCurt= c("NA", "NA", "NA", Xcurtextra), ChangeCurtCost = c("NA", "NA", "NA", Curtailmentcost))
 
 return(list(Emissions=Emissions, Emissions_Table=Emissions_Table))
-  
 }
+
 #Test_emissions <- emissions_fcn(sim1) or Test_emissions <- emissions_fcn(EVDemand = simulation())
 
 #Emissions_run1 <- emissions_fcn(EVDemand = hourly_demand(SDGE_commm_effect = 0,intervention_comm_effect = 0, throttle_amount = 0)) #or run as 
 #Emissions_run1 <- emissions_fcn(EV_Demand_run1)
-
-#Workplace_run <- emissions_fcn(WP_C_D_T_TOU_SUmmer_4)
-#Destination_Centers_Run <- emissions_fcn(DC_D_T_NC)
 
 ```
 
