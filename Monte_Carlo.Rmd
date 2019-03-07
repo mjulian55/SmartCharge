@@ -365,7 +365,7 @@ return(list(Emissions=Emissions, Emissions_Table=Emissions_Table))
 
 #WORKPLACES 
 
-```{r workplace_scenarios}
+```{r workplace_scenarios, message=FALSE, warning=FALSE}
 
 #PW1S = discount + price comm + morning throttling
 PW1S <- simulation( sim_seg = "Workplace",
@@ -674,10 +674,9 @@ write_csv(PM1$sim_result_summary, "Results/MUDs_PM1_Demand_Summary.csv")
 #run emissions and write to csv
 PM1_output_table <- emissions_fcn(PM1) 
 #View(PM1_output_table$Emissions_Table)
-#Viw(PM1_output_table$Emissions)
+#View(PM1_output_table$Emissions)
 write_csv(PM1_output_table$Emissions_Table, "Results/MUDs_PM1_Output_Summary.csv") #write emissions to csv
 write_csv(PM1_output_table$Emissions, "Results/MUDs_PM1_Output_All_Hours.csv")
-
 
 #to run defaults
 #PM1_output_table <- emissions_fcn(EVDemand = PM1, peak_hours = c(17:21), emissions_year = 2019)
