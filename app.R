@@ -43,16 +43,16 @@ theme = shinytheme("sandstone"),
                                              min = 0, max = 40, value = 5),
                                  
                                  # Discount period widget
-                                 sliderInput("slider2", label = h4("Discount Period"), min = 0, 
-                                             max = 24, value = c(11, 15)),
+                                 sliderInput("slider2", label = h4("Discount Period"), 
+                                             min = 0, max = 24, value = c(11, 15)),
                                  
                                  # Rebate price selection widget
                                  sliderInput("slider1", label = h4("Rebate Price (in cents)"), 
                                              min = 0, max = 40, value = 10),
                                  
                                  # Discount period widget
-                                 sliderInput("slider2", label = h4("Rebate Period"), min = 0, 
-                                             max = 24, value = c(18, 21)),
+                                 sliderInput("slider2", label = h4("Rebate Period"),
+                                             min = 0, max = 24, value = c(18, 21)),
                                  
                                  # Throttling percent widget
                                  numericInput("num", label = h4("Throttling"), min = 0, max = 1, value = 0.0),
