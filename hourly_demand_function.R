@@ -30,10 +30,10 @@ read_csv("Model_Map/2018_Winter_TOU_EV_4.csv")
 read_csv("Model_Map/2018_Winter_TOU_EV_D.csv")
 
 #2019 Summer 8
-read_csv("Model_Map/2019_Summer_TOU_EV_8.csv")
+price_schedule_2019_summer_tou <- read_csv("Model_Map/2019_Summer_TOU_EV_8.csv")
 
 #2019 Winter 8
-read_csv("Model_Map/2019_Winter_TOU_EV_8.csv")
+price_schedule_2019_winter_tou <- read_csv("Model_Map/2019_Winter_TOU_EV_8.csv")
 
 
 #Baseline Usage
@@ -326,7 +326,13 @@ hourly_demand <- function(method = mthd,
   chosen_elasticities <- Elasticities[c(1,2,elasticity_schedule)] #this pulls out columns 1, 2, and the designated elasticity (from the parameter elasticity_schedule)  (from row 74 into a new dataframe)
   colnames(chosen_elasticities) <- c("Base_Hr","Changed_Hr","Elasticity")
   
-  
+  if(month%in%c(6:9)) {
+    price_schedule <- read_csv("Model_Map/2018_Summer_TOU_EV_4.csv")
+  } else {
+    price_schedule <- read_csv("Model_Map/2018_Winter_TOU_EV_4.csv")
+    
+  }
+   
   #price_schedule$period <- factor(price_schedule$period, levels = c("P","MP","OP"))
   
   
