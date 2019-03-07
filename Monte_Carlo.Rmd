@@ -364,6 +364,33 @@ return(list(Emissions=Emissions, Emissions_Table=Emissions_Table))
 
 ```{r workplace_scenarios}
 
+PW1S <- simulation( sim_seg = "Workplace",
+                       sim_month = 7, 
+                       sim_year = 2018,
+                       sim_include_wknds = FALSE,
+                       sim_charger_power = pwr,
+                       sim_price_change = 0.05, 
+                       sim_intervention_hours = c(12:15),
+                       sim_throttle_amount = .5, 
+                       sim_throttle_hours = c(6:11),
+                       sim_air_pollution_comm = FALSE,
+                       sim_price_comm = TRUE,
+                       sim_curt_year=2018)
+
+
+PW2S <- simulation( sim_seg = "Workplace",
+                       sim_month = 7, 
+                       sim_year = 2018,
+                       sim_include_wknds = FALSE,
+                       sim_charger_power = pwr,
+                       sim_price_change = 0.05, 
+                       sim_intervention_hours = c(12:15),
+                       sim_throttle_amount = .5, 
+                       sim_throttle_hours = c(6:11),
+                       sim_air_pollution_comm = TRUE, #DIFFERENT
+                       sim_price_comm = TRUE,
+                       sim_curt_year=2018) 
+
 
 
 ```
