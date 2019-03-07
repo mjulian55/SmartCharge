@@ -281,7 +281,7 @@ avg_elst <- -0.4 #average elasticity
 a_p_co <- FALSE #air pollution communication
 p_co <- TRUE #price communication
 c_yr <- 2018 #default year for curtailment and emissions factors
-
+n_tou <- 1 #new tou year (options are summer or winter -- all are 2019). 1 = 2018 tous; 2 = summer 2019; 3 = winter 2019. 
 
 hourly_demand <- function(method = mthd,
                           avg_elasticity = avg_elst,
@@ -299,7 +299,9 @@ hourly_demand <- function(method = mthd,
                           throttle_hours = t_h, 
                           air_pollution_comm = a_p_co,
                           price_comm = p_co,
-                          curt_year = c_yr){
+                          curt_year = c_yr,
+                          new_tou = n_tou
+                         ){
   
   library(tidyverse)
   library(lubridate)
@@ -335,7 +337,6 @@ hourly_demand <- function(method = mthd,
   }
    
   #price_schedule$period <- factor(price_schedule$period, levels = c("P","MP","OP"))
-  
   
   #Baseline
   #filter the number of chargers by market segment and month, change to numeric (have to set the month and segment otherwise it will take the default, workplace and March 2018)
@@ -508,6 +509,20 @@ Xi <- Xi_choose_weekends %>%
   #intervention_hours <- c(12:15)
   EV_Demand <- EV_Demand %>% 
     mutate(P1 = price_schedule$P0) #Copies the initial price schedule into a new column (P1) that can then be modified to reflect the intervention
+  
+  
+  #n_tou <- 1 #new tou year (options are summer or winter -- all are 2019). 1 = 2018 tous; 2 = summer 2019; 3 = winter 2019. 
+ # price_schedule_2019_summer_tou <- read_csv("Model_Map/2019_Summer_TOU_EV_8.csv")
+  
+  #If (new_tou = 2) {
+  #  EV_Demand$P1 <- price_schedule_summer_2019_tou$P0
+#  } else if (new_tou =3) {
+ #   EV_Demand$P1 <- price_schedule_winter_2019_tou$P0
+#  } else {
+ #   EV_Demand$P1 <- EV_Demand$P1
+#  }
+  #2019 TOUs
+  #price_schedule_2019_winter_tou <- read_csv("Model_Map/2019_Winter_TOU_EV_8.csv")
   
   EV_Demand$P1[intervention_hours] <-EV_Demand$P1[intervention_hours] + price_change #updates intervention column to implement intervention
   
