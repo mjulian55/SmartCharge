@@ -372,7 +372,9 @@ return(list(Emissions=Emissions, Emissions_Table=Emissions_Table))
 
 ```{r destination_center_scenarios}
 
-PDC1S <- simulation()
+PDC1S <- simulation(sim_seg = "Destination Center",sim_throttle_amount = -0.5, sim_month = 7)
+PDC2S <- simulation(sim_seg = "Destination Center",sim_throttle_amount = -0.5,sim_air_pollution_comm = TRUE, sim_price_comm = TRUE,sim_month = 7)
+#PDC3S <- simulation
 
 
 ```
