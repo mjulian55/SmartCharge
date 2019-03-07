@@ -1977,7 +1977,7 @@ geom_line(aes(y=Theoretical_Max))
 
 Demand_Graph27
 
-ggsave("Jul_31_18_DC_Event_Usage.pdf", Demand_Graph27, device = "pdf", width = 8, height = 4.5)
+ggsave("Jul_11_18_DC_Event_Usage.pdf", Demand_Graph27, device = "pdf", width = 8, height = 4.5)
 
 #COST
 Cost_Table27 <- Aug_30_18_DC_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_Usage","P1")] %>% 
