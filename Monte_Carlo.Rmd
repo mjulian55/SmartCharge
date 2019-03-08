@@ -690,7 +690,7 @@ PDC4S <- simulation(sim_seg = "Destination Center",sim_throttle_amount =-0.5, si
 
 # PF1: Present, Fleet, 1
 
-PF1 <- simulation(simulations = 100, 
+PF1 <- simulation(simulations = 1000, 
                        sim_method = mthd,
                        sim_avg_elasticity = avg_elst,
                        sim_seg = "Fleet",
@@ -707,8 +707,16 @@ PF1 <- simulation(simulations = 100,
                        sim_throttle_hours = t_h,
                        sim_air_pollution_comm = a_p_co,
                        sim_price_comm = TRUE)
-#View(PF1S$sim_result_summary)
-#PF1S_output_table <- emissions_fcn(PF1S) 
+
+write_csv(PF1$sim_result_summary, "Results/Fleets_PF1_Demand_Summary.csv")
+
+#run emissions and write to csv
+PF1_output_table <- emissions_fcn(PF1) 
+write_csv(PF1_output_table$Emissions_Table, "Results/Fleets_PF1_Output_Summary.csv") #write emissions to csv
+write_csv(PF1_output_table$Emissions, "Results/Fleets_PF1_Output_All_Hours.csv")
+
+
+
 
 # PF2: Present, Fleet, 2
 #  **** Need to add TOU 2019
@@ -736,7 +744,7 @@ PF2 <- simulation(simulations = 100,
 
 # PF3S: Present, Fleet, 3, Summer
 
-PF3S <- simulation(simulations = 100, 
+PF3S <- simulation(simulations = 1000, 
                        sim_method = mthd,
                        sim_avg_elasticity = avg_elst,
                        sim_seg = "Fleet",
@@ -754,8 +762,15 @@ PF3S <- simulation(simulations = 100,
                        sim_air_pollution_comm = a_p_co,
                        sim_price_comm = TRUE,
                        sim_curt_year=c_yr)
-#View(PF3S$sim_result_summary)
-#PF3S_output_table <- emissions_fcn(PF3S) 
+write_csv(PF3S$sim_result_summary, "Results/Fleets_PF3S_Demand_Summary.csv")
+
+#run emissions and write to csv
+PF3S_output_table <- emissions_fcn(PF3S) 
+write_csv(PF3S_output_table$Emissions_Table, "Results/Fleets_PF3S_Output_Summary.csv") #write emissions to csv
+write_csv(PF3S_output_table$Emissions, "Results/Fleets_PF3S_Output_All_Hours.csv")
+
+
+
 
 # PF4S: Present, Fleet, 4, Summer
 
@@ -809,7 +824,7 @@ PF5S <- simulation(simulations = 100,
 
 # FF1: Future, Fleet, 1
 
-FF1 <- simulation(simulations = 100, 
+FF1 <- simulation(simulations = 1000, 
                        sim_method = mthd,
                        sim_avg_elasticity = avg_elst,
                        sim_seg = "Fleet",
@@ -827,10 +842,113 @@ FF1 <- simulation(simulations = 100,
                        sim_air_pollution_comm = a_p_co,
                        sim_price_comm = TRUE,
                        sim_curt_year=c_yr)
-#View(FF1$sim_result_summary)
-#FF1_output_table <- emissions_fcn(FF1,emissions_year = 2030) 
+
+write_csv(FF1$sim_result_summary, "Results/Fleets_FF1_Demand_Summary.csv")
+
+#run emissions and write to csv
+FF1_output_table <- emissions_fcn(FF1, emissions_year = 2030) 
+write_csv(FF1_output_table$Emissions_Table, "Results/Fleets_FF1_Output_Summary.csv") #write emissions to csv
+write_csv(FF1_output_table$Emissions, "Results/Fleets_FF1_Output_All_Hours.csv")
+
 
 ```
+
+
+```{r fleet_graphs}
+
+# PF1: Present, Fleet, 1 (rebate, price comm, 83 chargers)
+PF1_demand_summary <- read_csv("Results/Fleets_PF1_Demand_Summary.csv") 
+
+graph_tablePF1 <- PF1_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
+  gather(condition,value,c("X0_mean","Xf_mean")) 
+#%>% mutate(Theoretical_Max=PW1S_demand_summary$MT[1])
+
+Demand_GraphPF1 <- ggplot(data = graph_tablePF1, aes(x = Hr)) +
+  geom_line(aes(y = value, color=condition)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+  panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+  labs(title="Fleets (PF1) (rebate, price comm) Hourly Demand Forecast",
+  subtitle="Baseline November 2018 (83 Chargers) \n Model Simulation",
+  y="EV Charging Demand (kW)",
+  x="Hour",
+  color=NULL) +
+ # geom_rect(aes(xmin=6,xmax=11,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
+  geom_rect(aes(xmin=16,xmax=21,ymin=-Inf,ymax=Inf, fill = "Rebate"),alpha=0.0075) +
+  scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
+  scale_color_manual(labels=c("Baseline Demand","Intervention Demand"), values = c("purple", "blue")) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(plot.subtitle = element_text(hjust = 0.5))+
+  theme(legend.position="bottom") +
+  scale_fill_manual('Interventions',values = c('green','yellow'),  guide = guide_legend(override.aes = list(alpha = 0.15)))
+  
+
+#Demand_GraphPF1
+ggsave("Results Graphs/Fleets_PF1_Demand_Summary.pdf", Demand_GraphPF1, device = "pdf", width = 8, height = 4.5)
+
+
+
+# PF3S: Present, Fleet, 3(discount, price comm)
+PF3S_demand_summary <- read_csv("Results/Fleets_PF3S_Demand_Summary.csv") 
+
+graph_tablePF3S <- PF3S_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
+  gather(condition,value,c("X0_mean","Xf_mean")) 
+#%>% mutate(Theoretical_Max=PW1S_demand_summary$MT[1])
+
+Demand_GraphPF3S <- ggplot(data = graph_tablePF3S, aes(x = Hr)) +
+  geom_line(aes(y = value, color=condition)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+  panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+  labs(title="Fleets (PF3) (discount, price comm) Hourly Demand Forecast",
+  subtitle="Baseline July 2018 (83 Chargers) \n Model Simulation",
+  y="EV Charging Demand (kW)",
+  x="Hour",
+  color=NULL) +
+ # geom_rect(aes(xmin=6,xmax=11,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
+  geom_rect(aes(xmin=11,xmax=15,ymin=-Inf,ymax=Inf, fill = "Discount"),alpha=0.0075) +
+  scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
+  scale_color_manual(labels=c("Baseline Demand","Intervention Demand"), values = c("purple", "blue")) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(plot.subtitle = element_text(hjust = 0.5))+
+  theme(legend.position="bottom") +
+  scale_fill_manual('Interventions',values = c('green','yellow'),  guide = guide_legend(override.aes = list(alpha = 0.15)))
+  
+
+#Demand_GraphPF3S
+ggsave("Results Graphs/Fleets_PF3S_Demand_Summary.pdf", Demand_GraphPF3S, device = "pdf", width = 8, height = 4.5)
+
+
+# FF1: Future, 2019 tou, rebate, price comm
+FF1_demand_summary <- read_csv("Results/Fleets_FF1_Demand_Summary.csv") 
+
+graph_tableFF1 <- FF1_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
+  gather(condition,value,c("X0_mean","Xf_mean")) 
+#%>% mutate(Theoretical_Max=PW1S_demand_summary$MT[1])
+
+Demand_GraphFF1 <- ggplot(data = graph_tableFF1, aes(x = Hr)) +
+  geom_line(aes(y = value, color=condition)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+  panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+  labs(title="Fleets (FF1) (2019 tou, price comm, 2030 chargers) Hourly Demand Forecast",
+  subtitle="Baseline Nov 2018 (83 Chargers) \n Model Simulation (2030 scenario)",
+  y="EV Charging Demand (kW)",
+  x="Hour",
+  color=NULL) +
+ # geom_rect(aes(xmin=6,xmax=11,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
+  geom_rect(aes(xmin=16,xmax=21,ymin=-Inf,ymax=Inf, fill = "Rebate"),alpha=0.0075) +
+  scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
+  scale_color_manual(labels=c("Baseline Demand","Intervention Demand"), values = c("purple", "blue")) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(plot.subtitle = element_text(hjust = 0.5))+
+  theme(legend.position="bottom") +
+  scale_fill_manual('Interventions',values = c('green','yellow'),  guide = guide_legend(override.aes = list(alpha = 0.15)))
+  
+
+Demand_GraphFF1
+ggsave("Results Graphs/Fleets_FF1_Demand_Summary.pdf", Demand_GraphFF1, device = "pdf", width = 8, height = 4.5)
+
+
+```
+
 
 
 #MUDS
@@ -1089,12 +1207,91 @@ ggsave("Results Graphs/MUDs_PM3_Demand_Summary.pdf", Demand_GraphPM3, device = "
 #PM4 = new tou + all communication
 PM4_demand_summary <- read_csv("Results/MUDs_PM4_Demand_Summary.csv") 
 
-#PM5
+graph_tablePM4 <- PM4_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
+  gather(condition,value,c("X0_mean","Xf_mean")) 
+#%>% mutate(Theoretical_Max=PM1_demand_summary$MT[1])
+
+Demand_GraphPM4 <- ggplot(data = graph_tablePM4, aes(x = Hr)) +
+  geom_line(aes(y = value, color=condition)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+  panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+  labs(title="MUDs (PM4) (new tou, all comms) Hourly Demand Forecast",
+  subtitle="Baseline November 2018 (X Chargers) \n Model Simulation",
+  y="EV Charging Demand (kW)",
+  x="Hour",
+  color=NULL) +
+  #geom_rect(aes(xmin=16,xmax=21,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
+  #geom_rect(aes(xmin=16,xmax=21,ymin=-Inf,ymax=Inf, fill = "Rebate"),alpha=0.0075) +
+  scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
+  scale_color_manual(labels=c("Baseline Demand","Intervention Demand"), values = c("purple", "blue")) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(plot.subtitle = element_text(hjust = 0.5))+
+  theme(legend.position="bottom") # +
+  #scale_fill_manual('Interventions',values = c('green','yellow'),  guide = guide_legend(override.aes = list(alpha = 0.15)))
+
+#Demand_GraphPM4
+ggsave("Results Graphs/MUDs_PM4_Demand_Summary.pdf", Demand_GraphPM4, device = "pdf", width = 8, height = 4.5)
+
+
+
+
+#PM 5 = new tou + air pollution communication
 PM5_demand_summary <- read_csv("Results/MUDs_PM5_Demand_Summary.csv") 
 
-#FM1
+graph_tablePM5 <- PM5_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
+  gather(condition,value,c("X0_mean","Xf_mean")) 
+#%>% mutate(Theoretical_Max=PM1_demand_summary$MT[1])
+
+Demand_GraphPM5 <- ggplot(data = graph_tablePM5, aes(x = Hr)) +
+  geom_line(aes(y = value, color=condition)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+  panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+  labs(title="MUDs (PM5) (new tou, air poll comms) Hourly Demand Forecast",
+  subtitle="Baseline November 2018 (X Chargers) \n Model Simulation",
+  y="EV Charging Demand (kW)",
+  x="Hour",
+  color=NULL) +
+  #geom_rect(aes(xmin=16,xmax=21,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
+  #geom_rect(aes(xmin=16,xmax=21,ymin=-Inf,ymax=Inf, fill = "Rebate"),alpha=0.0075) +
+  scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
+  scale_color_manual(labels=c("Baseline Demand","Intervention Demand"), values = c("purple", "blue")) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(plot.subtitle = element_text(hjust = 0.5))+
+  theme(legend.position="bottom") # +
+  #scale_fill_manual('Interventions',values = c('green','yellow'),  guide = guide_legend(override.aes = list(alpha = 0.15)))
+
+#Demand_GraphPM5
+ggsave("Results Graphs/MUDs_PM5_Demand_Summary.pdf", Demand_GraphPM5, device = "pdf", width = 8, height = 4.5)
+
+
+
+#FM1 = 2030 + 2019 tou + rebate
 FM1_demand_summary <- read_csv("Results/MUDs_FM1_Demand_Summary.csv") 
 
+graph_tableFM1 <- FM1_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
+  gather(condition,value,c("X0_mean","Xf_mean")) 
+#%>% mutate(Theoretical_Max=PM1_demand_summary$MT[1])
+
+Demand_GraphFM1 <- ggplot(data = graph_tableFM1, aes(x = Hr)) +
+  geom_line(aes(y = value, color=condition)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+  panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+  labs(title="MUDs (FM1) (2030 scaled, 2019 tou, rebate) Hourly Demand Forecast",
+  subtitle="Baseline November 2018 (X Chargers) \n Model Simulation Scaled 2030",
+  y="EV Charging Demand (kW)",
+  x="Hour",
+  color=NULL) +
+  #geom_rect(aes(xmin=16,xmax=21,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
+  geom_rect(aes(xmin=16,xmax=21,ymin=-Inf,ymax=Inf, fill = "Rebate"),alpha=0.0075) +
+  scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
+  scale_color_manual(labels=c("Baseline Demand","Intervention Demand"), values = c("purple", "blue")) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(plot.subtitle = element_text(hjust = 0.5))+
+  theme(legend.position="bottom") # +
+  scale_fill_manual('Interventions',values = c('green','yellow'),  guide = guide_legend(override.aes = list(alpha = 0.15)))
+
+#Demand_GraphFM1
+ggsave("Results Graphs/MUDs_FM1_Demand_Summary.pdf", Demand_GraphFM1, device = "pdf", width = 8, height = 4.5)
 
 
 ```
