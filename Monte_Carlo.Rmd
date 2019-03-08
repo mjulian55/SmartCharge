@@ -391,30 +391,6 @@ write_csv(PW1S_output_table$Emissions, "Results/Workplace_PW1S_Output_All_Hours.
 
 
 
-#PW2S = discount + price comm + morning throttling + TOU 2019
-PW2S <- simulation(simulations = 1000, sim_seg = "Workplace",
-                       sim_month = 7, 
-                       sim_year = 2018,
-                       sim_new_tou = 2019,
-                       sim_include_wknds = FALSE,
-                       sim_charger_power = pwr,
-                       sim_price_change = -0.05, 
-                       sim_intervention_hours = c(12:15),
-                       sim_throttle_amount = -0.5, 
-                       sim_throttle_hours = c(7:11),
-                       sim_air_pollution_comm = FALSE, #no comm
-                       sim_price_comm = TRUE, #yes comm
-                       sim_curt_year=2018)
-
-write_csv(PW2S$sim_result_summary, "Results/Workplace_PW2S_Demand_Summary.csv")
-
-#run emissions and write to csv
-PW2S_output_table <- emissions_fcn(PW2S) 
-write_csv(PW2S_output_table$Emissions_Table, "Results/Workplace_PW2S_Output_Summary.csv") #write emissions to csv
-write_csv(PW2S_output_table$Emissions, "Results/Workplace_PW2S_Output_All_Hours.csv")
-
-
-
 #PW3S = discount + throttling + all comm
 PW3S <- simulation(simulations = 1000, sim_seg = "Workplace",
                        sim_month = 7, 
@@ -536,42 +512,6 @@ Demand_GraphPW1S <- ggplot(data = graph_tablePW1S, aes(x = Hr)) +
 
 #Demand_GraphPW1S
 ggsave("Results Graphs/Workplace_PW1S_Demand_Summary.pdf", Demand_GraphPW1S, device = "pdf", width = 8, height = 4.5)
-
-
-
-
-
-#PW2S Graph (discount + price comm + morning throttling + TOU 2019)
-PW2S_demand_summary <- read_csv("Results/Workplace_PW2S_Demand_Summary.csv") 
-
-graph_tablePW2S <- PW2S_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
-  gather(condition,value,c("X0_mean","Xf_mean")) 
-#%>% mutate(Theoretical_Max=PW1S_demand_summary$MT[1])
-
-Demand_GraphPW2S <- ggplot(data = graph_tablePW2S, aes(x = Hr)) +
-  geom_line(aes(y = value, color=condition)) +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-  panel.background = element_blank(), axis.line = element_line(colour = "black")) +
-  labs(title="Workplaces (PW2S) (TOU 2019, discount, price comm, throttling) Hourly Demand Forecast",
-  subtitle="Baseline July 2018 (X Chargers) \n Model Simulation",
-  y="EV Charging Demand (kW)",
-  x="Hour",
-  color=NULL) +
-  geom_rect(aes(xmin=6,xmax=11,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
-  geom_rect(aes(xmin=11,xmax=15,ymin=-Inf,ymax=Inf, fill = "Discount"),alpha=0.0075) +
-  scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
-  scale_color_manual(labels=c("Baseline Demand","Intervention Demand"), values = c("purple", "blue")) +
-  theme(plot.title = element_text(hjust = 0.5)) +
-  theme(plot.subtitle = element_text(hjust = 0.5))+
-  theme(legend.position="bottom") +
-  scale_fill_manual('Interventions',values = c('green','yellow'),  guide = guide_legend(override.aes = list(alpha = 0.15)))
-  
-
-#Demand_GraphPW2S
-ggsave("Results Graphs/Workplace_PW2S_Demand_Summary.pdf", Demand_GraphPW2S, device = "pdf", width = 8, height = 4.5)
-
-
-
 
 
 
@@ -909,6 +849,7 @@ write_csv(PDC4S$sim_result_summary, "Results/Destination_Centers_PDC4S_Demand_Su
 ```{r fleet_scenarios, message=FALSE, warning=FALSE}
 
 # PF1: Present, Fleet, 1
+# $0.10 Rebate (17:00 – 21:00); 100% Price Communication
 
 PF1 <- simulation(simulations = 1000, 
                        sim_method = mthd,
@@ -936,12 +877,11 @@ write_csv(PF1_output_table$Emissions_Table, "Results/Fleets_PF1_Output_Summary.c
 write_csv(PF1_output_table$Emissions, "Results/Fleets_PF1_Output_All_Hours.csv")
 
 
-
-
 # PF2: Present, Fleet, 2
-#  **** Need to add TOU 2019
+# $0.10 Rebate (17:00 – 21:00); New 2019 TOU Rate; 100% Price Communication
 
-PF2 <- simulation(simulations = 100, 
+
+PF2 <- simulation(simulations = 1000, 
                        sim_method = mthd,
                        sim_avg_elasticity = avg_elst,
                        sim_seg = "Fleet",
@@ -958,11 +898,20 @@ PF2 <- simulation(simulations = 100,
                        sim_throttle_hours = t_h,
                        sim_air_pollution_comm = a_p_co,
                        sim_price_comm = TRUE,
-                       sim_curt_year=c_yr)
-#View(PF2S$sim_result_summary)
-#PF2S_output_table <- emissions_fcn(PF2S) 
+                       sim_curt_year=c_yr,
+                       sim_new_tou = 2019)
+
+
+write_csv(PF2$sim_result_summary, "Results/Fleets_PF2_Demand_Summary.csv")
+
+#run emissions and write to csv
+PF2_output_table <- emissions_fcn(PF2) 
+write_csv(PF2_output_table$Emissions_Table, "Results/Fleets_PF2_Output_Summary.csv") #write emissions to csv
+write_csv(PF2_output_table$Emissions, "Results/Fleets_PF2_Output_All_Hours.csv")
+
 
 # PF3S: Present, Fleet, 3, Summer
+# $0.05 Discount (12:00 – 15:00); 100% Price Communication
 
 PF3S <- simulation(simulations = 1000, 
                        sim_method = mthd,
@@ -982,6 +931,7 @@ PF3S <- simulation(simulations = 1000,
                        sim_air_pollution_comm = a_p_co,
                        sim_price_comm = TRUE,
                        sim_curt_year=c_yr)
+
 write_csv(PF3S$sim_result_summary, "Results/Fleets_PF3S_Demand_Summary.csv")
 
 #run emissions and write to csv
@@ -990,11 +940,10 @@ write_csv(PF3S_output_table$Emissions_Table, "Results/Fleets_PF3S_Output_Summary
 write_csv(PF3S_output_table$Emissions, "Results/Fleets_PF3S_Output_All_Hours.csv")
 
 
-
-
 # PF4S: Present, Fleet, 4, Summer
+# $0.05 Discount (12:00 – 15:00); 100% Price Communication; 50% Throttling from 7:11 and 17:21
 
-PF4S <- simulation(simulations = 100, 
+PF4S <- simulation(simulations = 1000, 
                        sim_method = mthd,
                        sim_avg_elasticity = avg_elst,
                        sim_seg = "Fleet",
@@ -1012,12 +961,18 @@ PF4S <- simulation(simulations = 100,
                        sim_air_pollution_comm = a_p_co,
                        sim_price_comm = TRUE,
                        sim_curt_year=c_yr)
-#View(PF4S$sim_result_summary)
-#PF4S_output_table <- emissions_fcn(PF4S) 
+
+write_csv(PF4S$sim_result_summary, "Results/Fleets_PF4S_Demand_Summary.csv")
+
+#run emissions and write to csv
+PF4S_output_table <- emissions_fcn(PF4S) 
+write_csv(PF4S_output_table$Emissions_Table, "Results/Fleets_PF4S_Output_Summary.csv") #write emissions to csv
+write_csv(PF4S_output_table$Emissions, "Results/Fleets_PF4S_Output_All_Hours.csv")
+
 
 # PF5S: Present, Fleet, 5, Summer
 
-PF5S <- simulation(simulations = 100, 
+PF5S <- simulation(simulations = 1000, 
                        sim_method = mthd,
                        sim_avg_elasticity = avg_elst,
                        sim_seg = "Fleet",
