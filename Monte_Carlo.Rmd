@@ -480,6 +480,32 @@ write_csv(PW6S_output_table$Emissions_Table, "Results/Workplace_PW6S_Output_Summ
 write_csv(PW6S_output_table$Emissions, "Results/Workplace_PW6S_Output_All_Hours.csv")
 
 
+
+
+#PF1S = 2019 TOU + discount + air pollution & price comm + morning throttling + 2030 Chargers
+FW1S <- simulation(simulations = 1000, 
+                   sim_seg = "Workplace",
+                       sim_month = 7, 
+                       sim_year = 2018,
+                      sim_intervention_chargers = 31435, 
+                       sim_int_equals_baseline = FALSE,
+                       sim_include_wknds = FALSE,
+                       sim_charger_power = pwr,
+                       sim_price_change = -0.05, 
+                       sim_intervention_hours = c(12:15),
+                       sim_throttle_amount = -0.5, 
+                       sim_throttle_hours = c(7:11),
+                       sim_air_pollution_comm = FALSE, #no comm
+                       sim_price_comm = TRUE, #yes comm
+                       sim_curt_year=2018)
+
+write_csv(FW1S$sim_result_summary, "Results/Workplace_FW1S_Demand_Summary.csv")
+
+#run emissions and write to csv
+FW1S_output_table <- emissions_fcn(PF1S) 
+write_csv(FW1S_output_table$Emissions_Table, "Results/Workplace_FW1S_Output_Summary.csv") #write emissions to csv
+write_csv(FW1S_output_table$Emissions, "Results/Workplace_FW1S_Output_All_Hours.csv")
+
 ```
 
 ```{r workplace_graphs, message=FALSE}
@@ -580,6 +606,9 @@ Demand_GraphPW4S <- ggplot(data = graph_tablePW4S, aes(x = Hr)) +
 ggsave("Results Graphs/Workplace_PW4S_Demand_Summary.pdf", Demand_GraphPW4S, device = "pdf", width = 8, height = 4.5)
 
 
+
+
+
 ###PW5S = discount + throttling + no comm
 PW5S_demand_summary <- read_csv("Results/Workplace_PW5S_Demand_Summary.csv") 
 
@@ -638,6 +667,39 @@ Demand_GraphPW6S <- ggplot(data = graph_tablePW6S, aes(x = Hr)) +
 
 #Demand_GraphPW6S
 ggsave("Results Graphs/Workplace_PW6S_Demand_Summary.pdf", Demand_GraphPW6S, device = "pdf", width = 8, height = 4.5)
+
+
+
+
+
+#FW1S = 2019 TOU + discount + air pollution & price comm + morning throttling + 2030 Chargers
+FW1S_demand_summary <- read_csv("Results/Workplace_FW1S_Demand_Summary.csv") 
+
+graph_tableFW1S <- FW1S_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
+  gather(condition,value,c("X0_mean","Xf_mean")) 
+#%>% mutate(Theoretical_Max=FW1S_demand_summary$MT[1])
+
+Demand_GraphFW1S <- ggplot(data = graph_tableFW1S, aes(x = Hr)) +
+  geom_line(aes(y = value, color=condition)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+  panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+  labs(title="Workplaces (FW1S) (TOU 2019, discount, air & price comm, throttling) Hourly Demand Forecast",
+  subtitle="Baseline July 2018 (31435 Chargers) \n Model Simulation",
+  y="EV Charging Demand (kW)",
+  x="Hour",
+  color=NULL) +
+  geom_rect(aes(xmin=6,xmax=11,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
+  geom_rect(aes(xmin=11,xmax=15,ymin=-Inf,ymax=Inf, fill = "Discount"),alpha=0.0075) +
+  scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
+  scale_color_manual(labels=c("Baseline Demand","Intervention Demand"), values = c("purple", "blue")) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(plot.subtitle = element_text(hjust = 0.5))+
+  theme(legend.position="bottom") +
+  scale_fill_manual('Interventions',values = c('green','yellow'),  guide = guide_legend(override.aes = list(alpha = 0.15)))
+  
+
+#Demand_GraphFW1S
+ggsave("Results Graphs/Workplace_FW1S_Demand_Summary.pdf", Demand_GraphFW1S, device = "pdf", width = 8, height = 4.5)
 
 
 
