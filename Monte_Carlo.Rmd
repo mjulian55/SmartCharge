@@ -45,7 +45,7 @@ SIMULATION
 ```{r simulation}
 
 
-simulation <- function(simulations = 1000, 
+simulation <- function(simulations = 100, 
                        sim_method = mthd,
                        sim_avg_elasticity = avg_elst,
                        sim_seg = sg,
@@ -391,6 +391,30 @@ write_csv(PW1S_output_table$Emissions, "Results/Workplace_PW1S_Output_All_Hours.
 
 
 
+#PW2S = discount + price comm + morning throttling + TOU 2019
+PW2S <- simulation(simulations = 1000, sim_seg = "Workplace",
+                       sim_month = 7, 
+                       sim_year = 2018,
+                       sim_new_tou = 2019,
+                       sim_include_wknds = FALSE,
+                       sim_charger_power = pwr,
+                       sim_price_change = -0.05, 
+                       sim_intervention_hours = c(12:15),
+                       sim_throttle_amount = -0.5, 
+                       sim_throttle_hours = c(7:11),
+                       sim_air_pollution_comm = FALSE, #no comm
+                       sim_price_comm = TRUE, #yes comm
+                       sim_curt_year=2018)
+
+write_csv(PW2S$sim_result_summary, "Results/Workplace_PW2S_Demand_Summary.csv")
+
+#run emissions and write to csv
+PW2S_output_table <- emissions_fcn(PW2S) 
+write_csv(PW2S_output_table$Emissions_Table, "Results/Workplace_PW2S_Output_Summary.csv") #write emissions to csv
+write_csv(PW2S_output_table$Emissions, "Results/Workplace_PW2S_Output_All_Hours.csv")
+
+
+
 #PW3S = discount + throttling + all comm
 PW3S <- simulation(simulations = 1000, sim_seg = "Workplace",
                        sim_month = 7, 
@@ -512,6 +536,42 @@ Demand_GraphPW1S <- ggplot(data = graph_tablePW1S, aes(x = Hr)) +
 
 #Demand_GraphPW1S
 ggsave("Results Graphs/Workplace_PW1S_Demand_Summary.pdf", Demand_GraphPW1S, device = "pdf", width = 8, height = 4.5)
+
+
+
+
+
+#PW2S Graph (discount + price comm + morning throttling + TOU 2019)
+PW2S_demand_summary <- read_csv("Results/Workplace_PW2S_Demand_Summary.csv") 
+
+graph_tablePW2S <- PW2S_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
+  gather(condition,value,c("X0_mean","Xf_mean")) 
+#%>% mutate(Theoretical_Max=PW1S_demand_summary$MT[1])
+
+Demand_GraphPW2S <- ggplot(data = graph_tablePW2S, aes(x = Hr)) +
+  geom_line(aes(y = value, color=condition)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+  panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+  labs(title="Workplaces (PW2S) (TOU 2019, discount, price comm, throttling) Hourly Demand Forecast",
+  subtitle="Baseline July 2018 (X Chargers) \n Model Simulation",
+  y="EV Charging Demand (kW)",
+  x="Hour",
+  color=NULL) +
+  geom_rect(aes(xmin=6,xmax=11,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
+  geom_rect(aes(xmin=11,xmax=15,ymin=-Inf,ymax=Inf, fill = "Discount"),alpha=0.0075) +
+  scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
+  scale_color_manual(labels=c("Baseline Demand","Intervention Demand"), values = c("purple", "blue")) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(plot.subtitle = element_text(hjust = 0.5))+
+  theme(legend.position="bottom") +
+  scale_fill_manual('Interventions',values = c('green','yellow'),  guide = guide_legend(override.aes = list(alpha = 0.15)))
+  
+
+#Demand_GraphPW2S
+ggsave("Results Graphs/Workplace_PW2S_Demand_Summary.pdf", Demand_GraphPW2S, device = "pdf", width = 8, height = 4.5)
+
+
+
 
 
 
@@ -948,11 +1008,7 @@ PF4S <- simulation(simulations = 100,
                        sim_intervention_chargers = int_ch, 
                        sim_int_equals_baseline = int_e_b, 
                        sim_throttle_amount = -0.5, 
-
-                       sim_throttle_hours = c(6:11, 17:21), # not sure if this should 5:11 or 6:11 and 16:21 or 17:21
-
-                       sim_throttle_hours = c(7:11, 17:21),  ????
-
+                       sim_throttle_hours = c(7:11, 17:21),
                        sim_air_pollution_comm = a_p_co,
                        sim_price_comm = TRUE,
                        sim_curt_year=c_yr)
@@ -982,8 +1038,8 @@ PF5S <- simulation(simulations = 100,
 #View(PF5S$sim_result_summary)
 #PF5S_output_table <- emissions_fcn(PF5S) 
 
-# FF1: Future, Fleet, 1
-
+# FF1: Future, Fleet, 1 (rebate)
+#need to add in the new tou. 
 FF1 <- simulation(simulations = 1000, 
                        sim_method = mthd,
                        sim_avg_elasticity = avg_elst,
@@ -1088,7 +1144,7 @@ Demand_GraphFF1 <- ggplot(data = graph_tableFF1, aes(x = Hr)) +
   geom_line(aes(y = value, color=condition)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
   panel.background = element_blank(), axis.line = element_line(colour = "black")) +
-  labs(title="Fleets (FF1) (2019 tou, price comm, 2030 chargers) Hourly Demand Forecast",
+  labs(title="Fleets (FF1) (2019 tou, price comm, 4378 chargers, rebate) Hourly Demand Forecast",
   subtitle="Baseline Nov 2018 (83 Chargers) \n Model Simulation (2030 scenario)",
   y="EV Charging Demand (kW)",
   x="Hour",
