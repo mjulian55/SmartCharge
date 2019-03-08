@@ -53,3 +53,10 @@ Throttling is....
 
 
 
+
+This application was developed using the Shiny package in R Studio, an open-source software program.
+
+<img src="RStudio_Shiny.png" width="150">
+
+
+
