@@ -12,6 +12,12 @@ This application is meant to simulate the change in electric vehicle (EV) chargi
 Choose your own combination of inputs to see how you might be able to change demand!
 
 
+
+
+
+<img src="EV_Charging.jpeg" width="35%" align="right">
+
+
 ### How Does it Actually Work?
 
 These types of interventions have an affect on how responsive consumers might be and that responsiveness is measured by the change in electricity that's demanded.  That demand is represented by a line that shows energy (in Kilowatts or kW) over the 24 hours of the day.  That responsiveness is modelled in this application using price elasticities - the change in quantity demanded given a change in price.  These elasticity values, along with other values, are built into our model to show how demand might change at any given hour.  For more information on how we built this model, visit our [website](https://smartchargeproject.weebly.com/) and look for a copy of our Master's Project report.
