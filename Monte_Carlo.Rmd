@@ -665,23 +665,183 @@ write_csv(PDC1S_output_table$Emissions_Table, "Results/Destination_Centers_PDC1S
 write_csv(PDC1S_output_table$Emissions, "Results/Destination_Centers_PDC1S_Output_All_Hours.csv")
 
 
-
 #PDC2S:  discount -0.05 (default) 12-15+ all comms + morning throttling
-PDC2S <- simulation(sim_seg = "Destination Center",sim_throttle_amount = -0.5,sim_air_pollution_comm = TRUE, sim_price_comm = TRUE,sim_month = 7)
-#View(PDC2S$sim_result_summary)
-#PDC2S_output_table <- emissions_fcn(PDC2S) 
+PDC2S <- simulation(simulations = 1000, sim_seg = "Destination Center",sim_throttle_amount = -0.5,sim_air_pollution_comm = TRUE, sim_price_comm = TRUE,sim_month = 7)
+
+write_csv(PDC2S$sim_result_summary, "Results/Destination_Centers_PDC2S_Demand_Summary.csv")
+#run emissions and write to csv
+PDC2S_output_table <- emissions_fcn(PDC2S) 
+write_csv(PDC2S_output_table$Emissions_Table, "Results/Destination_Centers_PDC2S_Output_Summary.csv") #write emissions to csv
+write_csv(PDC2S_output_table$Emissions, "Results/Destination_Centers_PDC2S_Output_All_Hours.csv")
+
 
 #PDC3S: discount -0.05 (default) 12-15+ air poll comms + morning throttling
-PDC3S <- simulation(sim_seg = "Destination Center",sim_throttle_amount = -0.5,sim_air_pollution_comm = TRUE, sim_price_comm = FALSE,sim_month = 7)
-#View(PDC3S$sim_result_summary)
-#PDC3S_output_table <- emissions_fcn(PDC3S) 
+PDC3S <- simulation(simulations = 1000, sim_seg = "Destination Center",sim_throttle_amount = -0.5,sim_air_pollution_comm = TRUE, sim_price_comm = FALSE,sim_month = 7)
+
+write_csv(PDC3S$sim_result_summary, "Results/Destination_Centers_PDC3S_Demand_Summary.csv")
+PDC3S_output_table <- emissions_fcn(PDC3S) 
+write_csv(PDC3S_output_table$Emissions_Table, "Results/Destination_Centers_PDC3S_Output_Summary.csv") #write emissions to csv
+write_csv(PDC3S_output_table$Emissions, "Results/Destination_Centers_PDC3S_Output_All_Hours.csv")
+
 
 #PDC4S: discount -0.05 (default) 12-15+ no comms + morning throttling
-PDC4S <- simulation(sim_seg = "Destination Center",sim_throttle_amount =-0.5, sim_month = 7,sim_air_pollution_comm = FALSE,sim_price_comm = FALSE)
-#View(PDC4S$sim_result_summary)
-#PDC4S_output_table <- emissions_fcn(PDC4S) 
+PDC4S <- simulation(simulations = 1000, sim_seg = "Destination Center",sim_throttle_amount =-0.5, sim_month = 7,sim_air_pollution_comm = FALSE,sim_price_comm = FALSE)
+
+write_csv(PDC4S$sim_result_summary, "Results/Destination_Centers_PDC4S_Demand_Summary.csv")
+PDC4S_output_table <- emissions_fcn(PDC4S) 
+write_csv(PDC4S_output_table$Emissions_Table, "Results/Destination_Centers_PDC4S_Output_Summary.csv") #write emissions to csv
+write_csv(PDC4S_output_table$Emissions, "Results/Destination_Centers_PDC4S_Output_All_Hours.csv")
+
 
 ```
+
+```{r destination_center_graphs}
+#PDC1S:  discount -0.05 (default) 12-15+ price comms only + morning throttling
+PDC1S_demand_summary <- read_csv("Results/Destination_Centers_PDC1S_Demand_Summary.csv") 
+
+graph_tablePDC1S <- PDC1S_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
+  gather(condition,value,c("X0_mean","Xf_mean")) 
+#%>% mutate(Theoretical_Max=PM1_demand_summary$MT[1])
+
+Demand_GraphPDC1S <- ggplot(data = graph_tablePDC1S, aes(x = Hr)) +
+  geom_line(aes(y = value, color=condition)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+  panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+  labs(title="Destination Centers (PDC1S) (discount, price comms, morning throttling) Hourly Demand Forecast",
+  subtitle="Baseline July 2018 (X Chargers) \n Model Simulation",
+  y="EV Charging Demand (kW)",
+  x="Hour",
+  color=NULL) +
+  geom_rect(aes(xmin=6,xmax=11,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
+  geom_rect(aes(xmin=11,xmax=15,ymin=-Inf,ymax=Inf, fill = "Discount"),alpha=0.0075) +
+  scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
+  scale_color_manual(labels=c("Baseline Demand","Intervention Demand"), values = c("purple", "blue")) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(plot.subtitle = element_text(hjust = 0.5))+
+  theme(legend.position="bottom") +
+  scale_fill_manual('Interventions',values = c('green','yellow'),  guide = guide_legend(override.aes = list(alpha = 0.15)))
+  
+
+#Demand_GraphPDC1S
+ggsave("Results Graphs/Destination_Centers_PDC1S_Demand_Summary.pdf", Demand_GraphPDC1S, device = "pdf", width = 8, height = 4.5)
+
+
+
+
+#PDC2S:  discount -0.05 (default) 12-15+ all comms + morning throttling
+PDC2S_demand_summary <- read_csv("Results/Destination_Centers_PDC2S_Demand_Summary.csv") 
+
+graph_tablePDC2S <- PDC2S_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
+  gather(condition,value,c("X0_mean","Xf_mean")) 
+#%>% mutate(Theoretical_Max=PM1_demand_summary$MT[1])
+
+Demand_GraphPDC2S <- ggplot(data = graph_tablePDC2S, aes(x = Hr)) +
+  geom_line(aes(y = value, color=condition)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+  panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+  labs(title="Destination Centers (PDC2S) (discount, all comms, morning throttling) Hourly Demand Forecast",
+  subtitle="Baseline July 2018 (X Chargers) \n Model Simulation",
+  y="EV Charging Demand (kW)",
+  x="Hour",
+  color=NULL) +
+  geom_rect(aes(xmin=6,xmax=11,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
+  geom_rect(aes(xmin=11,xmax=15,ymin=-Inf,ymax=Inf, fill = "Discount"),alpha=0.0075) +
+  scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
+  scale_color_manual(labels=c("Baseline Demand","Intervention Demand"), values = c("purple", "blue")) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(plot.subtitle = element_text(hjust = 0.5))+
+  theme(legend.position="bottom") +
+  scale_fill_manual('Interventions',values = c('green','yellow'),  guide = guide_legend(override.aes = list(alpha = 0.15)))
+  
+
+#Demand_GraphPDC2S
+ggsave("Results Graphs/Destination_Centers_PDC2S_Demand_Summary.pdf", Demand_GraphPDC2S, device = "pdf", width = 8, height = 4.5)
+
+
+
+
+#PDC3S: discount -0.05 (default) 12-15+ air poll comms + morning throttling
+PDC3S_demand_summary <- read_csv("Results/Destination_Centers_PDC3S_Demand_Summary.csv") 
+
+graph_tablePDC3S <- PDC3S_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
+  gather(condition,value,c("X0_mean","Xf_mean")) 
+#%>% mutate(Theoretical_Max=PM1_demand_summary$MT[1])
+
+Demand_GraphPDC3S <- ggplot(data = graph_tablePDC3S, aes(x = Hr)) +
+  geom_line(aes(y = value, color=condition)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+  panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+  labs(title="Destination Centers (PDC3S) (discount, air poll comms, morning throttling) Hourly Demand Forecast",
+  subtitle="Baseline July 2018 (X Chargers) \n Model Simulation",
+  y="EV Charging Demand (kW)",
+  x="Hour",
+  color=NULL) +
+  geom_rect(aes(xmin=6,xmax=11,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
+  geom_rect(aes(xmin=11,xmax=15,ymin=-Inf,ymax=Inf, fill = "Discount"),alpha=0.0075) +
+  scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
+  scale_color_manual(labels=c("Baseline Demand","Intervention Demand"), values = c("purple", "blue")) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(plot.subtitle = element_text(hjust = 0.5))+
+  theme(legend.position="bottom") +
+  scale_fill_manual('Interventions',values = c('green','yellow'),  guide = guide_legend(override.aes = list(alpha = 0.15)))
+  
+
+#Demand_GraphPDC3S
+ggsave("Results Graphs/Destination_Centers_PDC3S_Demand_Summary.pdf", Demand_GraphPDC3S, device = "pdf", width = 8, height = 4.5)
+
+
+
+
+
+
+#PDC4S: discount -0.05 (default) 12-15+ no comms + morning throttling
+PDC4S_demand_summary <- read_csv("Results/Destination_Centers_PDC4S_Demand_Summary.csv") 
+
+graph_tablePDC4S <- PDC4S_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
+  gather(condition,value,c("X0_mean","Xf_mean")) 
+#%>% mutate(Theoretical_Max=PM1_demand_summary$MT[1])
+
+Demand_GraphPDC4S <- ggplot(data = graph_tablePDC4S, aes(x = Hr)) +
+  geom_line(aes(y = value, color=condition)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+  panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+  labs(title="Destination Centers (PDC4S) (discount, no comms, morning throttling) Hourly Demand Forecast",
+  subtitle="Baseline July 2018 (X Chargers) \n Model Simulation",
+  y="EV Charging Demand (kW)",
+  x="Hour",
+  color=NULL) +
+  geom_rect(aes(xmin=6,xmax=11,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
+  geom_rect(aes(xmin=11,xmax=15,ymin=-Inf,ymax=Inf, fill = "Discount"),alpha=0.0075) +
+  scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
+  scale_color_manual(labels=c("Baseline Demand","Intervention Demand"), values = c("purple", "blue")) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(plot.subtitle = element_text(hjust = 0.5))+
+  theme(legend.position="bottom") +
+  scale_fill_manual('Interventions',values = c('green','yellow'),  guide = guide_legend(override.aes = list(alpha = 0.15)))
+  
+
+#Demand_GraphPDC1S
+ggsave("Results Graphs/Destination_Centers_PDC4S_Demand_Summary.pdf", Demand_GraphPDC4S, device = "pdf", width = 8, height = 4.5)
+
+
+
+
+
+
+#PDC2S:  discount -0.05 (default) 12-15+ all comms + morning throttling
+write_csv(PDC2S$sim_result_summary, "Results/Destination_Centers_PDC2S_Demand_Summary.csv")
+#run emissions and write to csv
+
+
+#PDC3S: discount -0.05 (default) 12-15+ air poll comms + morning throttling
+write_csv(PDC3S$sim_result_summary, "Results/Destination_Centers_PDC3S_Demand_Summary.csv")
+
+
+#PDC4S: discount -0.05 (default) 12-15+ no comms + morning throttling
+write_csv(PDC4S$sim_result_summary, "Results/Destination_Centers_PDC4S_Demand_Summary.csv")
+
+```
+
 
 
 #FLEETS
