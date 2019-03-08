@@ -45,7 +45,7 @@ SIMULATION
 ```{r simulation}
 
 
-simulation <- function(simulations = 100, 
+simulation <- function(simulations = 1000, 
                        sim_method = mthd,
                        sim_avg_elasticity = avg_elst,
                        sim_seg = sg,
@@ -948,7 +948,11 @@ PF4S <- simulation(simulations = 100,
                        sim_intervention_chargers = int_ch, 
                        sim_int_equals_baseline = int_e_b, 
                        sim_throttle_amount = -0.5, 
-                       sim_throttle_hours = c(7:11, 17:21),
+
+                       sim_throttle_hours = c(6:11, 17:21), # not sure if this should 5:11 or 6:11 and 16:21 or 17:21
+
+                       sim_throttle_hours = c(7:11, 17:21),  ????
+
                        sim_air_pollution_comm = a_p_co,
                        sim_price_comm = TRUE,
                        sim_curt_year=c_yr)
@@ -978,8 +982,8 @@ PF5S <- simulation(simulations = 100,
 #View(PF5S$sim_result_summary)
 #PF5S_output_table <- emissions_fcn(PF5S) 
 
-# FF1: Future, Fleet, 1 (rebate)
-#need to add in the new tou. 
+# FF1: Future, Fleet, 1
+
 FF1 <- simulation(simulations = 1000, 
                        sim_method = mthd,
                        sim_avg_elasticity = avg_elst,
@@ -1084,7 +1088,7 @@ Demand_GraphFF1 <- ggplot(data = graph_tableFF1, aes(x = Hr)) +
   geom_line(aes(y = value, color=condition)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
   panel.background = element_blank(), axis.line = element_line(colour = "black")) +
-  labs(title="Fleets (FF1) (2019 tou, price comm, 4378 chargers, rebate) Hourly Demand Forecast",
+  labs(title="Fleets (FF1) (2019 tou, price comm, 2030 chargers) Hourly Demand Forecast",
   subtitle="Baseline Nov 2018 (83 Chargers) \n Model Simulation (2030 scenario)",
   y="EV Charging Demand (kW)",
   x="Hour",
