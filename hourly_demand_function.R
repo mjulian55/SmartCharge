@@ -31,10 +31,10 @@ read_csv("Model_Map/2018_Winter_TOU_EV_4.csv")
 read_csv("Model_Map/2018_Winter_TOU_EV_D.csv")
 
 #2019 Summer 8
-price_schedule_2019_summer_tou <- read_csv("Model_Map/2019_Summer_TOU_EV_8.csv")
+read_csv("Model_Map/2019_Summer_TOU_EV_8.csv")
 
 #2019 Winter 8
-price_schedule_2019_winter_tou <- read_csv("Model_Map/2019_Winter_TOU_EV_8.csv")
+read_csv("Model_Map/2019_Winter_TOU_EV_8.csv")
 
 
 #Baseline Usage
@@ -259,28 +259,42 @@ curtailment_2018 <- read_csv("Curtailment_2018.csv")
 curtailment_2030 <- read_csv("Curtailment_2030.csv")
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## MODEL STARTS HERE##
 
+mthd <- 1 #method
+avg_elst <- -0.4 #average elasticity
+sg <- "Workplace" #segment choose from "Workplace", "Destination Center", "Fleet", "Multi Unit Dwelling"
+mth <- 11 #month for baseline data
+yr <- 2018 #baseline data year
+wknds <- TRUE #include weekends in the baseline data and in the elasticity options
+pwr <- 6.6 #charger power
+sch <- closest_elasticities #elasticities to use for price intervention (column in the elasticities dataframe) -  Non PV Summer Weekday EPEV L. The default now picks from the ratio
 p_c <- -0.05 #price change
 i_h <- c(12:15) #intervention hours
-t_a <- 0 #throttling amount
-t_h <- c(7:11) #throttling hours
-sch <- closest_elasticities #elasticities to use for price intervention (column in the elasticities dataframe) -  Non PV Summer Weekday EPEV L. The default now picks from the ratio. 
-sg <- "Workplace" #segment choose from "Workplace", "Destination Center", "Fleet", "Multi Unit Dwelling"
-mth <- 11 #month
-pwr <- 6.6 #charger power
-pk <- c(17:21) #target window to shift out off (this is only used in the output calculations below, not for the function)
 int_ch <- filter(Chargers, Market_Segment == sg) %>% 
   select(mth) %>% 
   as.numeric() # number of chargers. default is to MARCH 2018
 int_e_b <- TRUE # if true, number of intervention chargers equals baseline number of chargers
-yr <- 2018 #baseline data year
-wknds <- TRUE #include weekends in the baseline data and in the elasticity options
-mthd <- 1 #method
-avg_elst <- -0.4 #average elasticity
+t_a <- 0 #throttling amount
+t_h <- c(7:11) #throttling hours. 
 a_p_co <- FALSE #air pollution communication
 p_co <- TRUE #price communication
 c_yr <- 2018 #default year for curtailment and emissions factors
+n_tou <- 2018 #new tou year (options are 2019 or 2018)
+pk <- c(17:21) #target window to shift out off (this is only used in the output calculations below, not for the function)
 
 
 hourly_demand <- function(method = mthd,
@@ -299,7 +313,9 @@ hourly_demand <- function(method = mthd,
                           throttle_hours = t_h, 
                           air_pollution_comm = a_p_co,
                           price_comm = p_co,
-                          curt_year = c_yr){
+                          curt_year = c_yr,
+                          new_tou = n_tou
+                         ){
   
   library(tidyverse)
   library(lubridate)
@@ -335,7 +351,6 @@ hourly_demand <- function(method = mthd,
   }
    
   #price_schedule$period <- factor(price_schedule$period, levels = c("P","MP","OP"))
-  
   
   #Baseline
   #filter the number of chargers by market segment and month, change to numeric (have to set the month and segment otherwise it will take the default, workplace and March 2018)
@@ -508,6 +523,23 @@ Xi <- Xi_choose_weekends %>%
   #intervention_hours <- c(12:15)
   EV_Demand <- EV_Demand %>% 
     mutate(P1 = price_schedule$P0) #Copies the initial price schedule into a new column (P1) that can then be modified to reflect the intervention
+  
+  #new tou as an intervention. 
+  #select the potential new tou based on month
+  if(month%in%c(6:9)) {
+    price_schedule_tou_int <- read_csv("Model_Map/2019_Summer_TOU_EV_8.csv")
+  } else {
+    price_schedule_tou_int <- read_csv("Model_Map/2019_Winter_TOU_EV_8.csv")
+  }
+  #if applying the tou intervention, make that the initial P1. If not, then keep it as the initial priace schedule (all of this then gets modified in the next chunck with the discount and rebate)
+  if (new_tou == 2019) {
+    EV_Demand$P1 <- price_schedule_tou_int$P0
+  } 
+  else {
+    EV_Demand$P1 <- EV_Demand$P1
+  }
+  
+  
   
   EV_Demand$P1[intervention_hours] <-EV_Demand$P1[intervention_hours] + price_change #updates intervention column to implement intervention
   

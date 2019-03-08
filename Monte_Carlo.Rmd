@@ -49,8 +49,8 @@ simulation <- function(simulations = 100,
                        sim_method = mthd,
                        sim_avg_elasticity = avg_elst,
                        sim_seg = sg,
-                       sim_month = mth, 
-                       sim_year = yr,
+                       sim_month = mth, #baseline month
+                       sim_year = yr, #baseline year
                        sim_include_wknds = wknds,
                        sim_charger_power = pwr,
                        sim_elasticity_schedule = sch, 
@@ -62,7 +62,8 @@ simulation <- function(simulations = 100,
                        sim_throttle_hours = t_h,
                        sim_air_pollution_comm = a_p_co,
                        sim_price_comm = p_co,
-                       sim_curt_year=c_yr) {
+                       sim_curt_year=c_yr,
+                       sim_new_tou = n_tou) {
 
   ##create lists to sample from for each variable to sample from
   #method
@@ -117,7 +118,8 @@ simulation <- function(simulations = 100,
                        throttle_hours = sim_throttle_hours,
                        air_pollution_comm = sim_air_pollution_comm,
                        price_comm = sim_price_comm,
-                       curt_year=sim_curt_year)
+                       curt_year=sim_curt_year,
+                       new_tou=sim_new_tou)
 
     
     run_i_EV_Demand <- run_i$EV_Demand %>% 
@@ -292,7 +294,7 @@ other_emission_hours <-other_emission_hours[!other_emission_hours %in% peak_hour
  Pdelta_i_h <- Pf_i_h - P0_i_h 
  Pdelta_pk <- Pf_pk - P0_pk
  Pdelta_o_h <- Pf_o_h - P0_o_h
- Pdelta_sum <- sum(Pdelta_i_h, Pdelta_pk, Pdelta_o_h)
+ Pdelta_sum <- Pf_sum - P0_sum
  
 #Sum base emissions by period (intervention window, peak window, other)
  CO2X0_i_h <- sum(Emissions$CO2X0[intervention_emission_hours]) 
@@ -355,27 +357,32 @@ return(list(Emissions=Emissions, Emissions_Table=Emissions_Table))
 
 #Test_emissions <- emissions_fcn(sim1) or Test_emissions <- emissions_fcn(EVDemand = simulation())
 
-#Emissions_run1 <- emissions_fcn(EVDemand = hourly_demand(SDGE_commm_effect = 0,intervention_comm_effect = 0, throttle_amount = 0)) #or run as 
-#Emissions_run1 <- emissions_fcn(EV_Demand_run1)
+#defaults below
+#emissions_fcn defaults. peak_hours 17:21 and emissions year 2018. only change if need to make 2030 run. Then: emissions_year = 2030. Always run on the output from your simulation table. see example below with defaults. #PM1_output_table <- emissions_fcn(PM1) to run defaults
+#PM1_output_table <- emissions_fcn(EVDemand = PM1, peak_hours = c(17:21), emissions_year = 2019)
 
 ```
 
 #WORKPLACES 
 
-```{r workplace_scenarios}
+```{r workplace_scenarios, message=FALSE, warning=FALSE}
 
+#PW1S = discount + price comm + morning throttling
 PW1S <- simulation( sim_seg = "Workplace",
                        sim_month = 7, 
                        sim_year = 2018,
                        sim_include_wknds = FALSE,
                        sim_charger_power = pwr,
-                       sim_price_change = 0.05, 
+                       sim_price_change = -0.05, 
                        sim_intervention_hours = c(12:15),
-                       sim_throttle_amount = .5, 
-                       sim_throttle_hours = c(6:11),
+                       sim_throttle_amount = -0.5, 
+                       sim_throttle_hours = c(7:11),
                        sim_air_pollution_comm = FALSE, #no comm
                        sim_price_comm = TRUE, #yes comm
                        sim_curt_year=2018)
+#View(PW1S$sim_result_summary)
+#PW1S_output_table <- emissions_fcn(PW1S) 
+
 
 graph_tablePW1S <- PW1S$sim_result_summary[c("Hr","X0_mean","Xf_mean")] %>%
   gather(condition,value,c("X0_mean","Xf_mean")) 
@@ -402,58 +409,72 @@ Demand_GraphPW1S <- ggplot(data = graph_tablePW1S, aes(x = Hr)) +
 
 Demand_GraphPW1S
 
-
+#PW3S = discount + throttling + all comm
 PW3S <- simulation( sim_seg = "Workplace",
                        sim_month = 7, 
                        sim_year = 2018,
                        sim_include_wknds = FALSE,
                        sim_charger_power = pwr,
-                       sim_price_change = 0.05, 
+                       sim_price_change = -0.05, 
                        sim_intervention_hours = c(12:15),
-                       sim_throttle_amount = .5, 
-                       sim_throttle_hours = c(6:11),
+                       sim_throttle_amount = -0.5, 
+                       sim_throttle_hours = c(7:11),
                        sim_air_pollution_comm = TRUE, #yes comm
                        sim_price_comm = TRUE, #yes comm
                        sim_curt_year=2018) 
+#View(PW3S$sim_result_summary)
+#PW3S_output_table <- emissions_fcn(PW3S) 
 
+
+#PW4S = discount + price comm
 PW4S <- simulation( sim_seg = "Workplace",
                        sim_month = 7, 
                        sim_year = 2018,
                        sim_include_wknds = FALSE,
                        sim_charger_power = pwr,
-                       sim_price_change = 0.05, 
+                       sim_price_change = -0.05, 
                        sim_intervention_hours = c(12:15),
                        sim_throttle_amount = 0, #No throttling 
-                       sim_throttle_hours = 0,
                        sim_air_pollution_comm = FALSE, 
                        sim_price_comm = TRUE,
                        sim_curt_year=2018) 
+#View(PW4S$sim_result_summary)
+#PW4S_output_table <- emissions_fcn(PW4S) 
 
+
+#PW5S = discount + throttling + no comm
 PW5S <- simulation( sim_seg = "Workplace",
                        sim_month = 7, 
                        sim_year = 2018,
                        sim_include_wknds = FALSE,
                        sim_charger_power = pwr,
-                       sim_price_change = 0.05, 
+                       sim_price_change = -0.05, 
                        sim_intervention_hours = c(12:15),
-                       sim_throttle_amount = 0.5, 
-                       sim_throttle_hours = c(6:11),
+                       sim_throttle_amount = -0.5, 
+                       sim_throttle_hours = c(7:11),
                        sim_air_pollution_comm = FALSE, #no comm
                        sim_price_comm = FALSE, # no comm
                        sim_curt_year=2018) 
+#View(PW5S$sim_result_summary)
+#PW5S_output_table <- emissions_fcn(PW5S) 
 
+
+#PW6S = discount + throttling + air poll comm
 PW6S <- simulation( sim_seg = "Workplace",
                        sim_month = 7, 
                        sim_year = 2018,
                        sim_include_wknds = FALSE,
                        sim_charger_power = pwr,
-                       sim_price_change = 0.05, 
+                       sim_price_change = -0.05, 
                        sim_intervention_hours = c(12:15),
-                       sim_throttle_amount = 0.5, 
-                       sim_throttle_hours = c(6:11),
+                       sim_throttle_amount = -0.5, 
+                       sim_throttle_hours = c(7:11),
                        sim_air_pollution_comm = TRUE, #yes comm
                        sim_price_comm = FALSE, 
                        sim_curt_year=2018) 
+#View(PW6S$sim_result_summary)
+#PW6S_output_table <- emissions_fcn(PW6S) 
+
 
 ```
 
@@ -461,20 +482,44 @@ PW6S <- simulation( sim_seg = "Workplace",
 
 ```{r destination_center_scenarios}
 
-<<<<<<< HEAD
-PDC1S <- simulation(sim_seg = "Destination Center",sim_throttle_amount = -0.5, sim_month = 7)
+#PDC1S:  discount -0.05 (default) 12-15+ price comms only + morning throttling
+PDC1S <- simulation(simulation = 1000, sim_seg = "Destination Center",sim_throttle_amount = -0.5, sim_month = 7)
+#View(PDC1S$sim_result_summary)
+
+write_csv(PDC1S$sim_result_summary, "Results/Destination_Centers_PDC1S_Demand_Summary.csv")
+
+#run emissions and write to csv
+PDC1S_output_table <- emissions_fcn(PDC1S) 
+#View(PDC1S_output_table$Emissions_Table)
+#View(PDC1S_output_table$Emissions)
+write_csv(PDC1S_output_table$Emissions_Table, "Results/Destination_Centers_PDC1S_Output_Summary.csv") #write emissions to csv
+write_csv(PDC1S_output_table$Emissions, "Results/Destination_Centers_PDC1S_Output_All_Hours.csv")
+
+
+
+#PDC2S:  discount -0.05 (default) 12-15+ all comms + morning throttling
 PDC2S <- simulation(sim_seg = "Destination Center",sim_throttle_amount = -0.5,sim_air_pollution_comm = TRUE, sim_price_comm = TRUE,sim_month = 7)
-#PDC3S <- simulation
+#View(PDC2S$sim_result_summary)
+#PDC2S_output_table <- emissions_fcn(PDC2S) 
 
+#PDC3S: discount -0.05 (default) 12-15+ air poll comms + morning throttling
+PDC3S <- simulation(sim_seg = "Destination Center",sim_throttle_amount = -0.5,sim_air_pollution_comm = TRUE, sim_price_comm = FALSE,sim_month = 7)
+#View(PDC3S$sim_result_summary)
+#PDC3S_output_table <- emissions_fcn(PDC3S) 
 
-=======
->>>>>>> d09e47c522290bc37027752808fb4a221cf1027b
+#PDC4S: discount -0.05 (default) 12-15+ no comms + morning throttling
+PDC4S <- simulation(sim_seg = "Destination Center",sim_throttle_amount =-0.5, sim_month = 7,sim_air_pollution_comm = FALSE,sim_price_comm = FALSE)
+#View(PDC4S$sim_result_summary)
+#PDC4S_output_table <- emissions_fcn(PDC4S) 
+
 ```
 
 
 #FLEETS
 
-```{r fleet_scenarios}
+```{r fleet_scenarios, message=FALSE, warning=FALSE}
+
+# PF1: Present, Fleet, 1
 
 PF1 <- simulation(simulations = 100, 
                        sim_method = mthd,
@@ -492,29 +537,312 @@ PF1 <- simulation(simulations = 100,
                        sim_throttle_amount = t_a, 
                        sim_throttle_hours = t_h,
                        sim_air_pollution_comm = a_p_co,
+                       sim_price_comm = TRUE)
+#View(PF1S$sim_result_summary)
+#PF1S_output_table <- emissions_fcn(PF1S) 
+
+# PF2: Present, Fleet, 2
+#  **** Need to add TOU 2019
+
+PF2 <- simulation(simulations = 100, 
+                       sim_method = mthd,
+                       sim_avg_elasticity = avg_elst,
+                       sim_seg = "Fleet",
+                       sim_month = 11, 
+                       sim_year = 2018,
+                       sim_include_wknds = FALSE,
+                       sim_charger_power = pwr,
+                       sim_elasticity_schedule = sch, 
+                       sim_price_change = 0.10, 
+                       sim_intervention_hours = c(17:21),
+                       sim_intervention_chargers = int_ch, 
+                       sim_int_equals_baseline = int_e_b, 
+                       sim_throttle_amount = t_a, 
+                       sim_throttle_hours = t_h,
+                       sim_air_pollution_comm = a_p_co,
                        sim_price_comm = TRUE,
                        sim_curt_year=c_yr)
+#View(PF2S$sim_result_summary)
+#PF2S_output_table <- emissions_fcn(PF2S) 
 
+# PF3S: Present, Fleet, 3, Summer
+
+PF3S <- simulation(simulations = 100, 
+                       sim_method = mthd,
+                       sim_avg_elasticity = avg_elst,
+                       sim_seg = "Fleet",
+                       sim_month = 7, 
+                       sim_year = 2018,
+                       sim_include_wknds = FALSE,
+                       sim_charger_power = pwr,
+                       sim_elasticity_schedule = sch, 
+                       sim_price_change = -0.05, 
+                       sim_intervention_hours = c(12:15),
+                       sim_intervention_chargers = int_ch, 
+                       sim_int_equals_baseline = int_e_b, 
+                       sim_throttle_amount = t_a, 
+                       sim_throttle_hours = t_h,
+                       sim_air_pollution_comm = a_p_co,
+                       sim_price_comm = TRUE,
+                       sim_curt_year=c_yr)
+#View(PF3S$sim_result_summary)
+#PF3S_output_table <- emissions_fcn(PF3S) 
+
+# PF4S: Present, Fleet, 4, Summer
+
+PF4S <- simulation(simulations = 100, 
+                       sim_method = mthd,
+                       sim_avg_elasticity = avg_elst,
+                       sim_seg = "Fleet",
+                       sim_month = 7, 
+                       sim_year = 2018,
+                       sim_include_wknds = FALSE,
+                       sim_charger_power = pwr,
+                       sim_elasticity_schedule = sch, 
+                       sim_price_change = -0.05, 
+                       sim_intervention_hours = c(12:15),
+                       sim_intervention_chargers = int_ch, 
+                       sim_int_equals_baseline = int_e_b, 
+                       sim_throttle_amount = -0.5, 
+<<<<<<< HEAD
+                       sim_throttle_hours = c(6:11, 17:21), # not sure if this should 5:11 or 6:11 and 16:21 or 17:21
+=======
+                       sim_throttle_hours = c(7:11, 17:21),  ????
+>>>>>>> 9f48ffc7055dd3e2f89831e5d9c0a99bff3c60da
+                       sim_air_pollution_comm = a_p_co,
+                       sim_price_comm = TRUE,
+                       sim_curt_year=c_yr)
+#View(PF4S$sim_result_summary)
+#PF4S_output_table <- emissions_fcn(PF4S) 
+
+# PF5S: Present, Fleet, 5, Summer
+
+PF5S <- simulation(simulations = 100, 
+                       sim_method = mthd,
+                       sim_avg_elasticity = avg_elst,
+                       sim_seg = "Fleet",
+                       sim_month = 7, 
+                       sim_year = 2018,
+                       sim_include_wknds = FALSE,
+                       sim_charger_power = pwr,
+                       sim_elasticity_schedule = sch, 
+                       sim_price_change = -0.05, #shoot. how do we run a rebate and a discount?  
+                       sim_intervention_hours = c(12:15, 18:21),
+                       sim_intervention_chargers = int_ch, 
+                       sim_int_equals_baseline = int_e_b, 
+                       sim_throttle_amount = t_a, 
+                       sim_throttle_hours = t_h,
+                       sim_air_pollution_comm = a_p_co,
+                       sim_price_comm = TRUE,
+                       sim_curt_year=c_yr)
+#View(PF5S$sim_result_summary)
+#PF5S_output_table <- emissions_fcn(PF5S) 
+
+# FF1: Future, Fleet, 1
+
+FF1 <- simulation(simulations = 100, 
+                       sim_method = mthd,
+                       sim_avg_elasticity = avg_elst,
+                       sim_seg = "Fleet",
+                       sim_month = mth, 
+                       sim_year = yr,
+                       sim_include_wknds = wknds,
+                       sim_charger_power = pwr,
+                       sim_elasticity_schedule = sch, 
+                       sim_price_change = 0.1,
+                       sim_intervention_hours = c(17:21),
+                       sim_intervention_chargers = 4378,
+                       sim_int_equals_baseline = FALSE, 
+                       sim_throttle_amount = t_a, 
+                       sim_throttle_hours = t_h,
+                       sim_air_pollution_comm = a_p_co,
+                       sim_price_comm = TRUE,
+                       sim_curt_year=c_yr)
+#View(FF1$sim_result_summary)
+#FF1_output_table <- emissions_fcn(FF1,emissions_year = 2030) 
 
 ```
 
 
 #MUDS
 
-```{r MUDs_scenarios}
+```{r MUDs_scenarios, message=FALSE, warning=FALSE}
 
-PM1 <- simulation(sim_seg = "Multi Unit Dwelling",
-                       sim_month = 7, 
+#PM1 = rebate + price communication
+PM1 <- simulation(simulation = 1000, sim_seg = "Multi Unit Dwelling",
+                       sim_month = 11,
                        sim_year = 2018,
-                       sim_include_wknds = TRUE,
+                       sim_include_wknds = FALSE,
                        sim_price_change = 0.1, 
                        sim_intervention_hours = c(17:21),
                        sim_air_pollution_comm = FALSE,
                        sim_price_comm = TRUE,
-                       sim_curt_year=2018
-                  ) 
+                       sim_curt_year=2018) 
+#View(PM1$sim_result_summary)
+
+#CSV + OUTPUTS
+#write simulation summary results to csv to use for graph!
+write_csv(PM1$sim_result_summary, "Results/MUDs_PM1_Demand_Summary.csv")
+
+#run emissions and write to csv
+PM1_output_table <- emissions_fcn(PM1) 
+#View(PM1_output_table$Emissions_Table)
+#View(PM1_output_table$Emissions)
+write_csv(PM1_output_table$Emissions_Table, "Results/MUDs_PM1_Output_Summary.csv") #write emissions to csv
+write_csv(PM1_output_table$Emissions, "Results/MUDs_PM1_Output_All_Hours.csv")
+
+#to run defaults
+#PM1_output_table <- emissions_fcn(EVDemand = PM1, peak_hours = c(17:21), emissions_year = 2019)
+#things to CSV: summary table from montecarlo (for graphing); sim_result_summary$summary; PM1_output_table (emissions$Emissions_Table); PM1_output_emissions_all (Emissions$Emissions); 
+
+#PM2 = throttling + price comms (can't run throttling with no comms b/c comms is contingent on a price change). so this is a little weird. 
+PM2 <- simulation(simulation =1000, sim_seg = "Multi Unit Dwelling",
+                       sim_month = 11,
+                       sim_year = 2018,
+                       sim_include_wknds = FALSE,
+                       sim_price_change = 0,
+                       sim_intervention_hours = c(17:21), #set so calculates values based on that period
+                       sim_throttle_amount = -0.5, 
+                       sim_throttle_hours = c(17:21),
+                       sim_air_pollution_comm = FALSE,
+                       sim_price_comm = TRUE,
+                       sim_curt_year=2018)
+#View(PM2$sim_result_summary)
+
+#write simulation summary results to csv to use for graph!
+write_csv(PM2$sim_result_summary, "Results/MUDs_PM2_Demand_Summary.csv")
+
+#run emissions and write to csv
+PM2_output_table <- emissions_fcn(PM2) 
+#View(PM2_output_table$Emissions_Table)
+#View(PM2_output_table$Emissions)
+write_csv(PM2_output_table$Emissions_Table, "Results/MUDs_PM2_Output_Summary.csv") #write emissions to csv
+write_csv(PM2_output_table$Emissions, "Results/MUDs_PM2_Output_All_Hours.csv")
+
+
+#PM3 = new tou + rebate + price communication
+PM3 <- simulation (simulation = 1000, sim_seg = "Multi Unit Dwelling",
+                       sim_month = 11,
+                       sim_year = 2018,
+                       sim_include_wknds = FALSE,
+                       sim_price_change = 0.1, 
+                       sim_intervention_hours = c(17:21),
+                       sim_air_pollution_comm = FALSE,
+                       sim_price_comm = TRUE,
+                       sim_curt_year=2018,
+                       sim_new_tou = 2019)
+
+#View(PM3$sim_result_summary)
+#write simulation summary results to csv to use for graph!
+write_csv(PM3$sim_result_summary, "Results/MUDs_PM3_Demand_Summary.csv")
+PM3_demand_summary <- read_csv("Results/MUDs_PM3_Demand_Summary.csv") #read it back in for the graph
+
+#run emissions and write to csv
+PM3_output_table <- emissions_fcn(PM3) 
+#View(PM3_output_table$Emissions_Table)
+#View(PM3_output_table$Emissions)
+write_csv(PM3_output_table$Emissions_Table, "Results/MUDs_PM3_Output_Summary.csv") #write emissions to csv
+write_csv(PM3_output_table$Emissions, "Results/MUDs_PM3_Output_All_Hours.csv")
+
+#PM4 = new tou + all communication
+PM4 <- simulation (simulation = 1000, sim_seg = "Multi Unit Dwelling",
+                       sim_month = 11,
+                       sim_year = 2018,
+                       sim_include_wknds = FALSE,
+                       sim_price_change = 0,
+                       sim_intervention_hours = c(1:24),
+                       sim_air_pollution_comm = TRUE,
+                       sim_price_comm = TRUE,
+                       sim_curt_year=2018,
+                       sim_new_tou = 2019)
+#View(PM4$sim_result_summary)
+#write simulation summary results to csv to use for graph!
+write_csv(PM4$sim_result_summary, "Results/MUDs_PM4_Demand_Summary.csv")
+PM4_demand_summary <- read_csv("Results/MUDs_PM2_Demand_Summary.csv") #read it back in for the graph
+
+#run emissions and write to csv
+PM4_output_table <- emissions_fcn(PM4) 
+#View(PM4_output_table$Emissions_Table)
+#View(PM4_output_table$Emissions)
+write_csv(PM4_output_table$Emissions_Table, "Results/MUDs_PM4_Output_Summary.csv") #write emissions to csv
+write_csv(PM4_output_table$Emissions, "Results/MUDs_PM4_Output_All_Hours.csv")
+
+
+
+#PM 5 = new tou + air pollution communication
+PM5 <- simulation (simulation = 1000, sim_seg = "Multi Unit Dwelling",
+                       sim_month = 11,
+                       sim_year = 2018,
+                       sim_include_wknds = FALSE,
+                       sim_price_change = 0,
+                       sim_intervention_hours = c(1:24),
+                       sim_air_pollution_comm = TRUE,
+                       sim_price_comm = FALSE,
+                       sim_curt_year=2018,
+                       sim_new_tou = 2019)
+#View(PM5$sim_result_summary)
+#write simulation summary results to csv to use for graph!
+write_csv(PM5$sim_result_summary, "Results/MUDs_PM5_Demand_Summary.csv")
+
+#run emissions and write to csv
+PM5_output_table <- emissions_fcn(PM5) 
+#View(PM5_output_table$Emissions_Table)
+#View(PM5_output_table$Emissions)
+write_csv(PM5_output_table$Emissions_Table, "Results/MUDs_PM5_Output_Summary.csv") #write emissions to csv
+write_csv(PM5_output_table$Emissions, "Results/MUDs_PM5_Output_All_Hours.csv")
+
+#add scenario for air pollution + discount? 
+
+#FM1 = 2030 + 2019 tou + rebate
+FM1 <- simulation (simulation = 1000, sim_seg = "Multi Unit Dwelling",
+                       sim_month = 11,
+                       sim_year = 2018,
+                       sim_include_wknds = FALSE,
+                       sim_price_change = 0.1, 
+                       sim_intervention_hours = c(17:21),
+                       sim_intervention_chargers = 1846, 
+                       sim_int_equals_baseline = FALSE, 
+                       sim_air_pollution_comm = TRUE,
+                       sim_price_comm = TRUE,
+                       sim_curt_year=2030,
+                       sim_new_tou = 2019)
+#View(FM1$sim_result_summary)
+
+#write simulation summary results to csv to use for graph!
+write_csv(FM1$sim_result_summary, "Results/MUDs_FM1_Demand_Summary.csv")
+
+#run emissions and write to csv
+FM1_output_table <- emissions_fcn(EVDemand=FM1, emissions_year = 2030) 
+#View(FM1_output_table$Emissions_Table)
+#View(FM1_output_table$Emissions)
+write_csv(FM1_output_table$Emissions_Table, "Results/MUDs_FM1_Output_Summary.csv") #write emissions to csv
+write_csv(FM1_output_table$Emissions, "Results/MUDs_FM1_Output_All_Hours.csv")
 
 ```
+
+```{r MUDs_graphs}
+#PM1
+PM1_demand_summary <- read_csv("Results/MUDs_PM1_Demand_Summary.csv") 
+
+#PM2
+PM2_demand_summary <- read_csv("Results/MUDs_PM2_Demand_Summary.csv") 
+
+#PM3
+PM3_demand_summary <- read_csv("Results/MUDs_PM3_Demand_Summary.csv") 
+
+#PM4
+PM4_demand_summary <- read_csv("Results/MUDs_PM4_Demand_Summary.csv") 
+
+#PM5
+PM5_demand_summary <- read_csv("Results/MUDs_PM5_Demand_Summary.csv") 
+
+#FM1
+FM1_demand_summary <- read_csv("Results/MUDs_FM1_Demand_Summary.csv") 
+
+
+
+```
+
 
 
 
@@ -529,7 +857,7 @@ WP_C_D_T_TOU_SUmmer_4 <- hourly_demand(segment = "Workplace",
                                        price_change = -0.05,
                                        intervention_hours = c(12:15),
                                        throttle_amount = -0.5, 
-                                       throttle_hours = c(6:11),
+                                       throttle_hours = c(7:11),
                                        intervention_comm_effect = 0.2)
 
 
@@ -627,7 +955,7 @@ DC_D_T_NC <- hourly_demand(segment = "Destination Center",
                            month = "June_18", 
                            intervention_hours = c(12:15),
                            price_change = -0.05, 
-                           throttle_amount = -0.5, throttle_hours = c(6:11))
+                           throttle_amount = -0.5, throttle_hours = c(7:11))
 
 
 #GRAPH
@@ -720,7 +1048,7 @@ WP_D_T <- hourly_demand(segment = "Workplace",
                         intervention_hours = c(12:15),
                         price_change = -0.05,
                         throttle_amount = -0.5,
-                        throttle_hours = c(6:11))
+                        throttle_hours = c(7:11))
 
 
 #GRAPH
@@ -827,7 +1155,7 @@ no_cross_discount <- hourly_demand(seg = "Workplace",
                                        price_change = -0.05,
                                        intervention_hours = c(12:15),
                                        throttle_amount = 0, 
-                                       throttle_hours = c(6:11))
+                                       throttle_hours = c(7:11))
 write_csv(no_cross_discount$EV_Demand, "WP_Discount_No_Cross_Nov_18.csv")
 
 graph_table8 <- no_cross_results[c("Hr","X0","Xf")] %>% 
@@ -2278,7 +2606,7 @@ freq_graph
 ```{r figures}
 
 #need to stack both demand curves in one data frame for a legend
-EV_Demand_run1 <- hourly_demand(segment = "Workplace", month = "June_18",intervention_comm_effect = 1, throttle_amount = 0,throttle_hours = c(6:11), price_change = -0.05, intervention_hours = c(12:15))
+EV_Demand_run1 <- hourly_demand(segment = "Workplace", month = "June_18",intervention_comm_effect = 1, throttle_amount = 0,throttle_hours = c(7:11), price_change = -0.05, intervention_hours = c(12:15))
 
 graph_table <- EV_Demand_run1$EV_Demand[c("Hr","X0","Xf")] %>% 
   gather(condition,value,X0:Xf) %>% 

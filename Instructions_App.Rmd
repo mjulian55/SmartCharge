@@ -5,40 +5,62 @@ date: "3/6/2019"
 output: html_document
 ---
 
-# How do I use this application?
+## How do I use this application?
 
 That's a great question!  Follow this flow chart to understand how the wdigets work, what some of the inputs are, and how you can change them in order to create some outputs.
 
-### First, choose *how many chargers* you want to use in your simulation
+#### First, choose **how many chargers** you want to use in your simulation
+
+The amount of chargers will affect the amount of charging demand that you're trying to simulate.  You might want to see how much charging demand your place of employment might have with something low like 20 chargers.  Or you might want to simulate an entire metropolitan area with a value closer to 1,500 chargers.  Type in the number you want in to the top box labeled "Number of Chargers" or use the up/down arrows to increase/decrease.
+
+
+#### Next, choose your **Market Segment**
+
+A market segment refers to a non-residential place of electric vehicle charging.  The four market segments we evaluated for our project were:
+
+- Workplaces (places of employment)
+- Destination Centers (such as shopping malls, hotels or other public, commercial spaces)
+- Fleets (groups of electric vehicles operated by a business, government, or any other organization)
+- Multi-Unit Dwellings (dwellings that are not considered private, single-family or low density homes such as condominiums or apartment buildings)
+
+Choose your market segment by selecting 1 of the 4 from the drop down menu labeled "Market Segment"
 
 
 
-### Next, choose your *Market Segment*
+#### Choose the **date** that you want to represnt
+
+The baseline data (the original demand line that's displayed) is based on data that we have integrated into our model.  Select the date (month and year) you would want to set your baseline at.  If nothing is selected it will default to November of 2018, the final month of data we received for this project.
+
+
+#### Do you want to offer a discount?
+
+##### If **yes**, *choose the amount* on the slider bar
+##### If **yes**, you should also specify the **amount of time** you want the discount to be applied
+
+##### If **no**, then leave the slider at zero.
 
 
 
-### Choose the *date* that you want to represnt
+#### Do you want to offer a rebate?
+
+##### If **yes**, **choose the amount** on the slider bar
+##### If **yes**, you should also specify the **amount of time** you want the discount to be applied.
 
 
 
-### Do you want to offer a discount?
-
-#### If *yes*, *choose the amount* on the slider bar
-#### If *yes*, you should also specify the *amount of time* you want the discount to be applied
-
-#### If *no*, then leave the slider at zero.
-
-### Do you want to offer a rebate?
-
-#### If *yes*, *choose the amount* on the slider bar
-#### If *yes*, you should also specify the *amount of time* you want the discount to be applied.
-
-### Do you want to apply *throttling* to the electric vehicle chargers?
+#### Do you want to apply **throttling** to the electric vehicle chargers?
 
 Throttling is....
 
 
 
+
+
+
+
+This application was developed using the Shiny package in R Studio, an open-source software program.
+
+<img src="RStudio_Shiny.png" width="150">
 
 
 
