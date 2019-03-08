@@ -480,7 +480,7 @@ PW6S <- simulation( sim_seg = "Workplace",
 
 #DESTINATION CENTERS
 
-```{r destination_center_scenarios}
+```{r destination_center_scenarios, message=FALSE, warning=FALSE}
 
 #PDC1S:  discount -0.05 (default) 12-15+ price comms only + morning throttling
 PDC1S <- simulation(simulation = 1000, sim_seg = "Destination Center",sim_throttle_amount = -0.5, sim_month = 7)
@@ -844,6 +844,44 @@ FM1_demand_summary <- read_csv("Results/MUDs_FM1_Demand_Summary.csv")
 ```
 
 
+
+
+## Report Elasticity + Methods Graphs (for examples)
+```{r example_graphs, message=FALSE, warning=FALSE}
+
+#one fully splined elasticity -- want this as a line graph
+Method1_test <- hourly_demand(method = 1, include_wknds = FALSE, price_comm = FALSE, elasticity_schedule = 7) #selecting winter weekday ev medium as example elasticity set
+
+spline_example <- Method1_test$matrix[12] #turn this into a line graph. 
+
+
+
+#one 24 x 24 hour matrix from one set of SDGE elasticities with cross (I need to know which set) -- want this heat mapped
+heat_map_matrix<-Method1_test$matrix #turn this into a heat map
+
+
+
+#One run of each method for the same scenario (Default for all: Workplace, November, 2018, no weekends, 5 cent discount 12:15, baseline # chargers, no throttling, no air pollution communication, no price communication, 2018 tou) -- want a graphed output of baseline versus intervention for each 
+#Method1 -- run above
+Method1_test_for_graph <- Method1_test$EV_Demand
+
+#Method 2
+Method2_test <- hourly_demand(method = 2, include_wknds = FALSE, price_comm = FALSE, elasticity_schedule = 7)
+Method2_test_for_graph <- Method2_test$EV_Demand
+
+#Method 3
+Method3_test <- hourly_demand(method = 3, include_wknds = FALSE, price_comm = FALSE, elasticity_schedule = 7)
+Method3_test_for_graph <- Method3_test$EV_Demand
+
+#Method 4 (default run - average elasticity = -0.4)
+Method4_test <- hourly_demand(method = 4, include_wknds = FALSE, price_comm = FALSE, elasticity_schedule = 7)
+Method4_test_for_graph <- Method4_test$EV_Demand
+
+
+#One run of the simulation for the same scenario above -- want a graphed output (same as what the result simulation graph looks like for all of them)
+Sim_test_report <- simulation(simulations = 1000, sim_include_wknds = FALSE, sim_price_comm = FALSE)
+
+```
 
 
 
