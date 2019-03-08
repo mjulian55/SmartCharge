@@ -1009,7 +1009,7 @@ write_csv(PF5S_output_table$Emissions, "Results/Fleets_PF5S_Output_All_Hours.csv
 
 
 # FF1: Future, Fleet, 1 (rebate)
-# $0.05 Rebate (17:00 – 21:00); 4,378 Chargers;
+# $0.10 Rebate (17:00 – 21:00); 4,378 Chargers; New 2019 TOU Rate;
 FF1 <- simulation(simulations = 1000, 
                        sim_method = mthd,
                        sim_avg_elasticity = avg_elst,
@@ -1068,13 +1068,41 @@ Demand_GraphPF1 <- ggplot(data = graph_tablePF1, aes(x = Hr)) +
   theme(legend.position="bottom") +
   scale_fill_manual('Interventions',values = c('green','yellow'),  guide = guide_legend(override.aes = list(alpha = 0.15)))
   
-
 #Demand_GraphPF1
 ggsave("Results Graphs/Fleets_PF1_Demand_Summary.pdf", Demand_GraphPF1, device = "pdf", width = 8, height = 4.5)
 
 
+# PF2: Present, Fleet, 2 (rebate, price comm, new 2019 TOU rate, 83 chargers)
+PF2_demand_summary <- read_csv("Results/Fleets_PF2_Demand_Summary.csv") 
 
-# PF3S: Present, Fleet, 3(discount, price comm)
+graph_tablePF2 <- PF2_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
+  gather(condition,value,c("X0_mean","Xf_mean")) 
+#%>% mutate(Theoretical_Max=PW1S_demand_summary$MT[1])
+
+Demand_GraphPF2 <- ggplot(data = graph_tablePF2, aes(x = Hr)) +
+  geom_line(aes(y = value, color=condition)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+  panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+  labs(title="Fleets (PF2) (rebate, price comm, new 2019 TOU rate) Hourly Demand Forecast",
+  subtitle="Baseline November 2018 (83 Chargers) \n Model Simulation",
+  y="EV Charging Demand (kW)",
+  x="Hour",
+  color=NULL) +
+ # geom_rect(aes(xmin=6,xmax=11,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
+  geom_rect(aes(xmin=16,xmax=21,ymin=-Inf,ymax=Inf, fill = "Rebate"),alpha=0.0075) +
+  scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
+  scale_color_manual(labels=c("Baseline Demand","Intervention Demand"), values = c("purple", "blue")) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(plot.subtitle = element_text(hjust = 0.5))+
+  theme(legend.position="bottom") +
+  scale_fill_manual('Interventions',values = c('green','yellow'),  guide = guide_legend(override.aes = list(alpha = 0.15)))
+  
+#Demand_GraphPF2
+ggsave("Results Graphs/Fleets_PF2_Demand_Summary.pdf", Demand_GraphPF2, device = "pdf", width = 8, height = 4.5)
+
+
+
+# PF3S: Present, Fleet, 3(discount, 100% price comm)
 PF3S_demand_summary <- read_csv("Results/Fleets_PF3S_Demand_Summary.csv") 
 
 graph_tablePF3S <- PF3S_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
@@ -1099,9 +1127,71 @@ Demand_GraphPF3S <- ggplot(data = graph_tablePF3S, aes(x = Hr)) +
   theme(legend.position="bottom") +
   scale_fill_manual('Interventions',values = c('green','yellow'),  guide = guide_legend(override.aes = list(alpha = 0.15)))
   
-
 #Demand_GraphPF3S
 ggsave("Results Graphs/Fleets_PF3S_Demand_Summary.pdf", Demand_GraphPF3S, device = "pdf", width = 8, height = 4.5)
+
+# PF4S: Present, Fleet, 4, Summer
+# $0.05 Discount (12:00 – 15:00); 100% Price Communication; 50% Throttling (07:00-11:00 and 17:00-21:00)
+
+PF4S_demand_summary <- read_csv("Results/Fleets_PF4S_Demand_Summary.csv") 
+
+graph_tablePF4S <- PF4S_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
+  gather(condition,value,c("X0_mean","Xf_mean")) 
+#%>% mutate(Theoretical_Max=PW1S_demand_summary$MT[1])
+
+Demand_GraphPF4S <- ggplot(data = graph_tablePF4S, aes(x = Hr)) +
+  geom_line(aes(y = value, color=condition)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+  panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+  labs(title="Fleets (PF4S) (discount (11:00-15:00), price comm, throttling(06:00 – 11:00 and 18:00-21:00)) Hourly Demand Forecast",
+  subtitle="Baseline July 2018 (83 Chargers) \n Model Simulation",
+  y="EV Charging Demand (kW)",
+  x="Hour",
+  color=NULL) +
+  geom_rect(aes(xmin=6,xmax=11,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
+  geom_rect(aes(xmin=11,xmax=15,ymin=-Inf,ymax=Inf, fill = "Discount"),alpha=0.0075) +
+  geom_rect(aes(xmin=18,xmax=21,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
+  scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
+  scale_color_manual(labels=c("Baseline Demand","Intervention Demand"), values = c("purple", "blue")) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(plot.subtitle = element_text(hjust = 0.5))+
+  theme(legend.position="bottom") +
+  scale_fill_manual('Interventions',values = c('green','yellow'),  guide = guide_legend(override.aes = list(alpha = 0.15)))
+
+#Demand_GraphPF4S
+ggsave("Results Graphs/Fleets_PF4S_Demand_Summary.pdf", Demand_GraphPF4S, device = "pdf", width = 8, height = 4.5)
+
+
+# PF5S: Present, Fleet, 5, Summer
+# $0.05 Discount (12:00 – 15:00); $0.10 Rebate (17:00 – 21:00); 2019 New Summer TOU rate; 100% Price Communication
+
+PF5S_demand_summary <- read_csv("Results/Fleets_PF5S_Demand_Summary.csv") 
+
+graph_tablePF5S <- PF5S_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
+  gather(condition,value,c("X0_mean","Xf_mean")) 
+#%>% mutate(Theoretical_Max=PW1S_demand_summary$MT[1])
+
+Demand_GraphPF5S <- ggplot(data = graph_tablePF5S, aes(x = Hr)) +
+  geom_line(aes(y = value, color=condition)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+  panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+  labs(title="Fleets (PF5S) (discount (11:00-15:00), price comm, rebate (17:00-21:00), 2019 TOU Rate) Hourly Demand Forecast",
+  subtitle="Baseline July 2018 (83 Chargers) \n Model Simulation",
+  y="EV Charging Demand (kW)",
+  x="Hour",
+  color=NULL) +
+  # geom_rect(aes(xmin=6,xmax=11,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
+  geom_rect(aes(xmin=11,xmax=15,ymin=-Inf,ymax=Inf, fill = "Discount"),alpha=0.0075) +
+  geom_rect(aes(xmin=16,xmax=21,ymin=-Inf,ymax=Inf, fill = "Rebate"),alpha=0.0075) +
+  scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
+  scale_color_manual(labels=c("Baseline Demand","Intervention Demand"), values = c("purple", "blue")) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(plot.subtitle = element_text(hjust = 0.5))+
+  theme(legend.position="bottom") +
+  scale_fill_manual('Interventions',values = c('green','yellow'),  guide = guide_legend(override.aes = list(alpha = 0.15)))
+
+#Demand_GraphPF5S
+ggsave("Results Graphs/Fleets_PF5S_Demand_Summary.pdf", Demand_GraphPF5S, device = "pdf", width = 8, height = 4.5)
 
 
 # FF1: Future, 2019 tou, rebate, price comm
