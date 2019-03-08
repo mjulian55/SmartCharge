@@ -1000,12 +1000,16 @@ PF5S <- simulation(simulations = 1000,
                        sim_curt_year=c_yr,
                        sim_new_tou = 2019)
 
-#View(PF5S$sim_result_summary)
-#PF5S_output_table <- emissions_fcn(PF5S) 
+write_csv(PF5S$sim_result_summary, "Results/Fleets_PF5S_Demand_Summary.csv")
+
+#run emissions and write to csv
+PF5S_output_table <- emissions_fcn(PF5S) 
+write_csv(PF5S_output_table$Emissions_Table, "Results/Fleets_PF5S_Output_Summary.csv") #write emissions to csv
+write_csv(PF5S_output_table$Emissions, "Results/Fleets_PF5S_Output_All_Hours.csv")
 
 
 # FF1: Future, Fleet, 1 (rebate)
-#need to add in the new tou. 
+# $0.05 Rebate (17:00 – 21:00); 4,378 Chargers;
 FF1 <- simulation(simulations = 1000, 
                        sim_method = mthd,
                        sim_avg_elasticity = avg_elst,
@@ -1023,7 +1027,8 @@ FF1 <- simulation(simulations = 1000,
                        sim_throttle_hours = t_h,
                        sim_air_pollution_comm = a_p_co,
                        sim_price_comm = TRUE,
-                       sim_curt_year=c_yr)
+                       sim_curt_year=c_yr,
+                       sim_new_tou = 2019)
 
 write_csv(FF1$sim_result_summary, "Results/Fleets_FF1_Demand_Summary.csv")
 
