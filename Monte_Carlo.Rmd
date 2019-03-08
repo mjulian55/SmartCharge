@@ -382,14 +382,14 @@ PW1S <- simulation(simulations = 1000, sim_seg = "Workplace",
                        sim_curt_year=2018)
 #View(PW1S$sim_result_summary)
 #PW1S_output_table <- emissions_fcn(PW1S) 
-write_csv(PW1S$sim_result_summary, "Results/Workplaces_PW1S_Demand_Summary.csv")
+write_csv(PW1S$sim_result_summary, "Results/Workplace_PW1S_Demand_Summary.csv")
 
 #run emissions and write to csv
 PW1S_output_table <- emissions_fcn(PW1S) 
 #View(PM1_output_table$Emissions_Table)
 #View(PM1_output_table$Emissions)
-write_csv(PW1S_output_table$Emissions_Table, "Results/Workplaces_PW1S_Output_Summary.csv") #write emissions to csv
-write_csv(PW1S_output_table$Emissions, "Results/Workplaces_PW1S_Output_All_Hours.csv")
+write_csv(PW1S_output_table$Emissions_Table, "Results/Workplace_PW1S_Output_Summary.csv") #write emissions to csv
+write_csv(PW1S_output_table$Emissions, "Results/Workplace_PW1S_Output_All_Hours.csv")
 
 
 
@@ -466,7 +466,7 @@ PW6S <- simulation( sim_seg = "Workplace",
 ```{r workplace_graphs, message=FALSE}
 
 #PW1S Graph (discount + price comm + morning throttling)
-PW1S_demand_summary <- read_csv("Results/Workplaces_PW1S_Demand_Summary.csv") 
+PW1S_demand_summary <- read_csv("Results/Workplace_PW1S_Demand_Summary.csv") 
 
 graph_tablePW1S <- PW1S_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
   gather(condition,value,c("X0_mean","Xf_mean")) 
@@ -492,6 +492,7 @@ Demand_GraphPW1S <- ggplot(data = graph_tablePW1S, aes(x = Hr)) +
   
 
 Demand_GraphPW1S
+ggsave("Results Graphs/Workplace_PW1S_Demand_Summary.pdf", Demand_GraphPW1S, device = "pdf", width = 8, height = 4.5)
 
 ```
 
