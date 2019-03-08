@@ -283,7 +283,9 @@ wknds <- TRUE #include weekends in the baseline data and in the elasticity optio
 pwr <- 6.6 #charger power
 sch <- closest_elasticities #elasticities to use for price intervention (column in the elasticities dataframe) -  Non PV Summer Weekday EPEV L. The default now picks from the ratio
 p_c <- -0.05 #price change
+p_c_2 <- 0
 i_h <- c(12:15) #intervention hours
+i_h_2 <- c(17:21)
 int_ch <- filter(Chargers, Market_Segment == sg) %>% 
   select(mth) %>% 
   as.numeric() # number of chargers. default is to MARCH 2018
@@ -306,7 +308,9 @@ hourly_demand <- function(method = mthd,
                           charger_power = pwr,
                           elasticity_schedule = sch,
                           price_change = p_c,
+                          price_change_2 = p_c_2,
                           intervention_hours = i_h, 
+                          intervention_hours_2 = i_h_2,
                           intervention_chargers = int_ch,#if intervention_chargers is ever changed, have to also set int_equals_baseline = FALSE
                           int_equals_baseline = int_e_b, 
                           throttle_amount = t_a,
@@ -388,7 +392,8 @@ Xi <- Xi_choose_weekends %>%
   #Create a new table (EV_Demand) that lists initial price schedule, month, scaled by # of chargers
   EV_Demand <- mutate(price_schedule, I01 = 0 ,Xi = Xi, X0 = Xi/baseline_chargers*intervention_chargers) #I01 refers to the hours where there is an intervention. 
   
-  EV_Demand$I01[intervention_hours] <-1
+ # EV_Demand$I01[intervention_hours] <-1
+  
   
   
   #MAX_THEORETICAL#### 
@@ -543,6 +548,8 @@ Xi <- Xi_choose_weekends %>%
   
   EV_Demand$P1[intervention_hours] <-EV_Demand$P1[intervention_hours] + price_change #updates intervention column to implement intervention
   
+  EV_Demand$P1[intervention_hours_2] <- EV_Demand$P1[intervention_hours_2] + price_change_2 #updates intervention price column with option for a second price change. Default price change 2 is 0
+  
   #Comms calculation (because air pollution impact is 8.2%, price is 3.5%)
   if (price_comm == TRUE & air_pollution_comm == TRUE) {
     intervention_comm_effect <- 1.082
@@ -561,6 +568,11 @@ Xi <- Xi_choose_weekends %>%
   EV_Demand <- EV_Demand %>% 
     mutate(P1p = (P1-P0)/P0) %>% 
     mutate(P1pC = P1p*intervention_comm_effect)
+  
+  #Update I01 column for intervention hours (if P1p isn't zero, there was a price intervention in those hours)
+  
+  EV_Demand <- EV_Demand %>% 
+    mutate(I01 = ifelse(P1p != 0 , 1, 0))
   
   #Find percent change in demand as a result of price (due to self and cross elasticities)
   X1p <- as.vector(0)
