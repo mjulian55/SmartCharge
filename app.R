@@ -111,16 +111,68 @@ server <- function(input, output) {
     year <- year(as.Date(input$date, "%Y/%m/%d"))
     shiny_seg <- as.character(input$seg)
     
-    intervention_hrs <- seq(input$discount_period[1],input$discount_period[2],1)
-    intervention_hrs_2 <- seq(input$rebate_period[1],input$rebate_period[2],1)
+    
+    
+    #If only discount is selected
+    if(input$price_intervention == "Discount") {
+      price_change_conditional <- -input$discount/100
+      
+      intervention_hrs_conditional <- seq(input$discount_period[1],input$discount_period[2],1)
+      
+      price_change_2_conditional <- 0
+      
+      intervention_hrs_conditional_2 <- seq(input$rebate_period[1],input$rebate_period[2],1)
+      
+      
+    } 
+    
+    #If only a rebate is selected
+    
+    else if (input$price_intervention == "Rebate") {
+      price_change_conditional <- input$rebate/100
+      
+      intervention_hrs_conditional <- seq(input$rebate_period[1],input$rebate_period[2],1)
+      
+      price_change_2_conditional <- 0
+      
+      intervention_hrs_conditional_2 <- seq(input$discount_period[1],input$discount_period[2],1)
+      
+    } 
+    
+    #If both rebate and discount are selected
+    
+    else if (input$price_intervention == c("Discount","Rebate")) {
+      price_change_conditional <- -input$discount/100
+      
+      intervention_hrs_conditional <- seq(input$discount_period[1],input$discount_period[2],1)
+      
+      price_change_2_conditional <- input$rebate/100
+      
+      intervention_hrs_conditional_2 <- seq(input$rebate_period[1],input$rebate_period[2],1)
+      
+    } 
+    
+    #If neither are selected
+    
+    else {
+      price_change_conditional <- 0
+      
+      intervention_hrs_conditional <- seq(input$discount_period[1],input$discount_period[2],1)
+      
+      price_change_2_conditional <- 0
+      
+      intervention_hrs_conditional_2 <- seq(input$rebate_period[1],input$rebate_period[2],1)
+    }
+    
+  
     throttling_period <- seq(input$throttle_period[1],input$throttle_period[2],1)
     
     
     # generate graph and change the things that are reactive from the sliders
-    app_model_run <- hourly_demand(price_change = -input$discount/100,
-                                   intervention_hours = intervention_hrs,
-                                   price_change_2 = input$rebate/100,
-                                   intervention_hours_2 = intervention_hrs_2,
+    app_model_run <- hourly_demand(price_change = price_change_conditional,
+                                   intervention_hours = intervention_hrs_conditional,
+                                   price_change_2 = price_change_2_conditional,
+                                   intervention_hours_2 = intervention_hrs_conditional_2,
                                    int_equals_baseline = FALSE,
                                    intervention_chargers = input$intervention_chargers,
                                    month = month, year = year, 
