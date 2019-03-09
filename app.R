@@ -53,21 +53,22 @@ theme = shinytheme("sandstone"),
                                                "August 2018" = "2018/08/01",
                                                "September 2018" = "2018/09/01",
                                                "October 2018" = "2018/10/01",
-                                               "November 2018" = "2018/11/01")),
+                                               "November 2018" = "2018/11/01"),
+                                             selected = "2018/11/01",),
                                  
-                                 sliderInput("slider1", label = h4("Discount Price (in cents)"), 
-                                             min = 0, max = 40, value = 5),
+                                 sliderInput("discount", label = h4("Discount Price (in cents)"), 
+                                             min = 0, max = 20, value = 5),
                                  
                                  # Discount period widget
-                                 sliderInput("slider2", label = h4("Discount Period"), 
+                                 sliderInput("discount_period", label = h4("Discount Period"), 
                                              min = 0, max = 24, value = c(11, 15)),
                                  
                                  # Rebate price selection widget
-                                 sliderInput("slider1", label = h4("Rebate Price (in cents)"), 
+                                 sliderInput("rebate", label = h4("Rebate Price (in cents)"), 
                                              min = 0, max = 40, value = 10),
                                  
                                  # Discount period widget
-                                 sliderInput("slider2", label = h4("Rebate Period"),
+                                 sliderInput("rebate_period", label = h4("Rebate Period"),
                                              min = 0, max = 24, value = c(18, 21)),
                                  
                                  # Throttling percent widget
@@ -104,10 +105,16 @@ server <- function(input, output) {
     month <- month(as.Date(input$date, "%Y/%m/%d"))
     year <- year(as.Date(input$date, "%Y/%m/%d"))
     shiny_seg <- as.character(input$seg)
+    intervention_hrs <- c(input$discount_period[1],input$discount_period[2])
     
     
     # generate graph and change the things that are reactive from the sliders
-    app_model_run <- hourly_demand(int_equals_baseline = FALSE, intervention_chargers = input$intervention_chargers, month = month, year = year, seg = shiny_seg)
+    app_model_run <- hourly_demand(price_change = -input$discount/100,
+                                   intervention_hours = intervention_hrs,
+                                   int_equals_baseline = FALSE,
+                                   intervention_chargers = input$intervention_chargers,
+                                   month = month, year = year, 
+                                   seg = shiny_seg)
     
     
     
