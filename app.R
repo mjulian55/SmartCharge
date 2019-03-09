@@ -54,24 +54,25 @@ theme = shinytheme("sandstone"),
                                                "September 2018" = "2018/09/01",
                                                "October 2018" = "2018/10/01",
                                                "November 2018" = "2018/11/01"),
-                                             selected = "2018/11/01",),
+                                             selected = "2018/11/01"),
                                  
-                                 sliderInput("discount", label = h4("Discount Price (in cents)"), 
-                                             min = 0, max = 20, value = 5),
+                                 checkboxGroupInput("price_intervention", h4("Choose a Price Intevention"),
+                                                    choices = c("Discount", "Rebate"),
+                                                    selected = NULL),
+                                 conditionalPanel(condition = "input.price_intervention.includes('Discount')",
+                                                  sliderInput("discount", label = h4("Discount Price (in cents)"),
+                                                              min = 0, max = 20, value = 5),
+                                                  
+                                                  sliderInput("discount_period", label = h4("Discount Period"), 
+                                                              min = 0, max = 24, value = c(12, 15))),
                                  
-                                 # Discount period widget
-                                 sliderInput("discount_period", label = h4("Discount Period"), 
-                                             min = 0, max = 24, value = c(12, 15)),
-                                 
-                                 # Rebate price selection widget
-                                 sliderInput("rebate", label = h4("Rebate Price (in cents)"), 
-                                             min = 0, max = 20, value = 0),
-                                 
-                                 # Discount period widget
-                                 sliderInput("rebate_period", label = h4("Rebate Period"),
-                                             min = 0, max = 24, value = c(17, 21)),
-                                 
-                                 # Throttling percent widget
+                                 conditionalPanel(condition = "input.price_intervention.includes('Rebate')",
+                                                  sliderInput("rebate", label = h4("Rebate Price (in cents)"), 
+                                                              min = 0, max = 20, value = 0),
+                                                  
+                                                  sliderInput("rebate_period", label = h4("Rebate Period"),
+                                                              min = 0, max = 24, value = c(17, 21))),
+                                                  
                                  sliderInput("throttling", label = h4("Throttling"), min = 0, max = 1, value = 0.0),
                                  #Throttling hours
                                  sliderInput("throttle_period", label = h4("Throttling Period"),
@@ -109,6 +110,7 @@ server <- function(input, output) {
     month <- month(as.Date(input$date, "%Y/%m/%d"))
     year <- year(as.Date(input$date, "%Y/%m/%d"))
     shiny_seg <- as.character(input$seg)
+    
     intervention_hrs <- seq(input$discount_period[1],input$discount_period[2],1)
     intervention_hrs_2 <- seq(input$rebate_period[1],input$rebate_period[2],1)
     throttling_period <- seq(input$throttle_period[1],input$throttle_period[2],1)
