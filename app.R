@@ -113,48 +113,7 @@ server <- function(input, output) {
     
     
     
-    #If only discount is selected
-    if(input$price_intervention == "Discount") {
-      price_change_conditional <- -input$discount/100
-      
-      intervention_hrs_conditional <- seq(input$discount_period[1],input$discount_period[2],1)
-      
-      price_change_2_conditional <- 0
-      
-      intervention_hrs_conditional_2 <- seq(input$rebate_period[1],input$rebate_period[2],1)
-      
-      
-    } 
-    
-    #If only a rebate is selected
-    
-    else if (input$price_intervention == "Rebate") {
-      price_change_conditional <- input$rebate/100
-      
-      intervention_hrs_conditional <- seq(input$rebate_period[1],input$rebate_period[2],1)
-      
-      price_change_2_conditional <- 0
-      
-      intervention_hrs_conditional_2 <- seq(input$discount_period[1],input$discount_period[2],1)
-      
-    } 
-    
-    #If both rebate and discount are selected
-    
-    else if (input$price_intervention == c("Discount","Rebate")) {
-      price_change_conditional <- -input$discount/100
-      
-      intervention_hrs_conditional <- seq(input$discount_period[1],input$discount_period[2],1)
-      
-      price_change_2_conditional <- input$rebate/100
-      
-      intervention_hrs_conditional_2 <- seq(input$rebate_period[1],input$rebate_period[2],1)
-      
-    } 
-    
-    #If neither are selected
-    
-    else {
+    if(is.null(input$price_intervention)){
       price_change_conditional <- 0
       
       intervention_hrs_conditional <- seq(input$discount_period[1],input$discount_period[2],1)
@@ -162,8 +121,42 @@ server <- function(input, output) {
       price_change_2_conditional <- 0
       
       intervention_hrs_conditional_2 <- seq(input$rebate_period[1],input$rebate_period[2],1)
+    } else if(input$price_intervention == c("Discount","Rebate")) {
+      price_change_conditional <- -input$discount/100
+      
+      intervention_hrs_conditional <- seq(input$discount_period[1],input$discount_period[2],1)
+      
+      price_change_2_conditional <- input$rebate/100
+      
+      intervention_hrs_conditional_2 <- seq(input$rebate_period[1],input$rebate_period[2],1)
+    } else if(input$price_intervention == "Discount") {
+      price_change_conditional <- -input$discount/100
+      
+      intervention_hrs_conditional <- seq(input$discount_period[1],input$discount_period[2],1)
+      
+      price_change_2_conditional <- 0
+      
+      intervention_hrs_conditional_2 <- seq(input$rebate_period[1],input$rebate_period[2],1)
+      
+    } else if (input$price_intervention == "Rebate") {
+      price_change_conditional <- input$rebate/100
+      
+      intervention_hrs_conditional <- seq(input$rebate_period[1],input$rebate_period[2],1)
+      
+      price_change_2_conditional <- 0
+      
+      intervention_hrs_conditional_2 <- seq(input$discount_period[1],input$discount_period[2],1)
+    } else {
+      price_change_conditional <- -input$discount/100
+      
+      intervention_hrs_conditional <- seq(input$discount_period[1],input$discount_period[2],1)
+      
+      price_change_2_conditional <- input$rebate/100
+      
+      intervention_hrs_conditional_2 <- seq(input$rebate_period[1],input$rebate_period[2],1)
     }
     
+   
   
     throttling_period <- seq(input$throttle_period[1],input$throttle_period[2],1)
     
