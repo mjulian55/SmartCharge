@@ -61,18 +61,22 @@ theme = shinytheme("sandstone"),
                                  
                                  # Discount period widget
                                  sliderInput("discount_period", label = h4("Discount Period"), 
-                                             min = 0, max = 24, value = c(11, 15)),
+                                             min = 0, max = 24, value = c(12, 15)),
                                  
                                  # Rebate price selection widget
                                  sliderInput("rebate", label = h4("Rebate Price (in cents)"), 
-                                             min = 0, max = 40, value = 10),
+                                             min = 0, max = 20, value = 0),
                                  
                                  # Discount period widget
                                  sliderInput("rebate_period", label = h4("Rebate Period"),
-                                             min = 0, max = 24, value = c(18, 21)),
+                                             min = 0, max = 24, value = c(17, 21)),
                                  
                                  # Throttling percent widget
-                                 numericInput("num", label = h4("Throttling"), min = 0, max = 1, value = 0.0),
+                                 sliderInput("throttling", label = h4("Throttling"), min = 0, max = 1, value = 0.0),
+                                 #Throttling hours
+                                 sliderInput("throttle_period", label = h4("Throttling Period"),
+                                             min = 0, max = 24, value = c(6, 11)),
+                                 
                                  # Action Button (Simulate Demand)
                                  actionButton("action", label = "Charge")
                                  
@@ -105,21 +109,28 @@ server <- function(input, output) {
     month <- month(as.Date(input$date, "%Y/%m/%d"))
     year <- year(as.Date(input$date, "%Y/%m/%d"))
     shiny_seg <- as.character(input$seg)
-    intervention_hrs <- c(input$discount_period[1],input$discount_period[2])
+    intervention_hrs <- seq(input$discount_period[1],input$discount_period[2],1)
+    intervention_hrs_2 <- seq(input$rebate_period[1],input$rebate_period[2],1)
+    throttling_period <- seq(input$throttle_period[1],input$throttle_period[2],1)
     
     
     # generate graph and change the things that are reactive from the sliders
     app_model_run <- hourly_demand(price_change = -input$discount/100,
                                    intervention_hours = intervention_hrs,
+                                   price_change_2 = input$rebate/100,
+                                   intervention_hours_2 = intervention_hrs_2,
                                    int_equals_baseline = FALSE,
                                    intervention_chargers = input$intervention_chargers,
                                    month = month, year = year, 
-                                   seg = shiny_seg)
+                                   seg = shiny_seg,
+                                   throttle_amount = -input$throttling,
+                                   throttle_hours = throttling_period)
     
     
     
     ggplot(app_model_run$EV_Demand) +
-      geom_line(aes(x = Hr, y = Xf)) + 
+      geom_line(aes(x = Hr, y = Xf), color = "seagreen") + 
+      geom_line(aes(x = Hr, y = X0), color = "lightsalmon3") +
       theme_classic()
  
     })
