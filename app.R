@@ -88,7 +88,7 @@ theme = shinytheme("united"),
                             mainPanel(
                               withSpinner(plotOutput("Demand_Graph"), type = 6),
                               
-                              tableOutput("Emissions_Table")
+                              withSpinner(tableOutput("Emissions_Table"), type = 6)
                               
     )
   )
@@ -111,6 +111,7 @@ theme = shinytheme("united"),
 server <- function(input, output) {
   source("simulation_function.R")
   source("emissions_function.R")
+  
   
   output$Demand_Graph <- renderPlot({
     
@@ -192,6 +193,12 @@ server <- function(input, output) {
     
     
     
+    output$Emissions_Table <- renderTable({
+      app_emissions_run <- emissions_fcn(app_model_run)
+      app_emissions_table <- app_emissions_run$Emissions_Table
+      app_emissions_table
+    })
+    
     ggplot(app_model_run$sim_result_summary) +
       geom_line(aes(x = Hr, y = Xf_mean,color = "Intervention Demand"), 
                 size = 2.5, 
@@ -243,14 +250,13 @@ server <- function(input, output) {
       #scale_fill_manual('Interventions', values = c("Disount" = 'cadetblue3',"Rebate" = 'thistle3', "Throttle" = 'darksalmon'),  guide = guide_legend(override.aes = list(alpha = 0.5))) +
       theme(legend.position = "bottom") +
       theme_classic()
+    
+    
  
     })
 
-  output$Emissions_Table <- renderTable({
-    
-    "Emissions_Table"
-    
-  })
+
+
   
 }
 
