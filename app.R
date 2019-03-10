@@ -86,7 +86,10 @@ theme = shinytheme("united"),
                                  
                                  ),
                             mainPanel(
-                              withSpinner(plotOutput("Demand_Graph"), type = 6)
+                              withSpinner(plotOutput("Demand_Graph"), type = 6),
+                              
+                              tableOutput("Emissions_Table")
+                              
     )
   )
 ),
@@ -107,6 +110,7 @@ theme = shinytheme("united"),
 
 server <- function(input, output) {
   source("simulation_function.R")
+  source("emissions_function.R")
   
   output$Demand_Graph <- renderPlot({
     
@@ -232,8 +236,11 @@ server <- function(input, output) {
  
     })
 
-  
-  
+  output$Emissions_Table <- renderTable({
+    
+    "Emissions_Table"
+    
+  })
   
 }
 
