@@ -61,7 +61,7 @@ theme = shinytheme("united"),
                                  
                                  checkboxGroupInput("price_intervention", h4("Choose a Price Intevention"),
                                                     choices = c("Discount", "Rebate"),
-                                                    selected = NULL),
+                                                    selected = "Discount"),
                                  conditionalPanel(condition = "input.price_intervention.includes('Discount')",
                                                   sliderInput("discount", label = h4("Discount Price (in cents/kWh)"),
                                                               min = 0, max = 20, value = 5),
@@ -189,15 +189,14 @@ server <- function(input, output) {
     
     
     ggplot(app_model_run$sim_result_summary) +
-      geom_line(aes(x = Hr, y = Xf_mean),
-                color = "seagreen", 
+      geom_line(aes(x = Hr, y = Xf_mean,color = "Intervention Demand"), 
                 size = 2.5, 
                 alpha = 0.75) + #This is the Xf line
       
       
       geom_line(aes(x = Hr,
-                    y = X0_mean), 
-                color = "lightsalmon3", 
+                    y = X0_mean,
+                    color = "Baseline Demand"), 
                 size = 2.5, 
                 alpha = 0.75) + #This is the X0 line
       ggtitle("Title") +
@@ -205,29 +204,40 @@ server <- function(input, output) {
       ylab("Electricity Demand (kilowatts)") +
       
       
-      
-      geom_rect(aes(xmin=ifelse("Rebate" %in% input$price_intervention & input$rebate >0 , input$rebate_period[1],0),
-                    xmax=ifelse("Rebate" %in% input$price_intervention & input$rebate >0, input$rebate_period[2],0),
+      geom_rect(aes(xmin= input$discount_period[1],
+                    xmax=input$discount_period[2],
                     ymin=-Inf,
                     ymax=Inf,
-                    fill=rebate_color),
-                alpha=ifelse("Rebate" %in% input$price_intervention, 0.0075,0)) + #This is the rebate rectangle
+                    fill = "Discount"),
+                alpha=ifelse("Discount" %in% input$price_intervention & input$discount >0, 0.02,0)) + #this is the discount rectangle
       
       
       
       
-      geom_rect(aes(xmin=ifelse("Discount" %in% input$price_intervention & input$discount >0 , input$discount_period[1],0),
-                    xmax=ifelse("Discount" %in% input$price_intervention & input$discount >0, input$discount_period[2],0),
+      geom_rect(aes(xmin=input$rebate_period[1],
+                    xmax=input$rebate_period[2],
                     ymin=-Inf,
                     ymax=Inf,
-                    fill=discount_color),
-                alpha=ifelse("Discount" %in% input$price_intervention, 0.0075,0)) + #this is the discount rectangle
+                    fill="Rebate"),
+                alpha=ifelse("Rebate" %in% input$price_intervention & input$rebate >0, 0.02,0)) + #This is the rebate rectangle
       
       
       
+
+      geom_rect(aes(xmin= input$throttle_period[1],
+                    xmax=input$throttle_period[2],
+                    ymin=-Inf,
+                    ymax=Inf,
+                    fill = "Throttle"),
+                alpha=ifelse(input$throttling >0, 0.02,0)) + #this is the discount rectangle
       
-      scale_x_continuous(limits = c(0,24),breaks = c(0:24), expand = c(0,0)) +
+      
+      scale_x_continuous(limits = c(1,24),breaks = c(1:24), expand = c(0,0)) +
       scale_y_continuous(expand = c(0,0)) +
+      scale_fill_brewer("Interventions",palette = "Set2" , guide = guide_legend(override.aes = list(alpha = 0.5))) +
+      scale_color_brewer("Demand", palette = "Dark2", direction = -1) +
+      #scale_fill_manual('Interventions', values = c("Disount" = 'cadetblue3',"Rebate" = 'thistle3', "Throttle" = 'darksalmon'),  guide = guide_legend(override.aes = list(alpha = 0.5))) +
+      theme(legend.position = "bottom") +
       theme_classic()
  
     })
