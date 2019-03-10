@@ -110,6 +110,14 @@ server <- function(input, output) {
   
   output$Demand_Graph <- renderPlot({
     
+    
+    #Color information
+    
+    discount_color <- "cadetblue4"
+    rebate_color <- "thistle2"
+    throttle_color <- "darksalmon"
+    
+    
     month <- month(as.Date(input$date, "%Y/%m/%d"))
     year <- year(as.Date(input$date, "%Y/%m/%d"))
     shiny_seg <- as.character(input$seg)
@@ -124,7 +132,7 @@ server <- function(input, output) {
       price_change_2_conditional <- 0
       
       intervention_hrs_conditional_2 <- seq(input$rebate_period[1],input$rebate_period[2],1)
-    } else if(input$price_intervention == c("Discount","Rebate")) {
+    } else if(length(input$price_intervention) > 1) {
       price_change_conditional <- -input$discount/100
       
       intervention_hrs_conditional <- seq(input$discount_period[1],input$discount_period[2],1)
@@ -181,11 +189,45 @@ server <- function(input, output) {
     
     
     ggplot(app_model_run$sim_result_summary) +
-      geom_line(aes(x = Hr, y = Xf_mean), color = "seagreen") + 
-      geom_line(aes(x = Hr, y = X0_mean), color = "lightsalmon3") +
+      geom_line(aes(x = Hr, y = Xf_mean),
+                color = "seagreen", 
+                size = 2.5, 
+                alpha = 0.75) + #This is the Xf line
+      
+      
+      geom_line(aes(x = Hr,
+                    y = X0_mean), 
+                color = "lightsalmon3", 
+                size = 2.5, 
+                alpha = 0.75) + #This is the X0 line
       ggtitle("Title") +
       xlab("Hour of the Day") +
-      ylab("Electricity Demand (kilowatts") +
+      ylab("Electricity Demand (kilowatts)") +
+      
+      
+      
+      geom_rect(aes(xmin=ifelse("Rebate" %in% input$price_intervention & input$rebate >0 , input$rebate_period[1],0),
+                    xmax=ifelse("Rebate" %in% input$price_intervention & input$rebate >0, input$rebate_period[2],0),
+                    ymin=-Inf,
+                    ymax=Inf,
+                    fill=rebate_color),
+                alpha=ifelse("Rebate" %in% input$price_intervention, 0.0075,0)) + #This is the rebate rectangle
+      
+      
+      
+      
+      geom_rect(aes(xmin=ifelse("Discount" %in% input$price_intervention & input$discount >0 , input$discount_period[1],0),
+                    xmax=ifelse("Discount" %in% input$price_intervention & input$discount >0, input$discount_period[2],0),
+                    ymin=-Inf,
+                    ymax=Inf,
+                    fill=discount_color),
+                alpha=ifelse("Discount" %in% input$price_intervention, 0.0075,0)) + #this is the discount rectangle
+      
+      
+      
+      
+      scale_x_continuous(limits = c(0,24),breaks = c(0:24), expand = c(0,0)) +
+      scale_y_continuous(expand = c(0,0)) +
       theme_classic()
  
     })
