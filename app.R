@@ -6,6 +6,9 @@ library(shinydashboard)
 library(shinythemes)
 library(tidyverse)
 library(markdown)
+library(shinycssloaders)
+library(ungeviz)
+library(gganimate)
 
 
 ui <- fluidPage(
@@ -83,7 +86,7 @@ theme = shinytheme("sandstone"),
                                  
                                  ),
                             mainPanel(
-                              plotOutput("Demand_Graph")
+                              withSpinner(plotOutput("Demand_Graph"), type = 6)
     )
   )
 ),
@@ -103,8 +106,8 @@ theme = shinytheme("sandstone"),
 # Air Quality Implications (NOX)
 
 server <- function(input, output) {
-  source("hourly_demand_function.R")
-
+  source("simulation_function.R")
+  
   output$Demand_Graph <- renderPlot({
     
     month <- month(as.Date(input$date, "%Y/%m/%d"))
@@ -162,22 +165,24 @@ server <- function(input, output) {
     
     
     # generate graph and change the things that are reactive from the sliders
-    app_model_run <- hourly_demand(price_change = price_change_conditional,
-                                   intervention_hours = intervention_hrs_conditional,
-                                   price_change_2 = price_change_2_conditional,
-                                   intervention_hours_2 = intervention_hrs_conditional_2,
-                                   int_equals_baseline = FALSE,
-                                   intervention_chargers = input$intervention_chargers,
-                                   month = month, year = year, 
-                                   seg = shiny_seg,
-                                   throttle_amount = -input$throttling,
-                                   throttle_hours = throttling_period)
+    app_model_run <- simulation(simulations = 10,
+                                sim_price_change = price_change_conditional,
+                                sim_intervention_hours = intervention_hrs_conditional,
+                                sim_price_change_2 = price_change_2_conditional,
+                                sim_intervention_hours_2 = intervention_hrs_conditional_2,
+                                sim_int_equals_baseline = FALSE,
+                                sim_intervention_chargers = input$intervention_chargers,
+                                sim_month = month, 
+                                sim_year = year, 
+                                sim_seg = shiny_seg,
+                                sim_throttle_amount = -input$throttling,
+                                sim_throttle_hours = throttling_period)
     
     
     
-    ggplot(app_model_run$EV_Demand) +
-      geom_line(aes(x = Hr, y = Xf), color = "seagreen") + 
-      geom_line(aes(x = Hr, y = X0), color = "lightsalmon3") +
+    ggplot(app_model_run$sim_result_summary) +
+      geom_line(aes(x = Hr, y = Xf_mean), color = "seagreen") + 
+      geom_line(aes(x = Hr, y = X0_mean), color = "lightsalmon3") +
       theme_classic()
  
     })

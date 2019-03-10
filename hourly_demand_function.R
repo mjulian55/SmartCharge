@@ -19,22 +19,22 @@ price_schedule <- read_csv("Model_Map/2018_Summer_TOU_EV_4.csv")
 read_csv("Model_Map/2018_Summer_TOU_EV_3.csv")
 
 #2018 Summer 4
-read_csv("Model_Map/2018_Summer_TOU_EV_4.csv")
+TOU_2018_summer_4 <- read_csv("Model_Map/2018_Summer_TOU_EV_4.csv")
 
 #2018 Winter 3
 read_csv("Model_Map/2018_Winter_TOU_EV_3.csv")
 
 #2018 Winter 4
-read_csv("Model_Map/2018_Winter_TOU_EV_4.csv")
+TOU_2018_winter_4 <- read_csv("Model_Map/2018_Winter_TOU_EV_4.csv")
 
 #2018 Winter D
 read_csv("Model_Map/2018_Winter_TOU_EV_D.csv")
 
 #2019 Summer 8
-read_csv("Model_Map/2019_Summer_TOU_EV_8.csv")
+TOU_2019_summer_8 <- read_csv("Model_Map/2019_Summer_TOU_EV_8.csv")
 
 #2019 Winter 8
-read_csv("Model_Map/2019_Winter_TOU_EV_8.csv")
+TOU_2019_winter_8 <- read_csv("Model_Map/2019_Winter_TOU_EV_8.csv")
 
 
 #Baseline Usage
@@ -348,9 +348,9 @@ hourly_demand <- function(method = mthd,
   colnames(chosen_elasticities) <- c("Base_Hr","Changed_Hr","Elasticity")
   
   if(month%in%c(6:9)) {
-    price_schedule <- read_csv("Model_Map/2018_Summer_TOU_EV_4.csv")
+    price_schedule <- TOU_2018_summer_4
   } else {
-    price_schedule <- read_csv("Model_Map/2018_Winter_TOU_EV_4.csv")
+    price_schedule <- TOU_2018_winter_4
     
   }
    
@@ -532,9 +532,9 @@ Xi <- Xi_choose_weekends %>%
   #new tou as an intervention. 
   #select the potential new tou based on month
   if(month%in%c(6:9)) {
-    price_schedule_tou_int <- read_csv("Model_Map/2019_Summer_TOU_EV_8.csv")
+    price_schedule_tou_int <- TOU_2019_summer_8
   } else {
-    price_schedule_tou_int <- read_csv("Model_Map/2019_Winter_TOU_EV_8.csv")
+    price_schedule_tou_int <- TOU_2019_winter_8
   }
   #if applying the tou intervention, make that the initial P1. If not, then keep it as the initial priace schedule (all of this then gets modified in the next chunck with the discount and rebate)
   if (new_tou == 2019) {
