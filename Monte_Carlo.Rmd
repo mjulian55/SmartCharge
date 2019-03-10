@@ -766,7 +766,7 @@ Demand_GraphPDC1S <- ggplot(data = graph_tablePDC1S, aes(x = Hr)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
   panel.background = element_blank(), axis.line = element_line(colour = "black")) +
   labs(title="Destination Centers (PDC1S) (discount, price comms, morning throttling) Hourly Demand Forecast",
-  subtitle="Baseline July 2018 (X Chargers) \n Model Simulation",
+  subtitle="Baseline July 2018 (234 Chargers) \n Model Simulation",
   y="EV Charging Demand (kW)",
   x="Hour",
   color=NULL) +
@@ -799,7 +799,7 @@ Demand_GraphPDC2S <- ggplot(data = graph_tablePDC2S, aes(x = Hr)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
   panel.background = element_blank(), axis.line = element_line(colour = "black")) +
   labs(title="Destination Centers (PDC2S) (discount, all comms, morning throttling) Hourly Demand Forecast",
-  subtitle="Baseline July 2018 (X Chargers) \n Model Simulation",
+  subtitle="Baseline July 2018 (234 Chargers) \n Model Simulation",
   y="EV Charging Demand (kW)",
   x="Hour",
   color=NULL) +
@@ -831,7 +831,7 @@ Demand_GraphPDC3S <- ggplot(data = graph_tablePDC3S, aes(x = Hr)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
   panel.background = element_blank(), axis.line = element_line(colour = "black")) +
   labs(title="Destination Centers (PDC3S) (discount, air poll comms, morning throttling) Hourly Demand Forecast",
-  subtitle="Baseline July 2018 (X Chargers) \n Model Simulation",
+  subtitle="Baseline July 2018 (234 Chargers) \n Model Simulation",
   y="EV Charging Demand (kW)",
   x="Hour",
   color=NULL) +
@@ -865,7 +865,7 @@ Demand_GraphPDC4S <- ggplot(data = graph_tablePDC4S, aes(x = Hr)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
   panel.background = element_blank(), axis.line = element_line(colour = "black")) +
   labs(title="Destination Centers (PDC4S) (discount, no comms, morning throttling) Hourly Demand Forecast",
-  subtitle="Baseline July 2018 (X Chargers) \n Model Simulation",
+  subtitle="Baseline July 2018 (234 Chargers) \n Model Simulation",
   y="EV Charging Demand (kW)",
   x="Hour",
   color=NULL) +
@@ -897,8 +897,8 @@ Demand_GraphPDC5S <- ggplot(data = graph_tablePDC5S, aes(x = Hr)) +
   geom_line(aes(y = value, color=condition)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
   panel.background = element_blank(), axis.line = element_line(colour = "black")) +
-  labs(title="Destination Centers (PDC5S) (discount, no comms, morning throttling) Hourly Demand Forecast",
-  subtitle="Baseline July 2018 (X Chargers) \n Model Simulation",
+  labs(title="Destination Centers (PDC5S) (Rebate, no comms, morning throttling) Hourly Demand Forecast",
+  subtitle="Baseline November 2018 (234 Chargers) \n Model Simulation",
   y="EV Charging Demand (kW)",
   x="Hour",
   color=NULL) +
@@ -914,7 +914,7 @@ Demand_GraphPDC5S <- ggplot(data = graph_tablePDC5S, aes(x = Hr)) +
 
 
 #Demand_GraphPDC5S
-ggsave("Results Graphs/Destination_Centers_PDC5S_Demand_Summary.pdf", Demand_GraphPDC4S, device = "pdf", width = 8, height = 4.5)
+ggsave("Results Graphs/Destination_Centers_PDC5S_Demand_Summary.pdf", Demand_GraphPDC5S, device = "pdf", width = 8, height = 4.5)
 
 
 #PDC1S:  discount -0.05 (default) 12-15+ price comms only + morning throttling
