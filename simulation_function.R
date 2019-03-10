@@ -85,7 +85,7 @@ simulation <- function(simulations = 100,
     
     
     run_i_EV_Demand <- run_i$EV_Demand %>% 
-      mutate(method_draw = method_draws[i], elasticity_draw = elasticity_draws[i]) %>% 
+      mutate(run_number = i,method_draw = method_draws[i], elasticity_draw = elasticity_draws[i]) %>% 
       mutate(avg_elasticity_draw = elasticity_draws[i])
     
     sim_result_EV_Demand <- rbind(sim_result_EV_Demand,run_i_EV_Demand)
