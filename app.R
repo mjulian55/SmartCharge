@@ -7,6 +7,8 @@ library(shinythemes)
 library(tidyverse)
 library(markdown)
 library(shinycssloaders)
+library(ungeviz)
+library(gganimate)
 
 
 ui <- fluidPage(
