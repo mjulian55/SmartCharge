@@ -656,45 +656,99 @@ ggsave("Results Graphs/Workplace_PW6S_Demand_Summary.pdf", Demand_GraphPW6S, dev
 ```{r destination_center_scenarios, message=FALSE, warning=FALSE}
 
 #PDC1S:  discount -0.05 (default) 12-15+ price comms only + morning throttling
-PDC1S <- simulation(simulation = 1000, sim_seg = "Destination Center",sim_throttle_amount = -0.5, sim_month = 7)
+PDC1S <- simulation(simulation = 1000,
+                    sim_seg = "Destination Center",
+                    sim_throttle_amount = -0.5,
+                    sim_month = 7,
+                    sim_year = 2018,
+                    sim_price_comm = TRUE,
+                    sim_air_pollution_comm = FALSE)
 #View(PDC1S$sim_result_summary)
 
 write_csv(PDC1S$sim_result_summary, "Results/Destination_Centers_PDC1S_Demand_Summary.csv")
 
 #run emissions and write to csv
 PDC1S_output_table <- emissions_fcn(PDC1S) 
-#View(PDC1S_output_table$Emissions_Table)
-#View(PDC1S_output_table$Emissions)
+View(PDC1S_output_table$Emissions_Table)
+View(PDC1S_output_table$Emissions)
 write_csv(PDC1S_output_table$Emissions_Table, "Results/Destination_Centers_PDC1S_Output_Summary.csv") #write emissions to csv
 write_csv(PDC1S_output_table$Emissions, "Results/Destination_Centers_PDC1S_Output_All_Hours.csv")
 
 
 #PDC2S:  discount -0.05 (default) 12-15+ all comms + morning throttling
-PDC2S <- simulation(simulations = 1000, sim_seg = "Destination Center",sim_throttle_amount = -0.5,sim_air_pollution_comm = TRUE, sim_price_comm = TRUE,sim_month = 7)
+PDC2S <- simulation(simulations = 1000,
+                    sim_seg = "Destination Center",
+                    sim_throttle_amount = -0.5,
+                    sim_month = 7,
+                    sim_year = 2018,
+                    sim_price_comm = TRUE,
+                    sim_air_pollution_comm = TRUE)
+                    
 
 write_csv(PDC2S$sim_result_summary, "Results/Destination_Centers_PDC2S_Demand_Summary.csv")
 #run emissions and write to csv
 PDC2S_output_table <- emissions_fcn(PDC2S) 
+View(PDC2S_output_table$Emissions_Table)
+View(PDC2S_output_table$Emissions)
 write_csv(PDC2S_output_table$Emissions_Table, "Results/Destination_Centers_PDC2S_Output_Summary.csv") #write emissions to csv
 write_csv(PDC2S_output_table$Emissions, "Results/Destination_Centers_PDC2S_Output_All_Hours.csv")
 
 
 #PDC3S: discount -0.05 (default) 12-15+ air poll comms + morning throttling
-PDC3S <- simulation(simulations = 1000, sim_seg = "Destination Center",sim_throttle_amount = -0.5,sim_air_pollution_comm = TRUE, sim_price_comm = FALSE,sim_month = 7)
+PDC3S <- simulation(simulations = 1000,
+                    sim_seg = "Destination Center",
+                    sim_throttle_amount = -0.5,
+                    sim_month = 7,
+                    sim_year = 2018,
+                    sim_price_comm = FALSE,
+                    sim_air_pollution_comm = TRUE)
 
 write_csv(PDC3S$sim_result_summary, "Results/Destination_Centers_PDC3S_Demand_Summary.csv")
-PDC3S_output_table <- emissions_fcn(PDC3S) 
+PDC3S_output_table <- emissions_fcn(PDC3S)
+View(PDC3S_output_table$Emissions_Table)
+View(PDC3S_output_table$Emissions)
 write_csv(PDC3S_output_table$Emissions_Table, "Results/Destination_Centers_PDC3S_Output_Summary.csv") #write emissions to csv
 write_csv(PDC3S_output_table$Emissions, "Results/Destination_Centers_PDC3S_Output_All_Hours.csv")
 
 
 #PDC4S: discount -0.05 (default) 12-15+ no comms + morning throttling
-PDC4S <- simulation(simulations = 1000, sim_seg = "Destination Center",sim_throttle_amount =-0.5, sim_month = 7,sim_air_pollution_comm = FALSE,sim_price_comm = FALSE)
+PDC4S <- simulation(simulations = 1000,
+                    sim_seg = "Destination Center",
+                    sim_throttle_amount = -0.5,
+                    sim_month = 7,
+                    sim_year = 2018,
+                    sim_price_comm = FALSE,
+                    sim_air_pollution_comm = FALSE)
 
 write_csv(PDC4S$sim_result_summary, "Results/Destination_Centers_PDC4S_Demand_Summary.csv")
-PDC4S_output_table <- emissions_fcn(PDC4S) 
+PDC4S_output_table <- emissions_fcn(PDC4S)
+View(PDC4S_output_table$Emissions_Table)
+View(PDC4S_output_table$Emissions)
 write_csv(PDC4S_output_table$Emissions_Table, "Results/Destination_Centers_PDC4S_Output_Summary.csv") #write emissions to csv
 write_csv(PDC4S_output_table$Emissions, "Results/Destination_Centers_PDC4S_Output_All_Hours.csv")
+
+
+#PDC5S: $0.10 Rebate (17:00 – 21:00) + no comms + morning throttling
+PDC5S <- simulation(simulations = 1000, 
+                    sim_seg = "Destination Center",
+                    sim_month = 11,
+                    sim_year = 2018,
+                    sim_throttle_amount = -0.5,
+                    sim_price_change = 0.10,
+                    sim_intervention_hours = c(17:21),
+                    sim_air_pollution_comm = FALSE,
+                    sim_price_comm = FALSE)
+
+write_csv(PDC5S$sim_result_summary, "Results/Destination_Centers_PDC5S_Demand_Summary.csv")
+PDC5S_output_table <- emissions_fcn(PDC5S)
+View(PDC5S_output_table$Emissions_Table)
+View(PDC5S_output_table$Emissions)
+write_csv(PDC5S_output_table$Emissions_Table, "Results/Destination_Centers_PDC5S_Output_Summary.csv") #write emissions to csv
+write_csv(PDC5S_output_table$Emissions, "Results/Destination_Centers_PDC5S_Output_All_Hours.csv")
+                    
+                    
+
+
 
 
 ```
@@ -824,13 +878,47 @@ Demand_GraphPDC4S <- ggplot(data = graph_tablePDC4S, aes(x = Hr)) +
   scale_fill_manual('Interventions',values = c('green','yellow'),  guide = guide_legend(override.aes = list(alpha = 0.15)))
   
 
-#Demand_GraphPDC1S
+#Demand_GraphPDC4S
 ggsave("Results Graphs/Destination_Centers_PDC4S_Demand_Summary.pdf", Demand_GraphPDC4S, device = "pdf", width = 8, height = 4.5)
 
 
 
 
 
+#PDC5S: $0.10 Rebate (17:00 – 21:00) + no comms + morning throttling
+PDC5S_demand_summary <- read_csv("Results/Destination_Centers_PDC5S_Demand_Summary.csv") 
+
+graph_tablePDC4S <- PDC5S_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
+  gather(condition,value,c("X0_mean","Xf_mean")) 
+#%>% mutate(Theoretical_Max=PM1_demand_summary$MT[1])
+
+Demand_GraphPDC4S <- ggplot(data = graph_tablePDC5S, aes(x = Hr)) +
+  geom_line(aes(y = value, color=condition)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+  panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+  labs(title="Destination Centers (PDC5S) (discount, no comms, morning throttling) Hourly Demand Forecast",
+  subtitle="Baseline July 2018 (X Chargers) \n Model Simulation",
+  y="EV Charging Demand (kW)",
+  x="Hour",
+  color=NULL) +
+  geom_rect(aes(xmin=6,xmax=11,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
+  geom_rect(aes(xmin=11,xmax=15,ymin=-Inf,ymax=Inf, fill = "Discount"),alpha=0.0075) +
+  scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
+  scale_color_manual(labels=c("Baseline Demand","Intervention Demand"), values = c("purple", "blue")) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(plot.subtitle = element_text(hjust = 0.5))+
+  theme(legend.position="bottom") +
+  scale_fill_manual('Interventions',values = c('green','yellow'),  guide = guide_legend(override.aes = list(alpha = 0.15)))
+
+
+
+#Demand_GraphPDC5S
+ggsave("Results Graphs/Destination_Centers_PDC5S_Demand_Summary.pdf", Demand_GraphPDC4S, device = "pdf", width = 8, height = 4.5)
+
+
+#PDC1S:  discount -0.05 (default) 12-15+ price comms only + morning throttling
+write_csv(PDC1S$sim_result_summary, "Results/Destination_Centers_PDC2S_Demand_Summary.csv")
+#run emissions and write to csv
 
 #PDC2S:  discount -0.05 (default) 12-15+ all comms + morning throttling
 write_csv(PDC2S$sim_result_summary, "Results/Destination_Centers_PDC2S_Demand_Summary.csv")
@@ -842,6 +930,10 @@ write_csv(PDC3S$sim_result_summary, "Results/Destination_Centers_PDC3S_Demand_Su
 
 
 #PDC4S: discount -0.05 (default) 12-15+ no comms + morning throttling
+write_csv(PDC4S$sim_result_summary, "Results/Destination_Centers_PDC4S_Demand_Summary.csv")
+
+
+#PDC5S: $0.10 Rebate (17:00 – 21:00) + no comms + morning throttling
 write_csv(PDC4S$sim_result_summary, "Results/Destination_Centers_PDC4S_Demand_Summary.csv")
 
 ```
