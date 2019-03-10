@@ -192,12 +192,45 @@ server <- function(input, output) {
                                 sim_throttle_hours = throttling_period)
     
     
+#    discount_text <- ifelse("Discount" %in% input$price_intervention &input$discount >0, c("Hours",input$discount_period[1],"-", input$discount_period[2]),"") %>% 
+#      paste(collapse = " ")
+    
+      
+#    rebate_text <- ifelse("Rebate" %in% input$price_intervention &input$rebate >0, c("Hours",input$rebate_period[1],"-", input$rebate_period[2]),"") %>% 
+#      paste(collapse = " ")
+    
+    discount_text <-c(input$discount_period[1],"-", input$discount_period[2]) %>% 
+      paste(collapse = " ")
+    
+    rebate_text <- c(input$rebate_period[1],"-", input$rebate_period[2]) %>% 
+      paste(collapse = " ")
+    
+    
+    intervention_hours <- paste("Hours",
+      ifelse(input$discount > 0 & "Discount" %in% input$price_intervention,
+             discount_text,
+             ""),
+      ifelse(length(input$price_intervention) >1 &input$discount > 0 & input$rebate > 0,
+             "and",
+             ""),
+      ifelse(input$rebate > 0 & "Rebate" %in% input$price_intervention,
+             rebate_text,
+             ""),
+      collapse = " ")
+    
+    time_periods <- c(intervention_hours,"4 PM - 9 PM", "All Hours")
+    periods <- c("Price Intervention","Peak Demand", "Total")
     
     output$Emissions_Table <- renderTable({
       app_emissions_run <- emissions_fcn(app_model_run)
       app_emissions_table <- app_emissions_run$Emissions_Table %>%
         filter(Time != "other") %>% 
-        select("Time Period" = Time,"Change in Demand (kWh)" = Xchange, "Change in Cost ($)" = CustCostChange, "Change in CO2 Emissions (kg)" = CO2Change, "Change in NOX Emissions (kg)" = NOXChange, "Social Costs of NOX Emission Change ($)" = NOXChangeCost, "Social Costs of CO2 Emission Change ($)" = CO2ChangeCost)
+        select("Time Periods" = Xinitial,"Hours" = Time,"Change in Demand (kWh)" = Xchange, "Change in Cost ($)" = CustCostChange, "Change in CO2 Emissions (kg)" = CO2Change, "Change in NOX Emissions (kg)" = NOXChange, "Social Costs of NOX Emission Change ($)" = NOXChangeCost, "Social Costs of CO2 Emission Change ($)" = CO2ChangeCost)
+      
+      
+      app_emissions_table$'Hours' <- time_periods
+      app_emissions_table$'Time Periods' <- periods
+      
       app_emissions_table
       
       # making interventions hours reactive will be really challenging
