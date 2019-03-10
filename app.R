@@ -195,8 +195,13 @@ server <- function(input, output) {
     
     output$Emissions_Table <- renderTable({
       app_emissions_run <- emissions_fcn(app_model_run)
-      app_emissions_table <- app_emissions_run$Emissions_Table
+      app_emissions_table <- app_emissions_run$Emissions_Table %>%
+        filter(Time != "other") %>% 
+        select("Time Period" = Time,"Change in Demand (kWh)" = Xchange, "Change in Cost ($)" = CustCostChange, "Change in CO2 Emissions (kg)" = CO2Change, "Change in NOX Emissions (kg)" = NOXChange, "Social Costs of NOX Emission Change ($)" = NOXChangeCost, "Social Costs of CO2 Emission Change ($)" = CO2ChangeCost)
       app_emissions_table
+      
+      # making interventions hours reactive will be really challenging
+      
     })
     
     ggplot(app_model_run$sim_result_summary) +
