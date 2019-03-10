@@ -13,7 +13,7 @@ library(gganimate)
 
 ui <- fluidPage(
 
-theme = shinytheme("sandstone"),
+theme = shinytheme("united"),
   
  navbarPage("SMART CHARGE - An Electric Vehicle Charging Demand Simulation App"),
              tabsetPanel(
@@ -63,20 +63,20 @@ theme = shinytheme("sandstone"),
                                                     choices = c("Discount", "Rebate"),
                                                     selected = NULL),
                                  conditionalPanel(condition = "input.price_intervention.includes('Discount')",
-                                                  sliderInput("discount", label = h4("Discount Price (in cents)"),
+                                                  sliderInput("discount", label = h4("Discount Price (in cents/kWh)"),
                                                               min = 0, max = 20, value = 5),
                                                   
                                                   sliderInput("discount_period", label = h4("Discount Period"), 
                                                               min = 0, max = 24, value = c(12, 15))),
                                  
                                  conditionalPanel(condition = "input.price_intervention.includes('Rebate')",
-                                                  sliderInput("rebate", label = h4("Rebate Price (in cents)"), 
+                                                  sliderInput("rebate", label = h4("Rebate Price (in cents/kWh)"), 
                                                               min = 0, max = 20, value = 0),
                                                   
                                                   sliderInput("rebate_period", label = h4("Rebate Period"),
                                                               min = 0, max = 24, value = c(17, 21))),
                                                   
-                                 sliderInput("throttling", label = h4("Throttling"), min = 0, max = 1, value = 0.0),
+                                 sliderInput("throttling", label = h4("Throttling Amount (%)"), min = 0, max = 1, value = 0.0),
                                  #Throttling hours
                                  sliderInput("throttle_period", label = h4("Throttling Period"),
                                              min = 0, max = 24, value = c(6, 11)),
@@ -183,6 +183,9 @@ server <- function(input, output) {
     ggplot(app_model_run$sim_result_summary) +
       geom_line(aes(x = Hr, y = Xf_mean), color = "seagreen") + 
       geom_line(aes(x = Hr, y = X0_mean), color = "lightsalmon3") +
+      ggtitle("Title") +
+      xlab("Hour of the Day") +
+      ylab("Electricity Demand (kilowatts") +
       theme_classic()
  
     })
