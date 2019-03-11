@@ -86,11 +86,24 @@ theme = shinytheme("united"),
                                      
                                    ),
                                    mainPanel(
+                                     
+                                     
+                                     
+                                     
+                                     textOutput("ModelDescription", container = span),
+                                     
+                                     br(),
+                                     br(),
+                                     
                                      withSpinner(plotOutput("method_graph"), type = 6),
+                                     
+                                     textOutput("MethodsDescription", container = span),
+                                     
+                                     br(),
+                                     br(),
+                                     
                                      withSpinner(plotOutput("method1_heat_map"), type = 6),
                                      withSpinner(plotOutput("method2_4_heat_map"), type = 6)
-                                     
-                                     
                                      
                                    )
                                  )
@@ -167,28 +180,20 @@ theme = shinytheme("united"),
                               
                               textOutput("DemandGraphDescription", container = span),
                               
-                              br(),
-                              br(),
+                              br(),  br(),
                               
                               withSpinner(plotOutput("Demand_Graph"), type = 6),
                               
-                              br(),
-                              br(),
-                              br(),
-                              br(),
+                              br(),  br(), br(),  br(),
                              
                               textOutput("OutputTableDescription", container = span),
                               
-                              br(),
-                              br(),
+                              br(), br(),
                               
                               
                               withSpinner(tableOutput("Emissions_Table"), type = 6),
                               
-                              br(),
-                              br(),
-                              br(),
-                              br(),
+                              br(), br(), br(), br(),
                               
                               textOutput("MonteCarloDescription", container = span), br(), br(), br(), br(),
                               
@@ -214,6 +219,18 @@ server <- function(input, output) {
 
   output$method_graph <- renderPlot({
     
+    
+    output$ModelDescription <- renderText({
+      "How Does it Actually Work?
+
+      These types of interventions have an affect on how responsive consumers might be and that responsiveness is measured by the change in electricity that's demanded.  
+  That demand is represented by a line that shows energy (in Kilowatts or kW) over the 24 hours of the day.  That responsiveness is modelled in this application using price elasticities - the change in quantity demanded given a change in price.  
+  These elasticity values, along with other values, are built into our model to show how demand might change at any given hour.
+  For more information on how we built this model, visit our [website](https://smartchargeproject.weebly.com/) and look for a copy of our Master's Project report."})
+    
+    
+    output$MethodsDescription <- renderText({
+      "METHODS TEST"})
     
     month <- month(as.Date(input$datemethod, "%Y/%m/%d"))
     year <- year(as.Date(input$datemethod, "%Y/%m/%d"))
@@ -437,6 +454,7 @@ The simulated demand (the green line) is compared to the baseline demand that yo
     Shaded areas will appear for the time periods of any intervention you choose."})
     
     
+
     
     #Color information
 
@@ -611,7 +629,11 @@ The simulated demand (the green line) is compared to the baseline demand that yo
       app_emissions_table$'Time Periods' <- periods
       app_emissions_table
       
-    })
+    },
+    striped = TRUE, bordered = TRUE,  
+    spacing = 'm',
+    align = 'c'
+    )
     
     output$MonteCarloDescription <- renderText({
       "This graph is similar to the top graph, only it takes the same model used to create the first graph and runs it many times (this amount is chosen on the sidebar).
