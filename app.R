@@ -122,7 +122,7 @@ theme = shinytheme("united"),
 ),
 
 
-tabPanel("4 Methods for Modeling",
+tabPanel("Modeling Methods",
          
          sidebarLayout(
            sidebarPanel(
