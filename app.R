@@ -26,6 +26,13 @@ theme = shinytheme("united"),
                         
                           sidebarLayout(
                             sidebarPanel(
+                              
+                              selectInput("sim", label = h4("Number of Simulations. \n Over 10 simulations results in long loading times"), 
+                                          c("1" = "1",
+                                            "10" = "10",
+                                            "100" = "100",
+                                            "1000" = "1000"),
+                                          selected = "10"),
                                  
                                  # Number of chargers widget
                                  numericInput("intervention_chargers", label = h4("Number of Chargers"), value = 900),
@@ -180,7 +187,7 @@ server <- function(input, output) {
     
     
     # generate graph and change the things that are reactive from the sliders
-    app_model_run <- simulation(simulations = 10,
+    app_model_run <- simulation(simulations = as.numeric(input$sim),
                                 sim_price_change = price_change_conditional,
                                 sim_intervention_hours = intervention_hrs_conditional,
                                 sim_price_change_2 = price_change_2_conditional,
@@ -201,9 +208,10 @@ server <- function(input, output) {
     
       app_model_run$sim_result_EV_Demand$method_draw <- as.factor(app_model_run$sim_result_EV_Demand$method_draw)
         
-      ggplot(app_model_run$sim_result_EV_Demand) +
-        geom_line(aes(x = Hr, y = Xf, group = run_number, color = method_draw), 
-                      size = 0.5, 
+      ggplot() +
+        geom_line(data = app_model_run$sim_result_EV_Demand,
+                  aes(x = Hr, y = Xf, group = run_number, color = method_draw), 
+                      size = 1, 
                       alpha = 0.25) +
         
         ggtitle("Monte Carlo") +
@@ -235,9 +243,8 @@ server <- function(input, output) {
         
         scale_x_continuous(limits = c(1,24),breaks = c(1:24), expand = c(0,0)) +
         scale_y_continuous(expand = c(0,0)) +
-       scale_fill_brewer("Interventions",palette = "Set2" , guide = guide_legend(override.aes = list(alpha = 0.5))) +
-       scale_color_brewer(palette = "Dark2", direction = -1) +
-        theme(legend.position = "bottom") +
+        scale_fill_brewer("Interventions", palette = "Set2") +
+        
         theme_classic()
       
     })
