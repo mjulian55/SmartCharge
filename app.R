@@ -112,16 +112,9 @@ theme = shinytheme("united"),
                                      
                                      br(), br(),
                                      
-<<<<<<< HEAD
-                                     withSpinner(plotOutput("method1_heat_map"), type = 6),
-                                     
-                                     br(),
-                                     
-                                     withSpinner(plotOutput("method2_4_heat_map"), type = 6)
-=======
+
                                      withSpinner(plotOutput("method1_heat_map"), type = 6)
->>>>>>> a7bc351ab00accdf97d23a914bc0c5f90ef73b9c
-                                     
+
                                    )
                                  )
                                  ),
