@@ -11,6 +11,8 @@ library(ungeviz)
 library(gganimate)
 
 
+# USER INTERFACE (UI)
+
 ui <- fluidPage(
 
 theme = shinytheme("united"),
@@ -22,7 +24,7 @@ theme = shinytheme("united"),
                         includeMarkdown("Overview_App.Rmd")),
                       
                         
-                        tabPanel("Demand Graphs",
+                        tabPanel("Simulation Graphs",
                         
                           sidebarLayout(
                             sidebarPanel(
@@ -89,9 +91,16 @@ theme = shinytheme("united"),
                               withSpinner(plotOutput("Demand_Graph"), type = 6),
                               
                               br(),
+                              br(),
+                              br(),
+                              br(),
+                             
                               
                               withSpinner(tableOutput("Emissions_Table"), type = 6),
                               
+                              br(),
+                              br(),
+                              br(),
                               br(),
                               
                               withSpinner(plotOutput("Monte_Carlo"), type = 6)
@@ -107,12 +116,7 @@ theme = shinytheme("united"),
 )
 
 
-# Define server logic required to create a demand profile
-# Outputs:
-# Baseline EV Charging Demand Profile
-# New EV Charging Demand Profile
-# Greenhouse Gas (CO2) Implications
-# Air Quality Implications (NOX)
+# SERVER
 
 server <- function(input, output) {
   source("simulation_function.R")
