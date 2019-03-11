@@ -88,7 +88,11 @@ theme = shinytheme("united"),
                             mainPanel(
                               withSpinner(plotOutput("Demand_Graph"), type = 6),
                               
+                              br(),
+                              
                               withSpinner(tableOutput("Emissions_Table"), type = 6),
+                              
+                              br(),
                               
                               withSpinner(plotOutput("Monte_Carlo"), type = 6)
                               
