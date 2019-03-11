@@ -7,7 +7,7 @@ output: html_document
 
 # **How do I use this application?**
 
-That's a great question!  Follow this flow chart to understand how the wdigets work, what some of the inputs are, and how you can change them in order to create some outputs. The widgets are on the left in the **sidebar.**
+That's a great question!  Follow this flow chart to understand how the widgets work, what some of the inputs are, and how you can change them in order to create some outputs. The widgets are on the left in the **sidebar.**
 
 &nbsp;
 
@@ -60,7 +60,7 @@ A pricing intervention is an incentive that is offered to EV drivers in order to
 
 These financial incentives can be applied in 4 ways:
 
-1) Not at all, where no pricing intervention is selelcted.  
+1) Not at all, where no pricing intervention is selected.  
 
 2) Only a discount.  
 To do this, check the discount box.  Then, **choose the amount** on the slider bar.Next, specify the **amount of time** you want the discount to be applied
@@ -76,7 +76,7 @@ Repeat the same process as described in step 2 for both pricing interventions.
 
 #### **Apply a throttling rate to the chargers**
 
-Throttling is when the power draw of the electric vehicle charger is manually reduced.  For example, if a 6.6 kilowatt (kW) rated EV charger charges an EV for an hour, that EV would have used 6.6 kilowatt *hours* (kWh).  But if 50% throttling was applied to that charger, only 3.3 kWh of electricty would have been used.
+Throttling is when the power draw of the electric vehicle charger is manually reduced.  For example, if a 6.6 kilowatt (kW) rated EV charger charges an EV for an hour, that EV would have used 6.6 kilowatt *hours* (kWh).  But if 50% throttling was applied to that charger, only 3.3 kWh of electricity would have been used.
 
 Throttling defaults to zero percent.  To apply throttling, use the two sliders to *choose your percentage* and *time period* in which you want the throttling to occur.
 
