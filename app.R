@@ -357,15 +357,19 @@ server <- function(input, output) {
   The self elasticities are displayed along the diagonal axis of this elasticity matrix.  
         For methods 2-4, everything outside the diagonal has a zero value because there aren't any cross price elasticities factored into these models."})
     
+    
+    coul<- colorRampPalette(brewer.pal(4,"PRGn"))(100)
+    
+    
     output$method1_heat_map <- renderPlot({matrix1 <- stack(method1_model_run$matrix) %>%
         mutate( x = rep(1:24,24)) %>% 
         select(x = x, y = ind, elasticity = values)
-      ggplot(matrix1, aes(x, y, z= elasticity)) + 
+      ggplot(matrix1, aes(y, x, z= elasticity)) + 
         geom_tile(aes(fill = elasticity)) + 
         labs(x = "", y = "") +
         scale_x_discrete(limits= c(1:24),breaks = c(1:24), expand = c(0,0)) +
-        scale_y_discrete(expand = c(0,0)) +
-        scale_fill_gradientn(colours = topo.colors(10))+
+        scale_y_discrete(limits= c(1:24),breaks = c(1:24), expand = c(0,0)) +
+        scale_fill_gradientn(colours = coul)+
         theme_classic()
     })
     
