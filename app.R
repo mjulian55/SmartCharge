@@ -112,11 +112,15 @@ theme = shinytheme("united"),
                                      
                                      br(), br(),
                                      
+<<<<<<< HEAD
                                      withSpinner(plotOutput("method1_heat_map"), type = 6),
                                      
                                      br(),
                                      
                                      withSpinner(plotOutput("method2_4_heat_map"), type = 6)
+=======
+                                     withSpinner(plotOutput("method1_heat_map"), type = 6)
+>>>>>>> a7bc351ab00accdf97d23a914bc0c5f90ef73b9c
                                      
                                    )
                                  )
@@ -366,22 +370,13 @@ server <- function(input, output) {
       ggplot(matrix1, aes(x, y, z= elasticity)) + 
         geom_tile(aes(fill = elasticity)) + 
         labs(x = "", y = "") +
-        scale_x_discrete(expand = c(0,0)) +
+        scale_x_discrete(limits= c(1:24),breaks = c(1:24), expand = c(0,0)) +
         scale_y_discrete(expand = c(0,0)) +
+        scale_fill_gradientn(colours = topo.colors(10))+
         theme_classic()
     })
     
-    output$method2_4_heat_map <- renderPlot({
-      matrix2 <- stack(method2_model_run$matrix) %>%
-        mutate( x = rep(1:24,24)) %>% 
-        select(x = x, y = ind, elasticity = values)
-      ggplot(matrix2, aes(x, y, z= elasticity)) + 
-        geom_tile(aes(fill = elasticity)) + 
-        labs(x = "", y = "") +
-        scale_x_discrete(expand = c(0,0)) +
-        scale_y_discrete(expand = c(0,0)) +
-        theme_classic()
-    })
+
 
     
     
@@ -414,7 +409,6 @@ server <- function(input, output) {
                 size = 2, 
                 alpha = 0.75,
                 linetype = "dashed") + #This is the X0 line
-      ggtitle("4 Methods of Modelling") +
       xlab("Hour of the Day") +
       ylab("Electricity Demand (kilowatts)") +
       
@@ -594,7 +588,7 @@ The simulated demand (the green line) is compared to the baseline demand that yo
         scale_x_continuous(limits = c(1,24),breaks = c(1:24), expand = c(0,0)) +
         scale_y_continuous(expand = c(0,0)) +
        scale_fill_brewer("Interventions",palette = "Set2" , guide = guide_legend(override.aes = list(alpha = 0.5))) +
-       scale_color_brewer("Simulation Method", palette = "Dark2", direction = -1) +
+       scale_color_brewer("Simulation Method", palette = "Dark2", direction = -1, guide = guide_legend(override.aes = list(alpha = 0.5,size = 2))) +
         theme(legend.position = "bottom") +
         theme_classic()
       
@@ -670,7 +664,6 @@ The simulated demand (the green line) is compared to the baseline demand that yo
                     color = "Baseline Demand"), 
                 size = 2.5, 
                 alpha = 0.75) + #This is the X0 line
-      ggtitle("Title") +
       xlab("Hour of the Day") +
       ylab("Electricity Demand (kilowatts)") +
       
