@@ -9,6 +9,7 @@ library(markdown)
 library(shinycssloaders)
 library(gganimate)
 library(wesanderson)
+library(lattice)
 
 
 # USER INTERFACE (UI)
@@ -85,7 +86,10 @@ theme = shinytheme("united"),
                                      
                                    ),
                                    mainPanel(
-                                     withSpinner(plotOutput("method_graph"), type = 6)
+                                     withSpinner(plotOutput("method_graph"), type = 6),
+                                     withSpinner(plotOutput("method1_heat_map"), type = 6),
+                                     withSpinner(plotOutput("method2_4_heat_map"), type = 6)
+                                     
                                      
                                      
                                    )
@@ -318,6 +322,35 @@ server <- function(input, output) {
                                        throttle_amount = -input$throttlingmethod,
                                        throttle_hours = throttling_period)
     
+    
+    
+    output$method1_heat_map <- renderPlot({
+      matrix1 <- stack(method1_model_run$matrix) %>%
+        mutate( x = rep(1:24,24)) %>% 
+        select(x = x, y = ind, elasticity = values)
+      ggplot(matrix1, aes(x, y, z= elasticity)) + 
+        geom_tile(aes(fill = elasticity)) + 
+        labs(x = "", y = "") +
+        scale_x_discrete(expand = c(0,0)) +
+        scale_y_discrete(expand = c(0,0)) +
+        theme_classic()
+    })
+    
+    output$method2_4_heat_map <- renderPlot({
+      matrix2 <- stack(method2_model_run$matrix) %>%
+        mutate( x = rep(1:24,24)) %>% 
+        select(x = x, y = ind, elasticity = values)
+      ggplot(matrix2, aes(x, y, z= elasticity)) + 
+        geom_tile(aes(fill = elasticity)) + 
+        labs(x = "", y = "") +
+        scale_x_discrete(expand = c(0,0)) +
+        scale_y_discrete(expand = c(0,0)) +
+        theme_classic()
+    })
+
+    
+    
+    
     ggplot() +
       geom_line(data = method1_model_run$EV_Demand,
                 aes(x = Hr, y = Xf,color = "Method 1"), 
@@ -389,10 +422,11 @@ server <- function(input, output) {
     
     
     
-    
-    
-    
   })
+  
+  
+  
+  
   
   
   output$Demand_Graph <- renderPlot({
