@@ -28,7 +28,7 @@ theme = shinytheme("united"),
                           sidebarLayout(
                             sidebarPanel(
                               
-                              selectInput("sim", label = h4("Number of Simulations. \n Over 10 simulations results in long loading times"), 
+                              selectInput("sim", label = h4("Number of Simulations \n(Over 10 simulations results in long loading times)"), 
                                           c("1" = "1",
                                             "10" = "10",
                                             "100" = "100",
@@ -91,6 +91,12 @@ theme = shinytheme("united"),
                                  
                                  ),
                             mainPanel(
+                              
+                              textOutput("DemandGraphDescription", container = span),
+                              
+                              br(),
+                              br(),
+                              
                               withSpinner(plotOutput("Demand_Graph"), type = 6),
                               
                               br(),
@@ -98,6 +104,11 @@ theme = shinytheme("united"),
                               br(),
                               br(),
                              
+                              textOutput("OutputTableDescription", container = span),
+                              
+                              br(),
+                              br(),
+                              
                               
                               withSpinner(tableOutput("Emissions_Table"), type = 6),
                               
@@ -105,6 +116,8 @@ theme = shinytheme("united"),
                               br(),
                               br(),
                               br(),
+                              
+                              textOutput("MonteCarloDescription", container = span), br(), br(), br(), br(),
                               
                               withSpinner(plotOutput("Monte_Carlo"), type = 6)
                               
@@ -125,22 +138,21 @@ server <- function(input, output) {
   source("simulation_function.R")
   source("emissions_function.R")
   
-  
+  output$DemandGraphDescription <- renderText({
+    "This graph displays the simulated electricity demand of EV charging based on the inputs that you choose on the sidebar.  
+The simulated demand (the green line) is compared to the baseline demand that you start with (the red line).  
+    Shaded areas will appear for the time periods of any intervention you choose."})
+    
   output$Demand_Graph <- renderPlot({
     
-    
     #Color information
-    
     discount_color <- "cadetblue4"
     rebate_color <- "thistle2"
     throttle_color <- "darksalmon"
     
-    
     month <- month(as.Date(input$date, "%Y/%m/%d"))
     year <- year(as.Date(input$date, "%Y/%m/%d"))
     shiny_seg <- as.character(input$seg)
-    
-    
     
     if(is.null(input$price_intervention)){
       price_change_conditional <- 0
@@ -185,10 +197,8 @@ server <- function(input, output) {
       intervention_hrs_conditional_2 <- seq(input$rebate_period[1],input$rebate_period[2],1)
     }
     
-   
-  
+
     throttling_period <- seq(input$throttle_period[1],input$throttle_period[2],1)
-    
     
     # generate graph and change the things that are reactive from the sliders
     app_model_run <- simulation(simulations = as.numeric(input$sim),
@@ -285,6 +295,11 @@ server <- function(input, output) {
     time_periods <- c(intervention_hours,"4 PM - 9 PM", "All Hours")
     periods <- c("Price Intervention","Peak Demand", "Total")
     
+    
+    output$OutputTableDescription <- renderText({
+      "This table displays various economic and greenhouse gas emission changes that occur that result from your simulation."})
+    
+    
     output$Emissions_Table <- renderTable({
       app_emissions_run <- emissions_fcn(app_model_run)
       app_emissions_table <- app_emissions_run$Emissions_Table %>%
@@ -294,18 +309,21 @@ server <- function(input, output) {
       
       app_emissions_table$'Hours' <- time_periods
       app_emissions_table$'Time Periods' <- periods
-      
       app_emissions_table
       
-      # making interventions hours reactive will be really challenging
-      
     })
+    
+    output$MonteCarloDescription <- renderText({
+      "This graph is similar to the top graph, only it takes the same model used to create the first graph and runs it many times (this amount is chosen on the sidebar).
+        This process is called a Monte Carlo simulation.  
+        It's used to randomly use the same model to repeatedly simulate your results so any uncertainty and range can be displayed.  
+        There are 4 methods (see the 4 Methods for Modeling Tab) being used within our computer model to simulate demand, and as each one is randomly drawn, you can see which one is being used and how that one is displayed."})
+    
     
     ggplot(app_model_run$sim_result_summary) +
       geom_line(aes(x = Hr, y = Xf_mean,color = "Intervention Demand"), 
                 size = 2.5, 
                 alpha = 0.75) + #This is the Xf line
-      
       
       geom_line(aes(x = Hr,
                     y = X0_mean,
@@ -316,7 +334,6 @@ server <- function(input, output) {
       xlab("Hour of the Day") +
       ylab("Electricity Demand (kilowatts)") +
       
-      
       geom_rect(aes(xmin= input$discount_period[1],
                     xmax=input$discount_period[2],
                     ymin=-Inf,
@@ -324,9 +341,7 @@ server <- function(input, output) {
                     fill = "Discount"),
                 alpha=ifelse("Discount" %in% input$price_intervention & input$discount >0, 0.02,0)) + #this is the discount rectangle
       
-      
-      
-      
+
       geom_rect(aes(xmin=input$rebate_period[1],
                     xmax=input$rebate_period[2],
                     ymin=-Inf,
@@ -334,16 +349,12 @@ server <- function(input, output) {
                     fill="Rebate"),
                 alpha=ifelse("Rebate" %in% input$price_intervention & input$rebate >0, 0.02,0)) + #This is the rebate rectangle
       
-      
-      
-
       geom_rect(aes(xmin= input$throttle_period[1],
                     xmax=input$throttle_period[2],
                     ymin=-Inf,
                     ymax=Inf,
                     fill = "Throttle"),
                 alpha=ifelse(input$throttling >0, 0.02,0)) + #this is the discount rectangle
-      
       
       scale_x_continuous(limits = c(1,24),breaks = c(1:24), expand = c(0,0)) +
       scale_y_continuous(expand = c(0,0)) +
@@ -353,11 +364,9 @@ server <- function(input, output) {
       theme(legend.position = "bottom") +
       theme_classic()
     
-    
- 
+
     })
 }
-
 
 
 shinyApp(ui = ui, server = server)
