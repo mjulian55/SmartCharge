@@ -25,99 +25,7 @@ theme = shinytheme("united"),
                         includeMarkdown("Overview_App.Rmd")),
                         
                         
-                        tabPanel("4 Methods for Modeling",
-                                 
-                                 sidebarLayout(
-                                   sidebarPanel(
-                                     
-                                     # Number of chargers widget
-                                     numericInput("intervention_chargersmethod", label = h4("Number of Chargers"), value = 900),
-                                     # Market Segment dropdown widget
-                                     selectInput("segmethod", label = h4("Market Segment"), 
-                                                 c("Workplace" = "Workplace",
-                                                   "Destination Center" = "Destination Center",
-                                                   "Fleet" = "Fleet",
-                                                   "Multi Unit Dwelling" = "Multi Unit Dwelling")),
-                                     
-                                     # Date Selection of Invervention (Month and Year)
-                                     selectInput("datemethod", 
-                                                 label = h4("Month and Year"), 
-                                                 c("June 2017" = "2017/06/01",
-                                                   "July 2017" = "2017/07/01",
-                                                   "August 2017" = "2017/08/01",
-                                                   "September 2017" = "2017/09/01",
-                                                   "October 2017" = "2017/10/01",
-                                                   "November 2017" = "2017/11/01",
-                                                   "December 2017" = "2017/12/01",
-                                                   "January 2018" = "2018/01/01",
-                                                   "February 2018" = "2018/02/01",
-                                                   "March 2018" = "2018/03/01",
-                                                   "April 2018" = "2018/04/01",
-                                                   "May 2018" = "2018/05/01",
-                                                   "June 2018" = "2018/06/01",
-                                                   "July 2018" = "2018/07/01",
-                                                   "August 2018" = "2018/08/01",
-                                                   "September 2018" = "2018/09/01",
-                                                   "October 2018" = "2018/10/01",
-                                                   "November 2018" = "2018/11/01"),
-                                                 selected = "2018/11/01"),
-                                     
-                                     checkboxGroupInput("price_interventionmethod", h4("Choose a Price Intevention"),
-                                                        choices = c("Discount", "Rebate"),
-                                                        selected = "Discount"),
-                                     conditionalPanel(condition = "input.price_interventionmethod.includes('Discount')",
-                                                      sliderInput("discountmethod", label = h4("Discount Price (in cents/kWh)"),
-                                                                  min = 0, max = 20, value = 5),
-                                                      
-                                                      sliderInput("discount_periodmethod", label = h4("Discount Period (Hour Ending)"), 
-                                                                  min = 0, max = 24, value = c(12, 15))),
-                                     
-                                     conditionalPanel(condition = "input.price_interventionmethod.includes('Rebate')",
-                                                      sliderInput("rebatemethod", label = h4("Rebate Price (in cents/kWh)"), 
-                                                                  min = 0, max = 20, value = 0),
-                                                      
-                                                      sliderInput("rebate_periodmethod", label = h4("Rebate Period (Hour Ending)"),
-                                                                  min = 0, max = 24, value = c(17, 21))),
-                                     
-                                     sliderInput("throttlingmethod", label = h4("Throttling Amount (%)"), min = 0, max = 1, value = 0.0),
-                                     #Throttling hours
-                                     sliderInput("throttle_periodmethod", label = h4("Throttling Period"),
-                                                 min = 0, max = 24, value = c(6, 11))
-                                     
-                                   ),
-                                   mainPanel(
-                                     
-                                     
-                                     
-                                     
-                                     textOutput("ModelDescription", container = span),
-                                     
-                                     br(),
-                                     br(),
-                                     br(),
-                                     
-                                     withSpinner(plotOutput("method_graph"), type = 6),
-                                     
-                                     br(),
-                                     br(),
-                                     br(),
-                                     
-                                     textOutput("MethodsDescription", container = span),
-                                     
-                                     br(),
-                                     br(),
-                                     br(),
-                                     
-                                     textOutput("ElasticityDescription", container = span),
-                                     
-                                     br(), br(),
-                                     
-
-                                     withSpinner(plotOutput("method1_heat_map"), type = 6)
-
-                                   )
-                                 )
-                                 ),
+                        
                         
                         tabPanel("Simulation Graphs",
                         
@@ -211,6 +119,101 @@ theme = shinytheme("united"),
                               
     )
   )
+),
+
+
+tabPanel("4 Methods for Modeling",
+         
+         sidebarLayout(
+           sidebarPanel(
+             
+             # Number of chargers widget
+             numericInput("intervention_chargersmethod", label = h4("Number of Chargers"), value = 900),
+             # Market Segment dropdown widget
+             selectInput("segmethod", label = h4("Market Segment"), 
+                         c("Workplace" = "Workplace",
+                           "Destination Center" = "Destination Center",
+                           "Fleet" = "Fleet",
+                           "Multi Unit Dwelling" = "Multi Unit Dwelling")),
+             
+             # Date Selection of Invervention (Month and Year)
+             selectInput("datemethod", 
+                         label = h4("Month and Year"), 
+                         c("June 2017" = "2017/06/01",
+                           "July 2017" = "2017/07/01",
+                           "August 2017" = "2017/08/01",
+                           "September 2017" = "2017/09/01",
+                           "October 2017" = "2017/10/01",
+                           "November 2017" = "2017/11/01",
+                           "December 2017" = "2017/12/01",
+                           "January 2018" = "2018/01/01",
+                           "February 2018" = "2018/02/01",
+                           "March 2018" = "2018/03/01",
+                           "April 2018" = "2018/04/01",
+                           "May 2018" = "2018/05/01",
+                           "June 2018" = "2018/06/01",
+                           "July 2018" = "2018/07/01",
+                           "August 2018" = "2018/08/01",
+                           "September 2018" = "2018/09/01",
+                           "October 2018" = "2018/10/01",
+                           "November 2018" = "2018/11/01"),
+                         selected = "2018/11/01"),
+             
+             checkboxGroupInput("price_interventionmethod", h4("Choose a Price Intevention"),
+                                choices = c("Discount", "Rebate"),
+                                selected = "Discount"),
+             conditionalPanel(condition = "input.price_interventionmethod.includes('Discount')",
+                              sliderInput("discountmethod", label = h4("Discount Price (in cents/kWh)"),
+                                          min = 0, max = 20, value = 5),
+                              
+                              sliderInput("discount_periodmethod", label = h4("Discount Period (Hour Ending)"), 
+                                          min = 0, max = 24, value = c(12, 15))),
+             
+             conditionalPanel(condition = "input.price_interventionmethod.includes('Rebate')",
+                              sliderInput("rebatemethod", label = h4("Rebate Price (in cents/kWh)"), 
+                                          min = 0, max = 20, value = 0),
+                              
+                              sliderInput("rebate_periodmethod", label = h4("Rebate Period (Hour Ending)"),
+                                          min = 0, max = 24, value = c(17, 21))),
+             
+             sliderInput("throttlingmethod", label = h4("Throttling Amount (%)"), min = 0, max = 1, value = 0.0),
+             #Throttling hours
+             sliderInput("throttle_periodmethod", label = h4("Throttling Period"),
+                         min = 0, max = 24, value = c(6, 11))
+             
+           ),
+           mainPanel(
+             
+             
+             
+             
+             textOutput("ModelDescription", container = span),
+             
+             br(),
+             br(),
+             br(),
+             
+             withSpinner(plotOutput("method_graph"), type = 6),
+             
+             br(),
+             br(),
+             br(),
+             
+             textOutput("MethodsDescription", container = span),
+             
+             br(),
+             br(),
+             br(),
+             
+             textOutput("ElasticityDescription", container = span),
+             
+             br(), br(),
+             
+             
+             withSpinner(plotOutput("method1_heat_map"), type = 6)
+             
+           )
+         )
 ),
 
                         tabPanel("Instructions",
