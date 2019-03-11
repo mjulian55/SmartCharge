@@ -9,17 +9,31 @@ output: html_document
 
 That's a great question!  Follow this flow chart to understand how the wdigets work, what some of the inputs are, and how you can change them in order to create some outputs. The widgets are on the left in the **sidebar.**
 
+&nbsp;
 
-### **Choose your Widgets in the Sidebar**
+### **Choose your inputs in the sidebar**
 
+&nbsp;
 
-#### **First, choose how many chargers you want in your simulation**
+#### **First, choose how many simulations you want to run**
+
+This will how many times the model is run to create your charging demand simulation.  The more times the model is run, the more robust the simulation.  However, since each model run is randomized, the variance in outcomes would be greater.  
+
+The top graph is the **mean** of the amount of simulations.  The bottom graph displays all of the model simulations so you can see the **range** between the 4 methods used to create the simulation.
+
+Choose from the dropdown how many times you want the model to run (1, 10, 100 or 1000 times).  Note: the higher the number, the longer the loading time.
+
+&nbsp;
+&nbsp;
+
+#### **Next, choose how many chargers you want in your simulation**
 
 The amount of chargers will affect the amount of charging demand that you're trying to simulate.  You might want to see how much charging demand your place of employment might have with something low like 20 chargers.  Or you might want to simulate an entire metropolitan area with a value closer to 1,500 chargers.  Type in the number you want in to the top box labeled "Number of Chargers" or use the up/down arrows to increase/decrease.
 
+&nbsp;
+&nbsp;
 
-
-#### **Next, choose your Market Segment**
+#### **Now, choose your market segment**
 
 A market segment refers to a non-residential place of electric vehicle charging.  The four market segments we evaluated for our project were:
 
@@ -30,15 +44,17 @@ A market segment refers to a non-residential place of electric vehicle charging.
 
 Choose your market segment by selecting 1 of the 4 from the drop down menu labeled "Market Segment"
 
+&nbsp;
+&nbsp;
 
-
-#### **Choose the Date that you want to represent**
+#### **Choose the date that you want to represent**
 
 The baseline data (the original demand line that's displayed) is based on data that we have integrated into our model.  Select the date (month and year) you would want to set your baseline at.  If nothing is selected it will default to November of 2018, the final month of data we received for this project.
 
+&nbsp;
+&nbsp;
 
-
-#### **Choose what type of Price Intervention you might want to offer**
+#### **Choose what type of price intervention you might want to offer**
 
 A pricing intervention is an incentive that is offered to EV drivers in order to induce a demand response.  A **discount** is a cheaper price of electricity to encourage consumers to use more electricity during periods of lower demand.  A **rebate** is a bill credit given to consumers in order to use less electricity during periods of high demand.  
 
@@ -55,31 +71,24 @@ Repeat the same process as described in step 2.
 4) A discount and a rebate.
 Repeat the same process as described in step 2 for both pricing interventions.
 
+&nbsp;
+&nbsp;
 
-
-#### **Apply a Throttling Rate to the electric vehicle chargers if desired**
+#### **Apply a throttling rate to the chargers**
 
 Throttling is when the power draw of the electric vehicle charger is manually reduced.  For example, if a 6.6 kilowatt (kW) rated EV charger charges an EV for an hour, that EV would have used 6.6 kilowatt *hours* (kWh).  But if 50% throttling was applied to that charger, only 3.3 kWh of electricty would have been used.
 
 Throttling defaults to zero percent.  To apply throttling, use the two sliders to *choose your percentage* and *time period* in which you want the throttling to occur.
 
+&nbsp;
+&nbsp;
 
-### **The Simulation Graphs**
-
-There are 3 Outputs that appear in the right main panel based on the inputs you choose from the left sidebar panel.
-
-1) The top graph is the simulated demand (the green line) compared to the baseline demand that you start with (the red line).  Only the red line appears at first until you start choosing inputs.
-Shaded areas will appear for the time periods of any intervention you choose.
-
-2) The table under this demand graph displays various economic and greenhouse gas emission changes that occur as a result of your simulation.
-
-3) The bottom graph is similar to the top graph, only it takes the same model used to create the first graph and runs it many times (this amount can be chosen by you).  This process is called a Monte Carlo simulation.  It's used to randomly use the same model to repeatedly simulate your results so any uncertainty and range can be displayed.  There are 4 methods being used within our computer model to simulate demand, and as each one is randomly drawn, you can see which one is being used and how that one is displayed.
-
-
+#### **What next?**
 
 The graphs and tables are reactive, so you don't need to push any buttons.  The more simulations your run, the longer the app will take to load.
 
-
+&nbsp;
+&nbsp;
 
 
 
