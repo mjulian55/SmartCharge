@@ -9,6 +9,7 @@ library(markdown)
 library(shinycssloaders)
 library(ungeviz)
 library(gganimate)
+library(wesanderson)
 
 
 # USER INTERFACE (UI)
@@ -22,7 +23,75 @@ theme = shinytheme("united"),
                         
                         tabPanel("Overview", 
                         includeMarkdown("Overview_App.Rmd")),
-                      
+                        
+                        
+                        tabPanel("4 Methods for Modeling",
+                                 
+                                 sidebarLayout(
+                                   sidebarPanel(
+                                     
+                                     # Number of chargers widget
+                                     numericInput("intervention_chargersmethod", label = h4("Number of Chargers"), value = 900),
+                                     # Market Segment dropdown widget
+                                     selectInput("segmethod", label = h4("Market Segment"), 
+                                                 c("Workplace" = "Workplace",
+                                                   "Destination Center" = "Destination Center",
+                                                   "Fleet" = "Fleet",
+                                                   "Multi Unit Dwelling" = "Multi Unit Dwelling")),
+                                     
+                                     # Date Selection of Invervention (Month and Year)
+                                     selectInput("datemethod", 
+                                                 label = h4("Month and Year"), 
+                                                 c("June 2017" = "2017/06/01",
+                                                   "July 2017" = "2017/07/01",
+                                                   "August 2017" = "2017/08/01",
+                                                   "September 2017" = "2017/09/01",
+                                                   "October 2017" = "2017/10/01",
+                                                   "November 2017" = "2017/11/01",
+                                                   "December 2017" = "2017/12/01",
+                                                   "January 2018" = "2018/01/01",
+                                                   "February 2018" = "2018/02/01",
+                                                   "March 2018" = "2018/03/01",
+                                                   "April 2018" = "2018/04/01",
+                                                   "May 2018" = "2018/05/01",
+                                                   "June 2018" = "2018/06/01",
+                                                   "July 2018" = "2018/07/01",
+                                                   "August 2018" = "2018/08/01",
+                                                   "September 2018" = "2018/09/01",
+                                                   "October 2018" = "2018/10/01",
+                                                   "November 2018" = "2018/11/01"),
+                                                 selected = "2018/11/01"),
+                                     
+                                     checkboxGroupInput("price_interventionmethod", h4("Choose a Price Intevention"),
+                                                        choices = c("Discount", "Rebate"),
+                                                        selected = "Discount"),
+                                     conditionalPanel(condition = "input.price_intervention.includes('Discount')",
+                                                      sliderInput("discountmethod", label = h4("Discount Price (in cents/kWh)"),
+                                                                  min = 0, max = 20, value = 5),
+                                                      
+                                                      sliderInput("discount_periodmethod", label = h4("Discount Period (Hour Ending)"), 
+                                                                  min = 0, max = 24, value = c(12, 15))),
+                                     
+                                     conditionalPanel(condition = "input.price_intervention.includes('Rebate')",
+                                                      sliderInput("rebatemethod", label = h4("Rebate Price (in cents/kWh)"), 
+                                                                  min = 0, max = 20, value = 0),
+                                                      
+                                                      sliderInput("rebate_periodmethod", label = h4("Rebate Period (Hour Ending)"),
+                                                                  min = 0, max = 24, value = c(17, 21))),
+                                     
+                                     sliderInput("throttlingmethod", label = h4("Throttling Amount (%)"), min = 0, max = 1, value = 0.0),
+                                     #Throttling hours
+                                     sliderInput("throttle_periodmethod", label = h4("Throttling Period"),
+                                                 min = 0, max = 24, value = c(6, 11))
+                                     
+                                   ),
+                                   mainPanel(
+                                     withSpinner(plotOutput("method_graph"), type = 6)
+                                     
+                                     
+                                   )
+                                 )
+                                 ),
                         
                         tabPanel("Simulation Graphs",
                         
@@ -127,10 +196,200 @@ server <- function(input, output) {
   source("emissions_function.R")
   
   
+  output$method_graph <- renderPlot({
+    
+    
+    month <- month(as.Date(input$datemethod, "%Y/%m/%d"))
+    year <- year(as.Date(input$datemethod, "%Y/%m/%d"))
+    shiny_seg <- as.character(input$segmethod)
+    
+    
+    
+    if(is.null(input$price_interventionmethod)){
+      price_change_conditional <- 0
+      
+      intervention_hrs_conditional <- seq(input$discount_periodmethod[1],input$discount_periodmethod[2],1)
+      
+      price_change_2_conditional <- 0
+      
+      intervention_hrs_conditional_2 <- seq(input$rebate_periodmethod[1],input$rebate_periodmethod[2],1)
+    } else if(length(input$price_intervention) > 1) {
+      price_change_conditional <- -input$discountmethod/100
+      
+      intervention_hrs_conditional <- seq(input$discount_periodmethod[1],input$discount_periodmethod[2],1)
+      
+      price_change_2_conditional <- input$rebatemethod/100
+      
+      intervention_hrs_conditional_2 <- seq(input$rebate_periodmethod[1],input$rebate_periodmethod[2],1)
+    } else if(input$price_interventionmethod == "Discount") {
+      price_change_conditional <- -input$discountmethod/100
+      
+      intervention_hrs_conditional <- seq(input$discount_periodmethod[1],input$discount_periodmethod[2],1)
+      
+      price_change_2_conditional <- 0
+      
+      intervention_hrs_conditional_2 <- seq(input$rebate_periodmethod[1],input$rebate_periodmethod[2],1)
+      
+    } else if (input$price_intervention == "Rebate") {
+      price_change_conditional <- input$rebatemethod/100
+      
+      intervention_hrs_conditional <- seq(input$rebate_periodmethod[1],input$rebate_periodmethod[2],1)
+      
+      price_change_2_conditional <- 0
+      
+      intervention_hrs_conditional_2 <- seq(input$discount_periodmethod[1],input$discount_periodmethod[2],1)
+    } else {
+      price_change_conditional <- -input$discountmethod/100
+      
+      intervention_hrs_conditional <- seq(input$discount_periodmethod[1],input$discount_periodmethod[2],1)
+      
+      price_change_2_conditional <- input$rebatemethod/100
+      
+      intervention_hrs_conditional_2 <- seq(input$rebate_periodmethod[1],input$rebate_periodmethod[2],1)
+    }
+    
+    
+    
+    throttling_period <- seq(input$throttle_periodmethod[1],input$throttle_periodmethod[2],1)
+    
+    
+    method1_model_run <- hourly_demand(method = 1,
+                                price_change = price_change_conditional,
+                                intervention_hours = intervention_hrs_conditional,
+                                price_change_2 = price_change_2_conditional,
+                                intervention_hours_2 = intervention_hrs_conditional_2,
+                                int_equals_baseline = FALSE,
+                                intervention_chargers = input$intervention_chargersmethod,
+                                month = month, 
+                                year = year, 
+                                seg = shiny_seg,
+                                throttle_amount = -input$throttlingmethod,
+                                throttle_hours = throttling_period)
+    
+    method2_model_run <- hourly_demand(method = 2,
+                                       price_change = price_change_conditional,
+                                       intervention_hours = intervention_hrs_conditional,
+                                       price_change_2 = price_change_2_conditional,
+                                       intervention_hours_2 = intervention_hrs_conditional_2,
+                                       int_equals_baseline = FALSE,
+                                       intervention_chargers = input$intervention_chargersmethod,
+                                       month = month, 
+                                       year = year, 
+                                       seg = shiny_seg,
+                                       throttle_amount = -input$throttlingmethod,
+                                       throttle_hours = throttling_period)
+    
+    method3_model_run <- hourly_demand(method = 3,
+                                       price_change = price_change_conditional,
+                                       intervention_hours = intervention_hrs_conditional,
+                                       price_change_2 = price_change_2_conditional,
+                                       intervention_hours_2 = intervention_hrs_conditional_2,
+                                       int_equals_baseline = FALSE,
+                                       intervention_chargers = input$intervention_chargersmethod,
+                                       month = month, 
+                                       year = year, 
+                                       seg = shiny_seg,
+                                       throttle_amount = -input$throttlingmethod,
+                                       throttle_hours = throttling_period)
+    
+    
+    method4_model_run <- hourly_demand(method = 4,
+                                       price_change = price_change_conditional,
+                                       intervention_hours = intervention_hrs_conditional,
+                                       price_change_2 = price_change_2_conditional,
+                                       intervention_hours_2 = intervention_hrs_conditional_2,
+                                       int_equals_baseline = FALSE,
+                                       intervention_chargers = input$intervention_chargersmethod,
+                                       month = month, 
+                                       year = year, 
+                                       seg = shiny_seg,
+                                       throttle_amount = -input$throttlingmethod,
+                                       throttle_hours = throttling_period)
+    
+    ggplot() +
+      geom_line(data = method1_model_run$EV_Demand,
+                aes(x = Hr, y = Xf,color = "Method 1"), 
+                size = 2, 
+                alpha = 0.75) + #This is the method 1 line
+      
+      geom_line(data = method2_model_run$EV_Demand,
+                aes(x = Hr, y = Xf,color = "Method 2"), 
+                size = 2, 
+                alpha = 0.75) + #This is the method 1 line
+      
+      geom_line(data = method3_model_run$EV_Demand,
+                aes(x = Hr, y = Xf,color = "Method 3"), 
+                size = 2, 
+                alpha = 0.75) + #This is the method 1 line
+      
+      geom_line(data = method4_model_run$EV_Demand,
+                aes(x = Hr, y = Xf,color = "Method 4"), 
+                size = 2, 
+                alpha = 0.75) + #This is the method 1 line
+      
+      geom_line(data = method4_model_run$EV_Demand,
+                aes(x = Hr,
+                    y = X0,
+                    color = "Baseline Demand"), 
+                size = 2, 
+                alpha = 0.75,
+                linetype = "dashed") + #This is the X0 line
+      ggtitle("4 Methods of Modelling") +
+      xlab("Hour of the Day") +
+      ylab("Electricity Demand (kilowatts)") +
+      
+      
+      geom_rect(aes(xmin= input$discount_period[1],
+                    xmax=input$discount_period[2],
+                    ymin=-Inf,
+                    ymax=Inf,
+                    fill = "Discount"),
+                alpha=ifelse("Discount" %in% input$price_intervention & input$discount >0, 0.02,0)) + #this is the discount rectangle
+      
+      
+      
+      
+      geom_rect(aes(xmin=input$rebate_period[1],
+                    xmax=input$rebate_period[2],
+                    ymin=-Inf,
+                    ymax=Inf,
+                    fill="Rebate"),
+                alpha=ifelse("Rebate" %in% input$price_intervention & input$rebate >0, 0.02,0)) + #This is the rebate rectangle
+      
+      
+      
+      
+      geom_rect(aes(xmin= input$throttle_period[1],
+                    xmax=input$throttle_period[2],
+                    ymin=-Inf,
+                    ymax=Inf,
+                    fill = "Throttle"),
+                alpha=ifelse(input$throttling >0, 0.02,0)) + #this is the discount rectangle
+      
+      
+      scale_x_continuous(limits = c(1,24),breaks = c(1:24), expand = c(0,0)) +
+      scale_y_continuous(expand = c(0,0)) +
+      scale_fill_brewer("Interventions",palette = "Set2" , guide = guide_legend(override.aes = list(alpha = 0.5))) +
+      scale_color_brewer("Methods", palette = "Dark2", direction = -1) +
+      #scale_fill_manual('Interventions', values = c("Disount" = 'cadetblue3',"Rebate" = 'thistle3', "Throttle" = 'darksalmon'),  guide = guide_legend(override.aes = list(alpha = 0.5))) +
+      theme(legend.position = "bottom") +
+      theme_classic()
+    
+    
+    
+    
+    
+    
+  })
+  
+  
+  
   output$Demand_Graph <- renderPlot({
     
     
     #Color information
+    
+    intervention_palette <- wes_palette("Royal2")
     
     discount_color <- "cadetblue4"
     rebate_color <- "thistle2"
@@ -208,6 +467,12 @@ server <- function(input, output) {
     # graph of all the sim results grouped by their run number, color by the method
     # ggplot
     # gganimate
+    
+    
+    
+    
+    
+    
     
     output$Monte_Carlo <- renderPlot({
     
