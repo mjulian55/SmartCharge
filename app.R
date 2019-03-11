@@ -65,14 +65,14 @@ theme = shinytheme("united"),
                                      checkboxGroupInput("price_interventionmethod", h4("Choose a Price Intevention"),
                                                         choices = c("Discount", "Rebate"),
                                                         selected = "Discount"),
-                                     conditionalPanel(condition = "input.price_intervention.includes('Discount')",
+                                     conditionalPanel(condition = "input.price_interventionmethod.includes('Discount')",
                                                       sliderInput("discountmethod", label = h4("Discount Price (in cents/kWh)"),
                                                                   min = 0, max = 20, value = 5),
                                                       
                                                       sliderInput("discount_periodmethod", label = h4("Discount Period (Hour Ending)"), 
                                                                   min = 0, max = 24, value = c(12, 15))),
                                      
-                                     conditionalPanel(condition = "input.price_intervention.includes('Rebate')",
+                                     conditionalPanel(condition = "input.price_interventionmethod.includes('Rebate')",
                                                       sliderInput("rebatemethod", label = h4("Rebate Price (in cents/kWh)"), 
                                                                   min = 0, max = 20, value = 0),
                                                       
@@ -406,12 +406,12 @@ server <- function(input, output) {
       ylab("Electricity Demand (kilowatts)") +
       
       
-      geom_rect(aes(xmin= input$discount_period[1],
-                    xmax=input$discount_period[2],
+      geom_rect(aes(xmin= input$discount_periodmethod[1],
+                    xmax=input$discount_periodmethod[2],
                     ymin=-Inf,
                     ymax=Inf,
                     fill = "Discount"),
-                alpha=ifelse("Discount" %in% input$price_intervention & input$discount >0, 0.02,0)) + #this is the discount rectangle
+                alpha=ifelse("Discount" %in% input$price_interventionmethod & input$discountmethod >0, 0.02*24,0)) + #this is the discount rectangle
       
       
       
@@ -421,17 +421,17 @@ server <- function(input, output) {
                     ymin=-Inf,
                     ymax=Inf,
                     fill="Rebate"),
-                alpha=ifelse("Rebate" %in% input$price_intervention & input$rebate >0, 0.02,0)) + #This is the rebate rectangle
+                alpha=ifelse("Rebate" %in% input$price_interventionmethod & input$rebatemethod >0, 0.02*24,0)) + #This is the rebate rectangle
       
       
       
       
-      geom_rect(aes(xmin= input$throttle_period[1],
-                    xmax=input$throttle_period[2],
+      geom_rect(aes(xmin= input$throttle_periodmethod[1],
+                    xmax=input$throttle_periodmethod[2],
                     ymin=-Inf,
                     ymax=Inf,
                     fill = "Throttle"),
-                alpha=ifelse(input$throttling >0, 0.02,0)) + #this is the discount rectangle
+                alpha=ifelse(input$throttlingmethod >0, 0.02*24,0)) + #this is the discount rectangle
       
       
       scale_x_continuous(limits = c(1,24),breaks = c(1:24), expand = c(0,0)) +
