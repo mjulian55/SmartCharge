@@ -15,7 +15,11 @@ Choose your own combination of inputs to see how you might be able to change dem
 
 
 
+
+
 <img src="EV_Charging.jpeg" width="35%" align="right">
+
+
 
 
 ### How Does it Actually Work?
@@ -31,7 +35,7 @@ Grid operators and energy providers aren't just curious about *how much* electri
 
 
 ### Not Sure Where to Start?  
-Check out our instructions tab for a walkthrough of the app.
+Check out our **instructions tab** for a walkthrough of the app.
 
 
 ### Why Was This App Built?

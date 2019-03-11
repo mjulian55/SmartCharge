@@ -11,6 +11,8 @@ library(ungeviz)
 library(gganimate)
 
 
+# USER INTERFACE (UI)
+
 ui <- fluidPage(
 
 theme = shinytheme("united"),
@@ -22,7 +24,7 @@ theme = shinytheme("united"),
                         includeMarkdown("Overview_App.Rmd")),
                       
                         
-                        tabPanel("Demand Graphs",
+                        tabPanel("Simulation Graphs",
                         
                           sidebarLayout(
                             sidebarPanel(
@@ -73,29 +75,37 @@ theme = shinytheme("united"),
                                                   sliderInput("discount", label = h4("Discount Price (in cents/kWh)"),
                                                               min = 0, max = 20, value = 5),
                                                   
-                                                  sliderInput("discount_period", label = h4("Discount Period"), 
+                                                  sliderInput("discount_period", label = h4("Discount Period (Hour Ending)"), 
                                                               min = 0, max = 24, value = c(12, 15))),
                                  
                                  conditionalPanel(condition = "input.price_intervention.includes('Rebate')",
                                                   sliderInput("rebate", label = h4("Rebate Price (in cents/kWh)"), 
                                                               min = 0, max = 20, value = 0),
                                                   
-                                                  sliderInput("rebate_period", label = h4("Rebate Period"),
+                                                  sliderInput("rebate_period", label = h4("Rebate Period (Hour Ending)"),
                                                               min = 0, max = 24, value = c(17, 21))),
                                                   
                                  sliderInput("throttling", label = h4("Throttling Amount (%)"), min = 0, max = 1, value = 0.0),
                                  #Throttling hours
                                  sliderInput("throttle_period", label = h4("Throttling Period"),
-                                             min = 0, max = 24, value = c(6, 11)),
-                                 
-                                 # Action Button (Simulate Demand)
-                                 actionButton("action", label = "Charge")
+                                             min = 0, max = 24, value = c(6, 11))
                                  
                                  ),
                             mainPanel(
                               withSpinner(plotOutput("Demand_Graph"), type = 6),
                               
+                              br(),
+                              br(),
+                              br(),
+                              br(),
+                             
+                              
                               withSpinner(tableOutput("Emissions_Table"), type = 6),
+                              
+                              br(),
+                              br(),
+                              br(),
+                              br(),
                               
                               withSpinner(plotOutput("Monte_Carlo"), type = 6)
                               
@@ -110,12 +120,7 @@ theme = shinytheme("united"),
 )
 
 
-# Define server logic required to create a demand profile
-# Outputs:
-# Baseline EV Charging Demand Profile
-# New EV Charging Demand Profile
-# Greenhouse Gas (CO2) Implications
-# Air Quality Implications (NOX)
+# SERVER
 
 server <- function(input, output) {
   source("simulation_function.R")
@@ -214,10 +219,11 @@ server <- function(input, output) {
                       size = 1, 
                       alpha = 0.25) +
         
-        ggtitle("Monte Carlo") +
+        ggtitle("Monte Carlo Simulation Displaying EV Charging Demand \nWith the Simulation Run a Selected Amount of Times") +
+        theme(plot.title = element_text(size = 40, face = "bold")) +
         xlab("Hour of the Day") +
         ylab("Electricity Demand (kilowatts)") +
-        
+
         geom_rect(aes(xmin= input$discount_period[1],
                       xmax=input$discount_period[2],
                       ymin=-Inf,
@@ -240,14 +246,15 @@ server <- function(input, output) {
                       fill = "Throttle"),
                   alpha=ifelse(input$throttling >0, 0.02,0)) + #this is the discount rectangle
         
-        
         scale_x_continuous(limits = c(1,24),breaks = c(1:24), expand = c(0,0)) +
         scale_y_continuous(expand = c(0,0)) +
-        scale_fill_brewer("Interventions", palette = "Set2") +
-        
+       scale_fill_brewer("Interventions",palette = "Set2" , guide = guide_legend(override.aes = list(alpha = 0.5))) +
+       scale_color_brewer("Simulation Method", palette = "Dark2", direction = -1) +
+        theme(legend.position = "bottom") +
         theme_classic()
       
     })
+    
     
     
 #    discount_text <- ifelse("Discount" %in% input$price_intervention &input$discount >0, c("Hours",input$discount_period[1],"-", input$discount_period[2]),"") %>% 
@@ -350,14 +357,9 @@ server <- function(input, output) {
     
  
     })
-
-
-
-  
 }
 
-# This website will make sure any changes in your Input UI tab will be shared amongst all tabs: https://stackoverflow.com/questions/47226158/share-some-ui-between-tabs-with-different-output-on-shiny
 
-# Run the application 
+
 shinyApp(ui = ui, server = server)
 
