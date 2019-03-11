@@ -64,18 +64,8 @@ Throttling is when the power draw of the electric vehicle charger is manually re
 Throttling defaults to zero percent.  To apply throttling, use the two sliders to *choose your percentage* and *time period* in which you want the throttling to occur.
 
 
-### **The Simulation Graphs**
 
-There are 3 Outputs that appear in the right main panel based on the inputs you choose from the left sidebar panel.
-
-1) The top graph is the simulated demand (the green line) compared to the baseline demand that you start with (the red line).  Only the red line appears at first until you start choosing inputs.
-Shaded areas will appear for the time periods of any intervention you choose.
-
-2) The table under this demand graph displays various economic and greenhouse gas emission changes that occur as a result of your simulation.
-
-3) The bottom graph is similar to the top graph, only it takes the same model used to create the first graph and runs it many times (this amount can be chosen by you).  This process is called a Monte Carlo simulation.  It's used to randomly use the same model to repeatedly simulate your results so any uncertainty and range can be displayed.  There are 4 methods being used within our computer model to simulate demand, and as each one is randomly drawn, you can see which one is being used and how that one is displayed.
-
-
+#### **What Next?**
 
 The graphs and tables are reactive, so you don't need to push any buttons.  The more simulations your run, the longer the app will take to load.
 
