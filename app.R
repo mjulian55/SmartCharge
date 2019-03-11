@@ -88,7 +88,9 @@ theme = shinytheme("united"),
                             mainPanel(
                               withSpinner(plotOutput("Demand_Graph"), type = 6),
                               
-                              withSpinner(tableOutput("Emissions_Table"), type = 6)
+                              withSpinner(tableOutput("Emissions_Table"), type = 6),
+                              
+                              withSpinner(plotOutput("Monte_Carlo"), type = 6)
                               
     )
   )
@@ -190,6 +192,55 @@ server <- function(input, output) {
                                 sim_seg = shiny_seg,
                                 sim_throttle_amount = -input$throttling,
                                 sim_throttle_hours = throttling_period)
+    
+    # graph of all the sim results grouped by their run number, color by the method
+    # ggplot
+    # gganimate
+    
+    output$Monte_Carlo <- renderPlot({
+    
+      app_model_run$sim_result_EV_Demand$method_draw <- as.factor(app_model_run$sim_result_EV_Demand$method_draw)
+        
+      ggplot(app_model_run$sim_result_EV_Demand) +
+        geom_line(aes(x = Hr, y = Xf, group = run_number, color = method_draw), 
+                      size = 0.5, 
+                      alpha = 0.25) +
+        
+        ggtitle("Monte Carlo") +
+        xlab("Hour of the Day") +
+        ylab("Electricity Demand (kilowatts)") +
+        
+        geom_rect(aes(xmin= input$discount_period[1],
+                      xmax=input$discount_period[2],
+                      ymin=-Inf,
+                      ymax=Inf,
+                      fill = "Discount"),
+                  alpha=ifelse("Discount" %in% input$price_intervention & input$discount >0, 0.02,0)) + #this is the discount rectangle
+
+        geom_rect(aes(xmin=input$rebate_period[1],
+                      xmax=input$rebate_period[2],
+                      ymin=-Inf,
+                      ymax=Inf,
+                      fill="Rebate"),
+                  alpha=ifelse("Rebate" %in% input$price_intervention & input$rebate >0, 0.02,0)) + #This is the rebate rectangle
+        
+
+        geom_rect(aes(xmin= input$throttle_period[1],
+                      xmax=input$throttle_period[2],
+                      ymin=-Inf,
+                      ymax=Inf,
+                      fill = "Throttle"),
+                  alpha=ifelse(input$throttling >0, 0.02,0)) + #this is the discount rectangle
+        
+        
+        scale_x_continuous(limits = c(1,24),breaks = c(1:24), expand = c(0,0)) +
+        scale_y_continuous(expand = c(0,0)) +
+       scale_fill_brewer("Interventions",palette = "Set2" , guide = guide_legend(override.aes = list(alpha = 0.5))) +
+       scale_color_brewer(palette = "Dark2", direction = -1) +
+        theme(legend.position = "bottom") +
+        theme_classic()
+      
+    })
     
     
     
