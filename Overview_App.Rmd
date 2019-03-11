@@ -12,7 +12,8 @@ This application is meant to simulate the change in electric vehicle (EV) chargi
 Choose your own combination of inputs to see how you might be able to change demand!
 
 
-
+&nbsp;
+&nbsp;
 
 
 
@@ -27,10 +28,13 @@ Electric Vehicles are increasing in popularity and projections indicate that the
 
 Grid operators and energy providers aren't just curious about *how much* electricity EVs will require for charging but *when* they'll charge. Why?  Because in the state of California, there's an oversupply of solar energy in the middle of the day that can often be wasted.  So, rather than have all these new EVs charge at times when the grid receives power mostly from fossil fuel sources, energy providers want to see if it's possible to have EVs charge using all of that extra solar energy.  Charging with renewable power can lessen the demand for fossil fuel based power in the evening, and decrease the excess supply of solar in the middle of the day.  This helps smooth out balance of supply and demand and creates a more predictable and reliable electricity grid.
 
+&nbsp;
 
 ### Not Sure Where to Start?  
 Check out our **instructions tab** for a walkthrough of the app.
 
+&nbsp;
+&nbsp;
 
 ### Why Was This App Built?
 

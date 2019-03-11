@@ -9,9 +9,11 @@ output: html_document
 
 That's a great question!  Follow this flow chart to understand how the wdigets work, what some of the inputs are, and how you can change them in order to create some outputs. The widgets are on the left in the **sidebar.**
 
+&nbsp;
 
 ### **Choose your inputs in the sidebar**
 
+&nbsp;
 
 #### **First, choose how many simulations you want to run**
 
@@ -21,12 +23,15 @@ The top graph is the **mean** of the amount of simulations.  The bottom graph di
 
 Choose from the dropdown how many times you want the model to run (1, 10, 100 or 1000 times).  Note: the higher the number, the longer the loading time.
 
+&nbsp;
+&nbsp;
 
 #### **Next, choose how many chargers you want in your simulation**
 
 The amount of chargers will affect the amount of charging demand that you're trying to simulate.  You might want to see how much charging demand your place of employment might have with something low like 20 chargers.  Or you might want to simulate an entire metropolitan area with a value closer to 1,500 chargers.  Type in the number you want in to the top box labeled "Number of Chargers" or use the up/down arrows to increase/decrease.
 
-
+&nbsp;
+&nbsp;
 
 #### **Now, choose your market segment**
 
@@ -39,13 +44,15 @@ A market segment refers to a non-residential place of electric vehicle charging.
 
 Choose your market segment by selecting 1 of the 4 from the drop down menu labeled "Market Segment"
 
-
+&nbsp;
+&nbsp;
 
 #### **Choose the date that you want to represent**
 
 The baseline data (the original demand line that's displayed) is based on data that we have integrated into our model.  Select the date (month and year) you would want to set your baseline at.  If nothing is selected it will default to November of 2018, the final month of data we received for this project.
 
-
+&nbsp;
+&nbsp;
 
 #### **Choose what type of price intervention you might want to offer**
 
@@ -64,7 +71,8 @@ Repeat the same process as described in step 2.
 4) A discount and a rebate.
 Repeat the same process as described in step 2 for both pricing interventions.
 
-
+&nbsp;
+&nbsp;
 
 #### **Apply a throttling rate to the chargers**
 
@@ -72,13 +80,15 @@ Throttling is when the power draw of the electric vehicle charger is manually re
 
 Throttling defaults to zero percent.  To apply throttling, use the two sliders to *choose your percentage* and *time period* in which you want the throttling to occur.
 
-
+&nbsp;
+&nbsp;
 
 #### **What next?**
 
 The graphs and tables are reactive, so you don't need to push any buttons.  The more simulations your run, the longer the app will take to load.
 
-
+&nbsp;
+&nbsp;
 
 
 

@@ -94,15 +94,28 @@ theme = shinytheme("united"),
                                      
                                      br(),
                                      br(),
+                                     br(),
                                      
                                      withSpinner(plotOutput("method_graph"), type = 6),
+                                     
+                                     br(),
+                                     br(),
+                                     br(),
                                      
                                      textOutput("MethodsDescription", container = span),
                                      
                                      br(),
                                      br(),
+                                     br(),
+                                     
+                                     textOutput("ElasticityDescription", container = span),
+                                     
+                                     br(), br(),
                                      
                                      withSpinner(plotOutput("method1_heat_map"), type = 6),
+                                     
+                                     br(),
+                                     
                                      withSpinner(plotOutput("method2_4_heat_map"), type = 6)
                                      
                                    )
@@ -230,7 +243,10 @@ server <- function(input, output) {
     
     
     output$MethodsDescription <- renderText({
-      "METHODS TEST"})
+      "Method 1 uses both self and cross elasticities to calculate a change in demand at all hours of the day.
+      Method 2 assumes that users only respond to a price change in the hour that the price changes (the intervention hours) and do not change their behavior in the other hours (non-intervention hours).
+      Method 3 assumes that users only shift their load based on a price signal, and thus there is no net increase in load.
+      Method 4 assumes that users change their behavior in response to price changes in the intervention hours and how that changes the average price over the day."})
     
     month <- month(as.Date(input$datemethod, "%Y/%m/%d"))
     year <- year(as.Date(input$datemethod, "%Y/%m/%d"))
@@ -339,10 +355,12 @@ server <- function(input, output) {
                                        throttle_amount = -input$throttlingmethod,
                                        throttle_hours = throttling_period)
     
+    output$ElasticityDescription <- renderText({
+      "The figure below displays a heat map of elasticities used in Method 1.  
+  The self elasticities are displayed along the diagonal axis of this elasticity matrix.  
+        For methods 2-4, everything outside the diagonal has a zero value because there aren't any cross price elasticities factored into these models."})
     
-    
-    output$method1_heat_map <- renderPlot({
-      matrix1 <- stack(method1_model_run$matrix) %>%
+    output$method1_heat_map <- renderPlot({matrix1 <- stack(method1_model_run$matrix) %>%
         mutate( x = rep(1:24,24)) %>% 
         select(x = x, y = ind, elasticity = values)
       ggplot(matrix1, aes(x, y, z= elasticity)) + 
