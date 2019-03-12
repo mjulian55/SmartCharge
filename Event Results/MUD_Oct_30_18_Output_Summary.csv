@@ -1,0 +1,5 @@
+Time,Xinitial,Xfinal,Xchange,CustCostInitial,CustCostFinal,CustCostChange,CO2Initial,CO2Final,CO2Change,NOXInitial,NOXFinal,NOXChange,NOXChangeDAC,NOXChangeCost,CO2ChangeCost,RedCurtProp,SolarNonCurt,ChangeCurtCost
+intervention hours,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"NA","NA","NA"
+peak period,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"NA","NA","NA"
+other,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"NA","NA","NA"
+Total,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0

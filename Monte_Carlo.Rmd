@@ -4042,10 +4042,10 @@ Cost_Table35 <- Nov_28_18_MUD_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_
 
 #Emissions Results
 #View(Nov_28_18_MUD_scaled_baseline$EV_Demand)
-write_csv(Nov_28_18_MUD_scaled_baseline$EV_Demand, "Event Results/Fleet_Jul_11_18_Demand_Summary.csv")
+write_csv(Nov_28_18_MUD_scaled_baseline$EV_Demand, "Event Results/MUD_Nov_28_18_Demand_Summary.csv")
 Nov_28_18_MUD_output_table <- emissions_fcn_event(Nov_28_18_MUD_scaled_baseline) 
-write_csv(Nov_28_18_MUD_output_table$Emissions_Table, "Event Results/Fleet_Jul_11_18_Output_Summary.csv") #write emissions to csv
-write_csv(Nov_28_18_MUD_output_table$Emissions, "Event Results/Fleet_Jul_11_18_Output_All_Hours.csv")
+write_csv(Nov_28_18_MUD_output_table$Emissions_Table, "Event Results/MUD_Nov_28_18_Output_Summary.csv") #write emissions to csv
+write_csv(Nov_28_18_MUD_output_table$Emissions, "Event Results/MUD_Nov_28_18_Output_All_Hours.csv")
 ```
 
 #Scenario 36 - November 14, 2018 MUD EVENT + Baseline (scaled for 10 chargers) 
@@ -4119,6 +4119,14 @@ Cost_Table35 <- Nov_14_18_MUD_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_
   mutate(Cost1 = Event_Usage*P1) %>% 
   mutate(Cost_diff = Cost1-Cost0)
 #View(Cost_Table36)
+
+
+#Emissions Results
+#View(Nov_14_18_MUD_scaled_baseline$EV_Demand)
+write_csv(Nov_14_18_MUD_scaled_baseline$EV_Demand, "Event Results/MUD_Nov_14_18_Demand_Summary.csv")
+Nov_14_18_MUD_output_table <- emissions_fcn_event(Nov_14_18_MUD_scaled_baseline) 
+write_csv(Nov_14_18_MUD_output_table$Emissions_Table, "Event Results/MUD_Nov_14_18_Output_Summary.csv") #write emissions to csv
+write_csv(Nov_14_18_MUD_output_table$Emissions, "Event Results/MUD_Nov_14_18_Output_All_Hours.csv")
 ```
 
 
@@ -4194,6 +4202,14 @@ Cost_Table37 <- Oct_30_18_MUD_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_
   mutate(Cost1 = Event_Usage*P1) %>% 
   mutate(Cost_diff = Cost1-Cost0)
 #View(Cost_Table37)
+
+
+#Emissions Results
+#View(Oct_30_18_MUD_scaled_baseline$EV_Demand)
+write_csv(Oct_30_18_MUD_scaled_baseline$EV_Demand, "Event Results/MUD_Oct_30_18_Demand_Summary.csv")
+Oct_30_18_MUD_output_table <- emissions_fcn_event(Oct_30_18_MUD_scaled_baseline) 
+write_csv(Oct_30_18_MUD_output_table$Emissions_Table, "Event Results/MUD_Oct_30_18_Output_Summary.csv") #write emissions to csv
+write_csv(Oct_30_18_MUD_output_table$Emissions, "Event Results/MUD_Oct_30_18_Output_All_Hours.csv")
 ```
 
 
@@ -4268,6 +4284,14 @@ Cost_Table38 <- Oct_16_18_MUD_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_
   mutate(Cost1 = Event_Usage*P1) %>% 
   mutate(Cost_diff = Cost1-Cost0)
 #View(Cost_Table38)
+
+
+#Emissions Results
+#View(Oct_16_18_MUD_scaled_baseline$EV_Demand)
+write_csv(Oct_16_18_MUD_scaled_baseline$EV_Demand, "Event Results/MUD_Oct_16_18_Demand_Summary.csv")
+Oct_16_18_MUD_output_table <- emissions_fcn_event(Oct_16_18_MUD_scaled_baseline) 
+write_csv(Oct_16_18_MUD_output_table$Emissions_Table, "Event Results/MUD_Oct_16_18_Output_Summary.csv") #write emissions to csv
+write_csv(Oct_16_18_MUD_output_table$Emissions, "Event Results/MUD_Oct_16_18_Output_All_Hours.csv")
 ```
 
 #Scenario 39 - September 27, 2018 MUD EVENT + Baseline (scaled for 22 chargers) 
@@ -4341,6 +4365,15 @@ Cost_Table39 <- Sep_27_18_MUD_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_
   mutate(Cost1 = Event_Usage*P1) %>% 
   mutate(Cost_diff = Cost1-Cost0)
 #View(Cost_Table39)
+
+
+
+#Emissions Results
+#View(Sep_27_18_MUD_scaled_baseline$EV_Demand)
+write_csv(Sep_27_18_MUD_scaled_baseline$EV_Demand, "Event Results/MUD_Sep_27_18_Demand_Summary.csv")
+Sep_27_18_MUD_output_table <- emissions_fcn_event(Sep_27_18_MUD_scaled_baseline) 
+write_csv(Sep_27_18_MUD_output_table$Emissions_Table, "Event Results/MUD_Sep_27_18_Output_Summary.csv") #write emissions to csv
+write_csv(Sep_27_18_MUD_output_table$Emissions, "Event Results/MUD_Sep_27_18_Output_All_Hours.csv")
 ```
 
 #Scenario 40 - August 30, 2018 MUD EVENT + Baseline (scaled for 10 chargers) 
@@ -4414,6 +4447,14 @@ Cost_Table40 <- Aug_30_18_MUD_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_
   mutate(Cost1 = Event_Usage*P1) %>% 
   mutate(Cost_diff = Cost1-Cost0)
 #View(Cost_Table40)
+
+
+#Emissions Results
+#View(Aug_30_18_MUD_scaled_baseline$EV_Demand)
+write_csv(Aug_30_18_MUD_scaled_baseline$EV_Demand, "Event Results/MUD_Aug_30_18_Demand_Summary.csv")
+Aug_30_18_MUD_output_table <- emissions_fcn_event(Aug_30_18_MUD_scaled_baseline) 
+write_csv(Aug_30_18_MUD_output_table$Emissions_Table, "Event Results/MUD_Aug_30_18_Output_Summary.csv") #write emissions to csv
+write_csv(Aug_30_18_MUD_output_table$Emissions, "Event Results/MUD_Aug_30_18_Output_All_Hours.csv")
 ```
 
 #Scenario 41 - July 31, 2018 MUD EVENT + Baseline (scaled for 22 chargers) 
@@ -4486,6 +4527,15 @@ Cost_Table41 <- Jul_31_18_MUD_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_
   mutate(Cost1 = Event_Usage*P1) %>% 
   mutate(Cost_diff = Cost1-Cost0)
 #View(Cost_Table41)
+
+
+
+#Emissions Results
+#View(Jul_31_18_MUD_scaled_baseline$EV_Demand)
+write_csv(Jul_31_18_MUD_scaled_baseline$EV_Demand, "Event Results/MUD_Jul_31_18_Demand_Summary.csv")
+Jul_31_18_MUD_output_table <- emissions_fcn_event(Jul_31_18_MUD_scaled_baseline) 
+write_csv(Jul_31_18_MUD_output_table$Emissions_Table, "Event Results/MUD_Jul_31_18_Output_Summary.csv") #write emissions to csv
+write_csv(Jul_31_18_MUD_output_table$Emissions, "Event Results/MUD_Jul_31_18_Output_All_Hours.csv")
 ```
 
 #Scenario 42 - July 11, 2018 MUD EVENT + Baseline (scaled for 23 chargers) 
@@ -4559,6 +4609,14 @@ Cost_Table42 <- Jul_11_18_MUD_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_
   mutate(Cost1 = Event_Usage*P1) %>% 
   mutate(Cost_diff = Cost1-Cost0)
 #View(Cost_Table42)
+
+
+#Emissions Results
+#View(Jul_11_18_MUD_scaled_baseline$EV_Demand)
+write_csv(Jul_11_18_MUD_scaled_baseline$EV_Demand, "Event Results/MUD_Jul_11_18_Demand_Summary.csv")
+Jul_11_18_MUD_output_table <- emissions_fcn_event(Jul_11_18_MUD_scaled_baseline) 
+write_csv(Jul_11_18_MUD_output_table$Emissions_Table, "Event Results/MUD_Jul_11_18_Output_Summary.csv") #write emissions to csv
+write_csv(Jul_11_18_MUD_output_table$Emissions, "Event Results/MUD_Jul_11_18_Output_All_Hours.csv")
 ```
 
 
