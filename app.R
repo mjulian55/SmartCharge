@@ -88,7 +88,7 @@ theme = shinytheme("united"),
                                                   sliderInput("rebate_period", label = h4("Rebate Period (Hour Ending)"),
                                                               min = 0, max = 24, value = c(17, 21))),
                                                   
-                                 sliderInput("throttling", label = h4("Throttling Amount (%)"), min = 0, max = 1, value = 0.0),
+                                 sliderInput("throttling", label = h4("Throttling Amount (%)"), min = 0, max = 100, value = 0.0),
                                  #Throttling hours
                                  sliderInput("throttle_period", label = h4("Throttling Period"),
                                              min = 0, max = 24, value = c(6, 11))
@@ -176,7 +176,7 @@ tabPanel("Modeling Methods",
                               sliderInput("rebate_periodmethod", label = h4("Rebate Period (Hour Ending)"),
                                           min = 0, max = 24, value = c(17, 21))),
              
-             sliderInput("throttlingmethod", label = h4("Throttling Amount (%)"), min = 0, max = 1, value = 0.0),
+             sliderInput("throttlingmethod", label = h4("Throttling Amount (%)"), min = 0, max = 100, value = 0.0),
              #Throttling hours
              sliderInput("throttle_periodmethod", label = h4("Throttling Period"),
                          min = 0, max = 24, value = c(6, 11))
@@ -303,6 +303,7 @@ server <- function(input, output) {
     
     
     method1_model_run <- hourly_demand(method = 1,
+                                elasticity_schedule = sample(c(3:8),1),
                                 price_change = price_change_conditional,
                                 intervention_hours = intervention_hrs_conditional,
                                 price_change_2 = price_change_2_conditional,
@@ -312,7 +313,7 @@ server <- function(input, output) {
                                 month = month, 
                                 year = year, 
                                 seg = shiny_seg,
-                                throttle_amount = -input$throttlingmethod,
+                                throttle_amount = -input$throttlingmethod/100,
                                 throttle_hours = throttling_period)
     
     method2_model_run <- hourly_demand(method = 2,
@@ -325,7 +326,7 @@ server <- function(input, output) {
                                        month = month, 
                                        year = year, 
                                        seg = shiny_seg,
-                                       throttle_amount = -input$throttlingmethod,
+                                       throttle_amount = -input$throttlingmethod/100,
                                        throttle_hours = throttling_period)
     
     method3_model_run <- hourly_demand(method = 3,
@@ -338,7 +339,7 @@ server <- function(input, output) {
                                        month = month, 
                                        year = year, 
                                        seg = shiny_seg,
-                                       throttle_amount = -input$throttlingmethod,
+                                       throttle_amount = -input$throttlingmethod/100,
                                        throttle_hours = throttling_period)
     
     
@@ -352,7 +353,7 @@ server <- function(input, output) {
                                        month = month, 
                                        year = year, 
                                        seg = shiny_seg,
-                                       throttle_amount = -input$throttlingmethod,
+                                       throttle_amount = -input$throttlingmethod/100,
                                        throttle_hours = throttling_period)
     
     output$ElasticityDescription <- renderText({
@@ -535,7 +536,7 @@ The simulated demand (the green line) is compared to the baseline demand that yo
                                 sim_month = month, 
                                 sim_year = year, 
                                 sim_seg = shiny_seg,
-                                sim_throttle_amount = -input$throttling,
+                                sim_throttle_amount = -input$throttling/100,
                                 sim_throttle_hours = throttling_period)
     
     # graph of all the sim results grouped by their run number, color by the method
