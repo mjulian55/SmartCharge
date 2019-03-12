@@ -995,6 +995,7 @@ PDC5S <- simulation(simulations = 1000,
                     sim_month = 11,
                     sim_year = 2018,
                     sim_throttle_amount = -0.5,
+                    sim_throttle_hours = c(17:21),
                     sim_price_change = 0.10,
                     sim_intervention_hours = c(17:21),
                     sim_air_pollution_comm = FALSE,
@@ -1026,8 +1027,8 @@ Demand_GraphPDC1S <- ggplot(data = graph_tablePDC1S, aes(x = Hr)) +
   geom_line(aes(y = value, color=condition)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
   panel.background = element_blank(), axis.line = element_line(colour = "black")) +
-  labs(title="Destination Centers (PDC1S) (discount, price comms, morning throttling) Hourly Demand Forecast",
-  subtitle="Baseline July 2018 (234 Chargers) \n Model Simulation",
+  labs(title="Destination Centers SC.1 (discount+price com+throttling 6-11) Hourly Demand Forecast",
+  subtitle="July 2018 (234 Chargers) Model Simulation",
   y="EV Charging Demand (kW)",
   x="Hour",
   color=NULL) +
@@ -1059,8 +1060,8 @@ Demand_GraphPDC2S <- ggplot(data = graph_tablePDC2S, aes(x = Hr)) +
   geom_line(aes(y = value, color=condition)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
   panel.background = element_blank(), axis.line = element_line(colour = "black")) +
-  labs(title="Destination Centers (PDC2S) (discount, all comms, morning throttling) Hourly Demand Forecast",
-  subtitle="Baseline July 2018 (234 Chargers) \n Model Simulation",
+  labs(title="Destination Centers SC.2 (discount+all comms+morning+throttling 6-11) Hourly Demand Forecast",
+  subtitle="Baseline July 2018 (234 Chargers) Model Simulation",
   y="EV Charging Demand (kW)",
   x="Hour",
   color=NULL) +
@@ -1091,8 +1092,8 @@ Demand_GraphPDC3S <- ggplot(data = graph_tablePDC3S, aes(x = Hr)) +
   geom_line(aes(y = value, color=condition)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
   panel.background = element_blank(), axis.line = element_line(colour = "black")) +
-  labs(title="Destination Centers (PDC3S) (discount, air poll comms, morning throttling) Hourly Demand Forecast",
-  subtitle="Baseline July 2018 (234 Chargers) \n Model Simulation",
+  labs(title="Destination Centers SC.3 (discount+air poll comms+throttling 6-11) Hourly Demand Forecast",
+  subtitle="July 2018 (234 Chargers) Model Simulation",
   y="EV Charging Demand (kW)",
   x="Hour",
   color=NULL) +
@@ -1125,8 +1126,8 @@ Demand_GraphPDC4S <- ggplot(data = graph_tablePDC4S, aes(x = Hr)) +
   geom_line(aes(y = value, color=condition)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
   panel.background = element_blank(), axis.line = element_line(colour = "black")) +
-  labs(title="Destination Centers (PDC4S) (discount, no comms, morning throttling) Hourly Demand Forecast",
-  subtitle="Baseline July 2018 (234 Chargers) \n Model Simulation",
+  labs(title="Destination Centers SC.4 (discount+no comms+throttling 6-11) Hourly Demand Forecast",
+  subtitle="July 2018 (234 Chargers) Model Simulation",
   y="EV Charging Demand (kW)",
   x="Hour",
   color=NULL) +
@@ -1158,13 +1159,13 @@ Demand_GraphPDC5S <- ggplot(data = graph_tablePDC5S, aes(x = Hr)) +
   geom_line(aes(y = value, color=condition)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
   panel.background = element_blank(), axis.line = element_line(colour = "black")) +
-  labs(title="Destination Centers (PDC5S) (Rebate, no comms, morning throttling) Hourly Demand Forecast",
-  subtitle="Baseline November 2018 (234 Chargers) \n Model Simulation",
+  labs(title="Destination Centers SC.5 (Rebate+no comms+throttling 17-21) Hourly Demand Forecast",
+  subtitle="November 2018 (234 Chargers) Model Simulation",
   y="EV Charging Demand (kW)",
   x="Hour",
   color=NULL) +
-  geom_rect(aes(xmin=6,xmax=11,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
-  geom_rect(aes(xmin=11,xmax=15,ymin=-Inf,ymax=Inf, fill = "Rebate"),alpha=0.0075) +
+  geom_rect(aes(xmin=17,xmax=21,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
+  geom_rect(aes(xmin=17,xmax=21,ymin=-Inf,ymax=Inf, fill = "Rebate"),alpha=0.0075) +
   scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
   scale_color_manual(labels=c("Baseline Demand","Intervention Demand"), values = c("purple", "blue")) +
   theme(plot.title = element_text(hjust = 0.5)) +
@@ -3391,7 +3392,7 @@ Demand_Graph29 <- ggplot(data = graph_table29, aes(x = Hr)) +
   geom_line(aes(y = value, color=condition)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
   panel.background = element_blank(), axis.line = element_line(colour = "black")) +
-  labs(title="Fleet Hourly Demand Forecast",
+  labs(title="October 30, 2018 Event Hourly Demand Forecast",
   subtitle="October 2018 Baseline Scaled for Oct 30, 2018 Event (67 chargers) \n October 30, 2018 Event Usage (Load Shift)",
   y="EV Charging Demand (kW)",
   x="Hour",
@@ -3457,8 +3458,8 @@ Demand_Graph30 <- ggplot(data = graph_table30, aes(x = Hr)) +
   geom_line(aes(y = value, color=condition)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
   panel.background = element_blank(), axis.line = element_line(colour = "black")) +
-  labs(title="Fleet Hourly Demand Forecast",
-  subtitle="October 2018 Baseline Scaled for October 16, 2018 Event (83 Chargers) \n October 16, 2018 Event Usage (Load Shift)",
+  labs(title="Destination Center Hourly Demand Forecast",
+  subtitle="October 2018 Baseline Scaled for July 31, 2018 Event (83 Chargers) \n October 16, 2018 Event Usage (Load Shift)",
   y="EV Charging Demand (kW)",
   x="Hour",
   color=NULL) +
@@ -3477,7 +3478,7 @@ geom_line(aes(y=Theoretical_Max))
 
 Demand_Graph30
 
-ggsave("Event Graphs/Oct_16_18_Fleet_Event_Usage.png", Demand_Graph30, device = "png", width = 8, height = 4.5)
+ggsave("Event Graphs/Oct_16_18_Fleet_Event_Usage.png", Demand_Graph28, device = "png", width = 8, height = 4.5)
 
 #COST
 Cost_Table30 <- Oct_16_18_Fleet_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_Usage","P1")] %>% 
@@ -4268,7 +4269,7 @@ Demand_Graph41 <- ggplot(data = graph_table41, aes(x = Hr)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
   panel.background = element_blank(), axis.line = element_line(colour = "black")) +
   labs(title="MUD Hourly Demand Forecast",
-  subtitle="July Baseline Scaled for July 31, 2018 Event (22 chargers) \n July 31, 2018 Event Usage (Load Reduction)",
+  subtitle="August Baseline Scaled for July 31, 2018 Event (22 chargers) \n July 31, 2018 Event Usage (Load Reduction)",
   y="EV Charging Demand (kW)",
   x="Hour",
   color=NULL) +
