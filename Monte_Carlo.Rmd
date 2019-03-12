@@ -1962,14 +1962,14 @@ ggsave("Results Graphs/MUDs_FM1_Demand_Summary.png", Demand_GraphFM1, device = "
 ```{r example_graphs, message=FALSE, warning=FALSE}
 
 #one fully splined elasticity -- want this as a line graph
-Method1_test <- hourly_demand(method = 1, include_wknds = FALSE, price_comm = FALSE, elasticity_schedule = 7) #selecting winter weekday ev medium as example elasticity set
+#Method1_test <- hourly_demand(method = 1, include_wknds = FALSE, price_comm = FALSE, elasticity_schedule = 7) #selecting winter weekday ev medium as example elasticity set
 
-spline_example <- Method1_test$matrix[12] #turn this into a line graph. 
+#spline_example <- Method1_test$matrix[12] #turn this into a line graph. 
 
 
 
 #one 24 x 24 hour matrix from one set of SDGE elasticities with cross (I need to know which set) -- want this heat mapped
-heat_map_matrix<-Method1_test$matrix #turn this into a heat map
+#heat_map_matrix<-Method1_test$matrix #turn this into a heat map
 
 
 
