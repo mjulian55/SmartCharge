@@ -46,6 +46,7 @@ SIMULATION
 
 
 simulation <- function(simulations = 100, 
+                       methods_included = c(2:4),
                        sim_method = mthd,
                        sim_avg_elasticity = avg_elst,
                        sim_seg = sg,
@@ -69,7 +70,7 @@ simulation <- function(simulations = 100,
 
   ##create lists to sample from for each variable to sample from
   #method
-  method_draws <- sample(c(1:4), simulations, replace = TRUE)
+  method_draws <- sample(methods_included, simulations, replace = TRUE)
   
   #self and cross elasticities 
   #eliminate cross elasticities from 0 to 1
@@ -150,7 +151,7 @@ simulation <- function(simulations = 100,
 
 Chunk below takes a LONG TIME to run
 
-```{r simulation_aggregation}
+```{r simulation_aggregation, eval=FALSE, include=FALSE}
 
 
 sim_agg <- data.frame(month = rep(1:12, each = 4), segment = rep(c("Workplace", "Multi Unit Dwelling", "Fleet", "Destination Center"),12))
