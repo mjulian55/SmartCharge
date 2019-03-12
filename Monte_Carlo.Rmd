@@ -151,7 +151,7 @@ simulation <- function(simulations = 100,
 
 Chunk below takes a LONG TIME to run
 
-```{r simulation_aggregation}
+```{r simulation_aggregation, eval=FALSE, include=FALSE}
 
 
 sim_agg <- data.frame(month = rep(1:12, each = 4), segment = rep(c("Workplace", "Multi Unit Dwelling", "Fleet", "Destination Center"),12))
