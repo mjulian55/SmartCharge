@@ -820,7 +820,7 @@ PW4S_demand_summary <- read_csv("Results/Workplace_PW4S_Demand_Summary.csv")
 
 graph_tablePW4S <- PW4S_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
   gather(condition,value,c("X0_mean","Xf_mean")) 
-#%>% mutate(Theoretical_Max=PW3S_demand_summary$MT[1])
+#%>% mutate(Theoretical_Max=PW4S_demand_summary$MT[1])
 
 Demand_GraphPW4S <- ggplot(data = graph_tablePW4S, aes(x = Hr)) +
   geom_line(aes(y = value, color=condition)) +
@@ -850,7 +850,7 @@ PW5S_demand_summary <- read_csv("Results/Workplace_PW5S_Demand_Summary.csv")
 
 graph_tablePW5S <- PW5S_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
   gather(condition,value,c("X0_mean","Xf_mean")) 
-#%>% mutate(Theoretical_Max=PW3S_demand_summary$MT[1])
+#%>% mutate(Theoretical_Max=PW5S_demand_summary$MT[1])
 
 Demand_GraphPW5S <- ggplot(data = graph_tablePW5S, aes(x = Hr)) +
   geom_line(aes(y = value, color=condition)) +
@@ -880,7 +880,7 @@ PW6S_demand_summary <- read_csv("Results/Workplace_PW6S_Demand_Summary.csv")
 
 graph_tablePW6S <- PW6S_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
   gather(condition,value,c("X0_mean","Xf_mean")) 
-#%>% mutate(Theoretical_Max=PW3S_demand_summary$MT[1])
+#%>% mutate(Theoretical_Max=PW6S_demand_summary$MT[1])
 
 Demand_GraphPW6S <- ggplot(data = graph_tablePW6S, aes(x = Hr)) +
   geom_line(aes(y = value, color=condition)) +
@@ -905,7 +905,34 @@ Demand_GraphPW6S <- ggplot(data = graph_tablePW6S, aes(x = Hr)) +
 ggsave("Results Graphs/Workplace_PW6S_Demand_Summary.png", Demand_GraphPW6S, device = "png", width = 8, height = 4.5)
 
 
+#FW1 Graph (discount + throttling + air poll & price comm, TOU19 intervention, 2030 chargers)
+FW1_demand_summary <- read_csv("Results/Workplace_FW1_Demand_Summary.csv") 
 
+graph_tableFW1<- FW1_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
+  gather(condition,value,c("X0_mean","Xf_mean")) 
+#%>% mutate(Theoretical_Max=FW1_demand_summary$MT[1])
+
+Demand_GraphFW1 <- ggplot(data = graph_tableFW1, aes(x = Hr)) +
+  geom_line(aes(y = value, color=condition)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+  panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+  labs(title="Workplaces (FW1) Hourly Demand Forecast\n(discount, throttling, air & price comm, TOU 19, 2030 chargers)",
+  subtitle="Baseline July 2018 (31435 Chargers) \n Model Simulation",
+  y="EV Charging Demand (kW)",
+  x="Hour",
+  color=NULL) +
+  geom_rect(aes(xmin=6,xmax=11,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
+  geom_rect(aes(xmin=11,xmax=15,ymin=-Inf,ymax=Inf, fill = "Discount"),alpha=0.0075) +
+  scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
+  scale_color_manual(labels=c("Baseline Demand","Intervention Demand"), values = c("purple", "blue")) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(plot.subtitle = element_text(hjust = 0.5))+
+  theme(legend.position="bottom") +
+  scale_fill_manual('Interventions',values = c('green','yellow'),  guide = guide_legend(override.aes = list(alpha = 0.15)))
+  
+
+Demand_GraphFW1
+ggsave("Results Graphs/Workplace_FW1_Demand_Summary.png", Demand_GraphFW1, device = "png", width = 8, height = 4.5)
 
 
 ```
