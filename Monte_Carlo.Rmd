@@ -1962,7 +1962,7 @@ ggsave("Results Graphs/MUDs_FM1_Demand_Summary.png", Demand_GraphFM1, device = "
 ```{r example_graphs, message=FALSE, warning=FALSE}
 
 #one fully splined elasticity -- want this as a line graph
-Method1_test <- hourly_demand(method = 1, include_wknds = FALSE, price_comm = FALSE, elasticity_schedule = 7) #selecting winter weekday ev medium as example elasticity set
+#Method1_test <- hourly_demand(method = 1, include_wknds = FALSE, price_comm = FALSE, elasticity_schedule = 7) #selecting winter weekday ev medium as example elasticity set
 
 #spline_example <- Method1_test$matrix[12] #turn this into a line graph. 
 
@@ -1975,12 +1975,12 @@ Method1_test <- hourly_demand(method = 1, include_wknds = FALSE, price_comm = FA
 
 #One run of each method for the same scenario (Default for all: Workplace, November, 2018, no weekends, 5 cent discount 12:15, baseline # chargers, no throttling, no air pollution communication, no price communication, 2018 tou) -- want a graphed output of baseline versus intervention for each 
 #Method1 -- default run above
-Method1_test_for_graph <- Method1_test$EV_Demand
+#Method1_test_for_graph <- Method1_test$EV_Demand
 
 #Method 1 -- broken scenario
-Method1_broken <- hourly_demand(method = 1, include_wknds = FALSE, price_comm = FALSE, elasticity_schedule = 7, price_change = -0.05, intervention_hours = c(5)) 
+#Method1_broken <- hourly_demand(method = 1, include_wknds = FALSE, price_comm = FALSE, elasticity_schedule = 7, price_change = -0.05, intervention_hours = c(5)) 
 
-Method1_broken_for_graph <- Method1_broken$EV_Demand
+#Method1_broken_for_graph <- Method1_broken$EV_Demand
 
 
 #Method 2
