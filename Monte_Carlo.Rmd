@@ -746,7 +746,7 @@ Demand_GraphPW1S <- ggplot(data = graph_tablePW1S, aes(x = Hr)) +
   
 
 #Demand_GraphPW1S
-ggsave("Results Graphs/Workplace_PW1S_Demand_Summary.pdf", Demand_GraphPW1S, device = "pdf", width = 8, height = 4.5)
+ggsave("Results Graphs/Workplace_PW1S_Demand_Summary.png", Demand_GraphPW1S, device = "png", width = 8, height = 4.5)
 
 
 
@@ -777,7 +777,7 @@ Demand_GraphPW2S <- ggplot(data = graph_tablePW2S, aes(x = Hr)) +
   
 
 #Demand_GraphPW2S
-ggsave("Results Graphs/Workplace_PW2S_Demand_Summary.pdf", Demand_GraphPW2S, device = "pdf", width = 8, height = 4.5)
+ggsave("Results Graphs/Workplace_PW2S_Demand_Summary.png", Demand_GraphPW2S, device = "png", width = 8, height = 4.5)
 
 
 
@@ -808,7 +808,7 @@ Demand_GraphPW3S <- ggplot(data = graph_tablePW3S, aes(x = Hr)) +
   
 
 Demand_GraphPW3S
-ggsave("Results Graphs/Workplace_PW3S_Demand_Summary.pdf", Demand_GraphPW3S, device = "pdf", width = 8, height = 4.5)
+ggsave("Results Graphs/Workplace_PW3S_Demand_Summary.png", Demand_GraphPW3S, device = "png", width = 8, height = 4.5)
 
 
 
@@ -841,7 +841,7 @@ Demand_GraphPW4S <- ggplot(data = graph_tablePW4S, aes(x = Hr)) +
   
 
 #Demand_GraphPW4S
-ggsave("Results Graphs/Workplace_PW4S_Demand_Summary.pdf", Demand_GraphPW4S, device = "pdf", width = 8, height = 4.5)
+ggsave("Results Graphs/Workplace_PW4S_Demand_Summary.png", Demand_GraphPW4S, device = "png", width = 8, height = 4.5)
 
 
 ###PW5S = discount + throttling + no comm
@@ -871,7 +871,7 @@ Demand_GraphPW5S <- ggplot(data = graph_tablePW5S, aes(x = Hr)) +
   
 
 #Demand_GraphPW5S
-ggsave("Results Graphs/Workplace_PW5S_Demand_Summary.pdf", Demand_GraphPW5S, device = "pdf", width = 8, height = 4.5)
+ggsave("Results Graphs/Workplace_PW5S_Demand_Summary.png", Demand_GraphPW5S, device = "png", width = 8, height = 4.5)
 
 
 #PW6S = discount + throttling + air poll comm
@@ -901,7 +901,7 @@ Demand_GraphPW6S <- ggplot(data = graph_tablePW6S, aes(x = Hr)) +
   
 
 #Demand_GraphPW6S
-ggsave("Results Graphs/Workplace_PW6S_Demand_Summary.pdf", Demand_GraphPW6S, device = "pdf", width = 8, height = 4.5)
+ggsave("Results Graphs/Workplace_PW6S_Demand_Summary.png", Demand_GraphPW6S, device = "png", width = 8, height = 4.5)
 
 
 
@@ -1041,7 +1041,7 @@ Demand_GraphPDC1S <- ggplot(data = graph_tablePDC1S, aes(x = Hr)) +
   
 
 #Demand_GraphPDC1S
-ggsave("Results Graphs/Destination_Centers_PDC1S_Demand_Summary.pdf", Demand_GraphPDC1S, device = "pdf", width = 8, height = 4.5)
+ggsave("Results Graphs/Destination_Centers_PDC1S_Demand_Summary.png", Demand_GraphPDC1S, device = "png", width = 8, height = 4.5)
 
 
 
@@ -1074,7 +1074,7 @@ Demand_GraphPDC2S <- ggplot(data = graph_tablePDC2S, aes(x = Hr)) +
   
 
 #Demand_GraphPDC2S
-ggsave("Results Graphs/Destination_Centers_PDC2S_Demand_Summary.pdf", Demand_GraphPDC2S, device = "pdf", width = 8, height = 4.5)
+ggsave("Results Graphs/Destination_Centers_PDC2S_Demand_Summary.png", Demand_GraphPDC2S, device = "png", width = 8, height = 4.5)
 
 
 
@@ -1106,7 +1106,7 @@ Demand_GraphPDC3S <- ggplot(data = graph_tablePDC3S, aes(x = Hr)) +
   
 
 #Demand_GraphPDC3S
-ggsave("Results Graphs/Destination_Centers_PDC3S_Demand_Summary.pdf", Demand_GraphPDC3S, device = "pdf", width = 8, height = 4.5)
+ggsave("Results Graphs/Destination_Centers_PDC3S_Demand_Summary.png", Demand_GraphPDC3S, device = "png", width = 8, height = 4.5)
 
 
 
@@ -1140,7 +1140,7 @@ Demand_GraphPDC4S <- ggplot(data = graph_tablePDC4S, aes(x = Hr)) +
   
 
 #Demand_GraphPDC4S
-ggsave("Results Graphs/Destination_Centers_PDC4S_Demand_Summary.pdf", Demand_GraphPDC4S, device = "pdf", width = 8, height = 4.5)
+ggsave("Results Graphs/Destination_Centers_PDC4S_Demand_Summary.png", Demand_GraphPDC4S, device = "png", width = 8, height = 4.5)
 
 
 
@@ -1174,7 +1174,7 @@ Demand_GraphPDC5S <- ggplot(data = graph_tablePDC5S, aes(x = Hr)) +
 
 
 #Demand_GraphPDC5S
-ggsave("Results Graphs/Destination_Centers_PDC5S_Demand_Summary.pdf", Demand_GraphPDC5S, device = "pdf", width = 8, height = 4.5)
+ggsave("Results Graphs/Destination_Centers_PDC5S_Demand_Summary.png", Demand_GraphPDC5S, device = "png", width = 8, height = 4.5)
 
 
 #PDC1S:  discount -0.05 (default) 12-15+ price comms only + morning throttling
@@ -1422,7 +1422,7 @@ Demand_GraphPF1 <- ggplot(data = graph_tablePF1, aes(x = Hr)) +
   scale_fill_manual('Interventions',values = c('green','yellow'),  guide = guide_legend(override.aes = list(alpha = 0.15)))
   
 #Demand_GraphPF1
-ggsave("Results Graphs/Fleets_PF1_Demand_Summary.pdf", Demand_GraphPF1, device = "pdf", width = 8, height = 4.5)
+ggsave("Results Graphs/Fleets_PF1_Demand_Summary.png", Demand_GraphPF1, device = "png", width = 8, height = 4.5)
 
 
 # PF2: Present, Fleet, 2 (rebate, price comm, new 2019 TOU rate, 83 chargers)
@@ -1451,7 +1451,7 @@ Demand_GraphPF2 <- ggplot(data = graph_tablePF2, aes(x = Hr)) +
   scale_fill_manual('Interventions',values = c('green','yellow'),  guide = guide_legend(override.aes = list(alpha = 0.15)))
   
 #Demand_GraphPF2
-ggsave("Results Graphs/Fleets_PF2_Demand_Summary.pdf", Demand_GraphPF2, device = "pdf", width = 8, height = 4.5)
+ggsave("Results Graphs/Fleets_PF2_Demand_Summary.png", Demand_GraphPF2, device = "png", width = 8, height = 4.5)
 
 
 
@@ -1481,7 +1481,7 @@ Demand_GraphPF3S <- ggplot(data = graph_tablePF3S, aes(x = Hr)) +
   scale_fill_manual('Interventions',values = c('green','yellow'),  guide = guide_legend(override.aes = list(alpha = 0.15)))
   
 #Demand_GraphPF3S
-ggsave("Results Graphs/Fleets_PF3S_Demand_Summary.pdf", Demand_GraphPF3S, device = "pdf", width = 8, height = 4.5)
+ggsave("Results Graphs/Fleets_PF3S_Demand_Summary.png", Demand_GraphPF3S, device = "png", width = 8, height = 4.5)
 
 # PF4S: Present, Fleet, 4, Summer
 # $0.05 Discount (12:00 – 15:00); 100% Price Communication; 50% Throttling (07:00-11:00 and 17:00-21:00)
@@ -1512,7 +1512,7 @@ Demand_GraphPF4S <- ggplot(data = graph_tablePF4S, aes(x = Hr)) +
   scale_fill_manual('Interventions',values = c('green','yellow'),  guide = guide_legend(override.aes = list(alpha = 0.15)))
 
 #Demand_GraphPF4S
-ggsave("Results Graphs/Fleets_PF4S_Demand_Summary.pdf", Demand_GraphPF4S, device = "pdf", width = 8, height = 4.5)
+ggsave("Results Graphs/Fleets_PF4S_Demand_Summary.png", Demand_GraphPF4S, device = "png", width = 8, height = 4.5)
 
 
 # PF5S: Present, Fleet, 5, Summer
@@ -1544,7 +1544,7 @@ Demand_GraphPF5S <- ggplot(data = graph_tablePF5S, aes(x = Hr)) +
   scale_fill_manual('Interventions',values = c('green','yellow'),  guide = guide_legend(override.aes = list(alpha = 0.15)))
 
 #Demand_GraphPF5S
-ggsave("Results Graphs/Fleets_PF5S_Demand_Summary.pdf", Demand_GraphPF5S, device = "pdf", width = 8, height = 4.5)
+ggsave("Results Graphs/Fleets_PF5S_Demand_Summary.png", Demand_GraphPF5S, device = "png", width = 8, height = 4.5)
 
 
 # FF1: Future, 2019 tou, rebate, price comm
@@ -1574,7 +1574,7 @@ Demand_GraphFF1 <- ggplot(data = graph_tableFF1, aes(x = Hr)) +
   
 
 Demand_GraphFF1
-ggsave("Results Graphs/Fleets_FF1_Demand_Summary.pdf", Demand_GraphFF1, device = "pdf", width = 8, height = 4.5)
+ggsave("Results Graphs/Fleets_FF1_Demand_Summary.png", Demand_GraphFF1, device = "png", width = 8, height = 4.5)
 
 
 ```
@@ -1768,7 +1768,7 @@ Demand_GraphPM1 <- ggplot(data = graph_tablePM1, aes(x = Hr)) +
   
 
 #Demand_GraphPM1
-ggsave("Results Graphs/MUDs_PM1_Demand_Summary.pdf", Demand_GraphPM1, device = "pdf", width = 8, height = 4.5)
+ggsave("Results Graphs/MUDs_PM1_Demand_Summary.png", Demand_GraphPM1, device = "png", width = 8, height = 4.5)
 
 
 
@@ -1799,7 +1799,7 @@ Demand_GraphPM2 <- ggplot(data = graph_tablePM2, aes(x = Hr)) +
   scale_fill_manual('Interventions',values = c('green','yellow'),  guide = guide_legend(override.aes = list(alpha = 0.15)))
 
 #Demand_GraphPM2
-ggsave("Results Graphs/MUDs_PM2_Demand_Summary.pdf", Demand_GraphPM2, device = "pdf", width = 8, height = 4.5)
+ggsave("Results Graphs/MUDs_PM2_Demand_Summary.png", Demand_GraphPM2, device = "png", width = 8, height = 4.5)
 
 
 
@@ -1829,7 +1829,7 @@ Demand_GraphPM3 <- ggplot(data = graph_tablePM3, aes(x = Hr)) +
   scale_fill_manual('Interventions',values = c('green','yellow'),  guide = guide_legend(override.aes = list(alpha = 0.15)))
 
 #Demand_GraphPM3
-ggsave("Results Graphs/MUDs_PM3_Demand_Summary.pdf", Demand_GraphPM3, device = "pdf", width = 8, height = 4.5)
+ggsave("Results Graphs/MUDs_PM3_Demand_Summary.png", Demand_GraphPM3, device = "png", width = 8, height = 4.5)
 
 
 
@@ -1860,7 +1860,7 @@ Demand_GraphPM4 <- ggplot(data = graph_tablePM4, aes(x = Hr)) +
   #scale_fill_manual('Interventions',values = c('green','yellow'),  guide = guide_legend(override.aes = list(alpha = 0.15)))
 
 #Demand_GraphPM4
-ggsave("Results Graphs/MUDs_PM4_Demand_Summary.pdf", Demand_GraphPM4, device = "pdf", width = 8, height = 4.5)
+ggsave("Results Graphs/MUDs_PM4_Demand_Summary.png", Demand_GraphPM4, device = "png", width = 8, height = 4.5)
 
 
 
@@ -1891,7 +1891,7 @@ Demand_GraphPM5 <- ggplot(data = graph_tablePM5, aes(x = Hr)) +
   #scale_fill_manual('Interventions',values = c('green','yellow'),  guide = guide_legend(override.aes = list(alpha = 0.15)))
 
 #Demand_GraphPM5
-ggsave("Results Graphs/MUDs_PM5_Demand_Summary.pdf", Demand_GraphPM5, device = "pdf", width = 8, height = 4.5)
+ggsave("Results Graphs/MUDs_PM5_Demand_Summary.png", Demand_GraphPM5, device = "png", width = 8, height = 4.5)
 
 
 
@@ -1921,7 +1921,7 @@ Demand_GraphFM1 <- ggplot(data = graph_tableFM1, aes(x = Hr)) +
   scale_fill_manual('Interventions',values = c('green','yellow'),  guide = guide_legend(override.aes = list(alpha = 0.15)))
 
 #Demand_GraphFM1
-ggsave("Results Graphs/MUDs_FM1_Demand_Summary.pdf", Demand_GraphFM1, device = "pdf", width = 8, height = 4.5)
+ggsave("Results Graphs/MUDs_FM1_Demand_Summary.png", Demand_GraphFM1, device = "png", width = 8, height = 4.5)
 
 
 ```
@@ -2595,7 +2595,7 @@ geom_line(aes(y=Theoretical_Max))
 
 Demand_Graph43
 
-ggsave("Event Graphs/Jul_11_WP_Event_Usage.png", Demand_Graph19, device = "png", width = 8, height = 4.5)
+ggsave("Event Graphs/Jul_11_WP_Event_Usage.png", Demand_Graph43, device = "png", width = 8, height = 4.5)
 
 #Cost
 Cost_Table43 <- Jul_11_18_scaled_model_run$EV_Demand[c("Hr","X0","P0","Event_Usage","P1")] %>% 
