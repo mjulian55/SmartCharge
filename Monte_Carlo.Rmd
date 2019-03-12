@@ -1980,7 +1980,7 @@ Method1_test_for_graph <- Method1_test$EV_Demand
 #Method 1 -- broken scenario
 Method1_broken <- hourly_demand(method = 1, include_wknds = FALSE, price_comm = FALSE, elasticity_schedule = 7, price_change = -0.05, intervention_hours = c(5)) 
 
-Method1_broken_for_graph <- Method1_test$EV_Demand
+Method1_broken_for_graph <- Method1_broken$EV_Demand
 
 
 #Method 2
