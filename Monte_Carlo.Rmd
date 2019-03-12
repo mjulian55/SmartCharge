@@ -2041,8 +2041,6 @@ ggsave("Event Graphs/Nov_14_WP_Event_Usage.png", Demand_Graph13, device = "png",
 
 
 
-
-
 #COST
 Cost_Table13 <- Nov_14_18_WP_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_Usage","P1")] %>% 
   mutate(Cost0 = X0*P0) %>% 
@@ -2052,29 +2050,11 @@ Cost_Table13 <- Nov_14_18_WP_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_U
 
 
 
-write_csv(PM5$sim_result_summary, "Results/MUDs_PM5_Demand_Summary.csv")
-
-#run emissions and write to csv
-PM5_output_table <- emissions_fcn(PM5) 
-#View(PM5_output_table$Emissions_Table)
-#View(PM5_output_table$Emissions)
-
-write_csv(PM5_output_table$Emissions_Table, "Results/MUDs_PM5_Output_Summary.csv") #write emissions to csv
-write_csv(PM5_output_table$Emissions, "Results/MUDs_PM5_Output_All_Hours.csv")
-
-
-
-
-
-
+#Emissions Results
 #View(Nov_14_18_WP_scaled_baseline$EV_Demand)
-
 write_csv(Nov_14_18_WP_scaled_baseline$EV_Demand, "Event Results/Workplace_Nov_14_18_Demand_Summary.csv")
-
 Nov_14_18_WP_output_table <- emissions_fcn_event(Nov_14_18_WP_scaled_baseline) 
-
 write_csv(Nov_14_18_WP_output_table$Emissions_Table, "Event Results/Workplace_Nov_14_18_Output_Summary.csv") #write emissions to csv
-
 write_csv(Nov_14_18_WP_output_table$Emissions, "Event Results/Workplace_Nov_14_18_Output_All_Hours.csv")
 
 
@@ -2151,6 +2131,12 @@ Cost_Table14 <- Nov_28_18_WP_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_U
   mutate(Cost_diff = Cost1-Cost0) 
 #View(Cost_Table14)
 
+#Emissions Results
+#View(Nov_28_18_WP_scaled_baseline$EV_Demand)
+write_csv(Nov_28_18_WP_scaled_baseline$EV_Demand, "Event Results/Workplace_Nov_28_18_Demand_Summary.csv")
+Nov_28_18_WP_output_table <- emissions_fcn_event(Nov_28_18_WP_scaled_baseline) 
+write_csv(Nov_28_18_WP_output_table$Emissions_Table, "Event Results/Workplace_Nov_28_18_Output_Summary.csv") #write emissions to csv
+write_csv(Nov_28_18_WP_output_table$Emissions, "Event Results/Workplace_Nov_28_18_Output_All_Hours.csv")
 
 ```
 
@@ -2169,7 +2155,7 @@ filter(Market_Segment=="Workplace") %>%
 select(Oct_30_18_LS) %>%
 unlist()
 
-Oct_30_18_WP_scaled_model_run <- hourly_demand(
+Oct_30_18_WP_scaled_baseline <- hourly_demand(
                     month = 10,
                     year = 2018,
                     seg =  "Workplace",
@@ -2183,14 +2169,14 @@ select(Demand) %>%
 unlist()
 
 
-Oct_30_18_WP_scaled_model_run$EV_Demand <- Oct_30_18_WP_scaled_model_run$EV_Demand %>%
+Oct_30_18_WP_scaled_baseline$EV_Demand <- Oct_30_18_WP_scaled_baseline$EV_Demand %>%
   mutate(Event_Usage = Oct_30_18_WP_Event_Usage) 
 
 
 
-graph_table15 <- Oct_30_18_WP_scaled_model_run$EV_Demand[c("Hr","X0","Event_Usage")] %>%
+graph_table15 <- Oct_30_18_WP_scaled_baseline$EV_Demand[c("Hr","X0","Event_Usage")] %>%
   gather(condition,value,c("X0","Event_Usage")) %>%
-  mutate(Theoretical_Max=Oct_30_18_WP_scaled_model_run$EV_Demand$MT[1])
+  mutate(Theoretical_Max=Oct_30_18_WP_scaled_baseline$EV_Demand$MT[1])
 
 
 Demand_Graph15 <- ggplot(data = graph_table15, aes(x = Hr)) +
@@ -2220,11 +2206,20 @@ Demand_Graph15
 ggsave("Event Graphs/Oct_30_WP_Event_Usage.png", Demand_Graph15, device = "png", width = 8, height = 4.5)
 
 #COST
-Cost_Table15 <- Oct_30_18_WP_scaled_model_run$EV_Demand[c("Hr","X0","P0","Event_Usage","P1")] %>% 
+Cost_Table15 <- Oct_30_18_WP_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_Usage","P1")] %>% 
   mutate(Cost0 = X0*P0) %>% 
   mutate(Cost1 = Event_Usage*P1) %>% 
   mutate(Cost_diff = Cost1-Cost0)
 #View(Cost_Table15)
+
+
+
+#Emissions Results
+#View(Nov_28_18_WP_scaled_baseline$EV_Demand)
+write_csv(Oct_30_18_WP_scaled_baseline$EV_Demand, "Event Results/Workplace_Oct_30_18_Demand_Summary.csv")
+Oct_30_18_WP_output_table <- emissions_fcn_event(Oct_30_18_WP_scaled_baseline) 
+write_csv(Oct_30_18_WP_output_table$Emissions_Table, "Event Results/Workplace_Oct_30_18_Output_Summary.csv") #write emissions to csv
+write_csv(Oct_30_18_WP_output_table$Emissions, "Event Results/Workplace_Oct_30_18_Output_All_Hours.csv")
 ```
 
 
@@ -2242,7 +2237,7 @@ filter(Market_Segment=="Workplace") %>%
 select(Oct_16_18_LS) %>%
 unlist()
 
-Oct_16_18_WP_scaled_model_run <- hourly_demand(
+Oct_16_18_WP_scaled_baseline <- hourly_demand(
                     month = 10,
                     year = 2018,
                     seg =  "Workplace",
@@ -2256,13 +2251,13 @@ Oct_16_18_WP_Event_Usage <- filter(event_data, Date == "2018-10-16" & segment ==
 select(Demand) %>%
 unlist()
 
-Oct_16_18_WP_scaled_model_run$EV_Demand <- Oct_16_18_WP_scaled_model_run$EV_Demand %>%
+Oct_16_18_WP_scaled_baseline$EV_Demand <- Oct_16_18_WP_scaled_baseline$EV_Demand %>%
   mutate(Event_Usage = Oct_16_18_WP_Event_Usage)
 
 
-graph_table16 <- Oct_16_18_WP_scaled_model_run$EV_Demand[c("Hr","X0","Event_Usage")] %>%
+graph_table16 <- Oct_16_18_WP_scaled_baseline$EV_Demand[c("Hr","X0","Event_Usage")] %>%
   gather(condition,value,c("X0","Event_Usage")) %>%
-  mutate(Theoretical_Max=Oct_16_18_WP_scaled_model_run$EV_Demand$MT[1])
+  mutate(Theoretical_Max=Oct_16_18_WP_scaled_baseline$EV_Demand$MT[1])
 
 
 Demand_Graph16 <- ggplot(data = graph_table16, aes(x = Hr)) +
@@ -2293,14 +2288,19 @@ ggsave("Event Graphs/Oct_16_WP_Event_Usage.png", Demand_Graph16, device = "png",
 
 
 #COST
-Cost_Table16 <- Oct_16_18_WP_scaled_model_run$EV_Demand[c("Hr","X0","P0","Event_Usage","P1")] %>% 
+Cost_Table16 <- Oct_16_18_WP_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_Usage","P1")] %>% 
   mutate(Cost0 = X0*P0) %>% 
   mutate(Cost1 = Event_Usage*P1) %>% 
   mutate(Cost_diff = Cost1-Cost0)
 #View(Cost_Table16)
 
 
-
+#Emissions Results
+#View(Nov_28_18_WP_scaled_baseline$EV_Demand)
+write_csv(Oct_16_18_WP_scaled_baseline$EV_Demand, "Event Results/Workplace_Oct_16_18_Demand_Summary.csv")
+Oct_16_18_WP_output_table <- emissions_fcn_event(Oct_16_18_WP_scaled_baseline) 
+write_csv(Oct_16_18_WP_output_table$Emissions_Table, "Event Results/Workplace_Oct_16_18_Output_Summary.csv") #write emissions to csv
+write_csv(Oct_16_18_WP_output_table$Emissions, "Event Results/Workplace_Oct_16_18_Output_All_Hours.csv")
 ```
 
 
@@ -2319,7 +2319,7 @@ filter(Market_Segment=="Workplace") %>%
 select(Sep_27_18_LR) %>%
 unlist()
 
-Sep_27_18_scaled_baseline <- hourly_demand(
+Sep_27_18_WP_scaled_baseline <- hourly_demand(
                     month = 9,
                     year = 2018,
                     seg =  "Workplace",
@@ -2334,13 +2334,13 @@ select(Demand) %>%
 unlist()
 
 
-Sep_27_18_scaled_baseline$EV_Demand <- Sep_27_18_scaled_baseline$EV_Demand %>%
+Sep_27_18_WP_scaled_baseline$EV_Demand <- Sep_27_18_WP_scaled_baseline$EV_Demand %>%
   mutate(Event_Usage = Sep_27_18_Event_Usage)
 
 
-graph_table17 <- Sep_27_18_scaled_baseline$EV_Demand[c("Hr","X0","Event_Usage")] %>%
+graph_table17 <- Sep_27_18_WP_scaled_baseline$EV_Demand[c("Hr","X0","Event_Usage")] %>%
   gather(condition,value,c("X0","Event_Usage")) %>%
-  mutate(Theoretical_Max=Sep_27_18_scaled_baseline$EV_Demand$MT[1])
+  mutate(Theoretical_Max=Sep_27_18_WP_scaled_baseline$EV_Demand$MT[1])
 
 
 Demand_Graph17 <- ggplot(data = graph_table17, aes(x = Hr)) +
@@ -2370,11 +2370,19 @@ Demand_Graph17
 ggsave("Event Graphs/Sep_27_WP_Event_Usage.png", Demand_Graph17, device = "png", width = 8, height = 4.5)
 
 #Cost
-Cost_Table17 <- Sep_27_18_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_Usage","P1")] %>% 
+Cost_Table17 <- Sep_27_18_WP_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_Usage","P1")] %>% 
   mutate(Cost0 = X0*P0) %>% 
   mutate(Cost1 = Event_Usage*P1) %>% 
   mutate(Cost_diff = Cost1-Cost0)
 #View(Cost_Table17)
+
+
+#Emissions Results
+#View(Sep_27_18_WP_scaled_baseline$EV_Demand)
+write_csv(Sep_27_18_WP_scaled_baseline$EV_Demand, "Event Results/Workplace_Sep_27_18_Demand_Summary.csv")
+Sep_27_18_WP_output_table <- emissions_fcn_event(Sep_27_18_WP_scaled_baseline) 
+write_csv(Sep_27_18_WP_output_table$Emissions_Table, "Event Results/Workplace_Sep_27_18_Output_Summary.csv") #write emissions to csv
+write_csv(Sep_27_18_WP_output_table$Emissions, "Event Results/Workplace_Sep_27_18_Output_All_Hours.csv")
 
 ```
 
@@ -2393,7 +2401,7 @@ filter(Market_Segment=="Workplace") %>%
 select(Aug_30_18_LR) %>%
 unlist()
 
-Aug_30_18_scaled_model_run <- hourly_demand(
+Aug_30_18_WP_scaled_baseline <- hourly_demand(
                     month = 8,
                     year = 2018,
                     seg =  "Workplace",
@@ -2407,13 +2415,13 @@ Aug_30_18_Event_Usage <- filter(event_data, Date == "2018-8-30" & segment == "Wo
 select(Demand) %>%
 unlist()
 
-Aug_30_18_scaled_model_run$EV_Demand <- Aug_30_18_scaled_model_run$EV_Demand %>%
+Aug_30_18_WP_scaled_baseline$EV_Demand <- Aug_30_18_WP_scaled_baseline$EV_Demand %>%
   mutate(Event_Usage = Aug_30_18_Event_Usage)
 
 
-graph_table18 <- Aug_30_18_scaled_model_run$EV_Demand[c("Hr","X0","Event_Usage")] %>%
+graph_table18 <- Aug_30_18_WP_scaled_baseline$EV_Demand[c("Hr","X0","Event_Usage")] %>%
   gather(condition,value,c("X0","Event_Usage")) %>%
-  mutate(Theoretical_Max=Aug_30_18_scaled_model_run$EV_Demand$MT[1])
+  mutate(Theoretical_Max=Aug_30_18_WP_scaled_baseline$EV_Demand$MT[1])
 
 
 Demand_Graph18 <- ggplot(data = graph_table18, aes(x = Hr)) +
@@ -2446,7 +2454,7 @@ ggsave("Event Graphs/Aug_30_WP_Event_Usage.png", Demand_Graph18, device = "png",
 
 
 #Cost
-Cost_Table18 <- Aug_30_18_scaled_model_run$EV_Demand[c("Hr","X0","P0","Event_Usage","P1")] %>% 
+Cost_Table18 <- Aug_30_18_WP_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_Usage","P1")] %>% 
   mutate(Cost0 = X0*P0) %>% 
   mutate(Cost1 = Event_Usage*P1) %>% 
   mutate(Cost_diff = Cost1-Cost0)
@@ -2455,6 +2463,15 @@ Cost_Table18 <- Aug_30_18_scaled_model_run$EV_Demand[c("Hr","X0","P0","Event_Usa
 #Sum of Cost
 Sum_Cost18 <-sum(Cost_Table18$Cost_diff)
 #View(Sum_Cost18)
+
+
+
+#Emissions Results
+#View(Sep_27_18_WP_scaled_baseline$EV_Demand)
+write_csv(Aug_30_18_WP_scaled_baseline$EV_Demand, "Event Results/Workplace_Aug_30_18_Demand_Summary.csv")
+Aug_30_18_WP_output_table <- emissions_fcn_event(Aug_30_18_WP_scaled_baseline) 
+write_csv(Aug_30_18_WP_output_table$Emissions_Table, "Event Results/Workplace_Aug_30_18_Output_Summary.csv") #write emissions to csv
+write_csv(Aug_30_18_WP_output_table$Emissions, "Event Results/Workplace_Aug_30_18_Output_All_Hours.csv")
 ```
 
 
@@ -2473,7 +2490,7 @@ filter(Market_Segment=="Workplace") %>%
 select(Jul_31_18_LR) %>%
 unlist()
 
-Jul_31_18_scaled_model_run <- hourly_demand(
+Jul_31_18_WP_scaled_baseline <- hourly_demand(
                     month = 7,
                     year = 2018,
                     seg =  "Workplace",
@@ -2488,13 +2505,13 @@ select(Demand) %>%
 unlist()
 
 
-Jul_31_18_scaled_model_run$EV_Demand <- Jul_31_18_scaled_model_run$EV_Demand %>%
+Jul_31_18_WP_scaled_baseline$EV_Demand <- Jul_31_18_WP_scaled_baseline$EV_Demand %>%
   mutate(Event_Usage = Jul_31_18_Event_Usage)
 
 
-graph_table19 <- Jul_31_18_scaled_model_run$EV_Demand[c("Hr","X0","Event_Usage")] %>%
+graph_table19 <- Jul_31_18_WP_scaled_baseline$EV_Demand[c("Hr","X0","Event_Usage")] %>%
   gather(condition,value,c("X0","Event_Usage")) %>%
-  mutate(Theoretical_Max=Jul_31_18_scaled_model_run$EV_Demand$MT[1])
+  mutate(Theoretical_Max=Jul_31_18_WP_scaled_baseline$EV_Demand$MT[1])
 
 
 Demand_Graph19 <- ggplot(data = graph_table19, aes(x = Hr)) +
@@ -2524,7 +2541,7 @@ Demand_Graph19
 ggsave("Event Graphs/Jul_31_WP_Event_Usage.png", Demand_Graph19, device = "png", width = 8, height = 4.5)
 
 #Cost
-Cost_Table19 <- Jul_31_18_scaled_model_run$EV_Demand[c("Hr","X0","P0","Event_Usage","P1")] %>% 
+Cost_Table19 <- Jul_31_18_WP_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_Usage","P1")] %>% 
   mutate(Cost0 = X0*P0) %>% 
   mutate(Cost1 = Event_Usage*P1) %>% 
   mutate(Cost_diff = Cost1-Cost0)
@@ -2533,6 +2550,16 @@ Cost_Table19 <- Jul_31_18_scaled_model_run$EV_Demand[c("Hr","X0","P0","Event_Usa
 #Sum of Cost
 Sum_Cost19 <-sum(Cost_Table19$Cost_diff)
 #View(Sum_Cost19)
+
+
+
+
+#Emissions Results
+#View(Sep_27_18_WP_scaled_baseline$EV_Demand)
+write_csv(Jul_31_18_WP_scaled_baseline$EV_Demand, "Event Results/Workplace_Jul_31_18_Demand_Summary.csv")
+Jul_31_18_WP_output_table <- emissions_fcn_event(Jul_31_18_WP_scaled_baseline) 
+write_csv(Jul_31_18_WP_output_table$Emissions_Table, "Event Results/Workplace_Jul_31_18_Output_Summary.csv") #write emissions to csv
+write_csv(Jul_31_18_WP_output_table$Emissions, "Event Results/Workplace_Jul_31_18_Output_All_Hours.csv")
 ```
 #Scenario 43: July 11, 2018 LR Event + Baseline (scaled for 464 chargers) 
 
@@ -2548,7 +2575,7 @@ filter(Market_Segment=="Workplace") %>%
 select(Jul_11_18_LR) %>%
 unlist()
 
-Jul_11_18_scaled_model_run <- hourly_demand(
+Jul_11_18_WP_scaled_baseline <- hourly_demand(
                     month = 7,
                     year = 2018,
                     seg =  "Workplace",
@@ -2563,13 +2590,13 @@ select(Demand) %>%
 unlist()
 
 
-Jul_11_18_scaled_model_run$EV_Demand <- Jul_11_18_scaled_model_run$EV_Demand %>%
+Jul_11_18_WP_scaled_baseline$EV_Demand <- Jul_11_18_WP_scaled_baseline$EV_Demand %>%
   mutate(Event_Usage = Jul_11_18_Event_Usage)
 
 
-graph_table43 <- Jul_11_18_scaled_model_run$EV_Demand[c("Hr","X0","Event_Usage")] %>%
+graph_table43 <- Jul_11_18_WP_scaled_baseline$EV_Demand[c("Hr","X0","Event_Usage")] %>%
   gather(condition,value,c("X0","Event_Usage")) %>%
-  mutate(Theoretical_Max=Jul_11_18_scaled_model_run$EV_Demand$MT[1])
+  mutate(Theoretical_Max=Jul_11_18_WP_scaled_baseline$EV_Demand$MT[1])
 
 
 Demand_Graph43 <- ggplot(data = graph_table43, aes(x = Hr)) +
@@ -2599,7 +2626,7 @@ Demand_Graph43
 ggsave("Event Graphs/Jul_11_WP_Event_Usage.png", Demand_Graph43, device = "png", width = 8, height = 4.5)
 
 #Cost
-Cost_Table43 <- Jul_11_18_scaled_model_run$EV_Demand[c("Hr","X0","P0","Event_Usage","P1")] %>% 
+Cost_Table43 <- Jul_11_18_WP_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_Usage","P1")] %>% 
   mutate(Cost0 = X0*P0) %>% 
   mutate(Cost1 = Event_Usage*P1) %>% 
   mutate(Cost_diff = Cost1-Cost0)
@@ -2608,6 +2635,15 @@ Cost_Table43 <- Jul_11_18_scaled_model_run$EV_Demand[c("Hr","X0","P0","Event_Usa
 #Sum of Cost
 Sum_Cost43 <-sum(Cost_Table43$Cost_diff)
 #View(Sum_Cost19)
+
+
+
+#Emissions Results
+#View(Sep_27_18_WP_scaled_baseline$EV_Demand)
+write_csv(Jul_11_18_scaled_model_run$EV_Demand, "Event Results/Workplace_Jul_11_18_Demand_Summary.csv")
+Jul_11_18_WP_output_table <- emissions_fcn_event(Jul_11_18_WP_scaled_baseline) 
+write_csv(Jul_11_18_WP_output_table$Emissions_Table, "Event Results/Workplace_Jul_11_18_Output_Summary.csv") #write emissions to csv
+write_csv(Jul_11_18_WP_output_table$Emissions, "Event Results/Workplace_Jul_11_18_Output_All_Hours.csv")
 ```
 
 
@@ -2626,7 +2662,7 @@ filter(Market_Segment=="DC") %>%
 select(Nov_28_18_LS) %>%
 unlist()
 
-Nov_28_18_DC_scaled_model_run <- hourly_demand(
+Nov_28_18_DC_scaled_baseline <- hourly_demand(
                     month = 11,
                     year = 2018,
                     seg =  "Destination Center",
@@ -2640,13 +2676,13 @@ Nov_28_18_DC_Event_Usage <- filter(event_data, Date == "2018-11-28" & segment ==
 select(Demand) %>%
 unlist()
 
-Nov_28_18_DC_scaled_model_run$EV_Demand <- Nov_28_18_DC_scaled_model_run$EV_Demand %>%
+Nov_28_18_DC_scaled_baseline$EV_Demand <- Nov_28_18_DC_scaled_baseline$EV_Demand %>%
   mutate(Event_Usage = Nov_28_18_DC_Event_Usage)
 
 
-graph_table20 <- Nov_28_18_DC_scaled_model_run$EV_Demand[c("Hr","X0","Event_Usage")] %>%
+graph_table20 <- Nov_28_18_DC_scaled_baseline$EV_Demand[c("Hr","X0","Event_Usage")] %>%
   gather(condition,value,c("X0","Event_Usage")) %>%
-  mutate(Theoretical_Max=Nov_28_18_DC_scaled_model_run$EV_Demand$MT[1])
+  mutate(Theoretical_Max=Nov_28_18_DC_scaled_baseline$EV_Demand$MT[1])
 
 
 Demand_Graph20 <- ggplot(data = graph_table18, aes(x = Hr)) +
@@ -2676,11 +2712,19 @@ Demand_Graph20
 ggsave("Event Graphs/Nov_28_DC_Event_Usage.png", Demand_Graph20, device = "png", width = 8, height = 4.5)
 
 #Cost
-Cost_Table20 <- Nov_28_18_DC_scaled_model_run$EV_Demand[c("Hr","X0","P0","Event_Usage","P1")] %>% 
+Cost_Table20 <- Nov_28_18_DC_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_Usage","P1")] %>% 
   mutate(Cost0 = X0*P0) %>% 
   mutate(Cost1 = Event_Usage*P1) %>% 
   mutate(Cost_diff = Cost1-Cost0)
 #View(Cost_Table20)
+
+
+#Emissions Results
+#View(Sep_27_18_WP_scaled_baseline$EV_Demand)
+write_csv(Nov_28_18_DC_scaled_baseline$EV_Demand, "Event Results/DC_Nov_28_18_Demand_Summary.csv")
+Nov_28_18_DC_output_table <- emissions_fcn_event(Nov_28_18_DC_scaled_baseline) 
+write_csv(Nov_28_18_DC_output_table$Emissions_Table, "Event Results/DC_Nov_28_18_Output_Summary.csv") #write emissions to csv
+write_csv(Nov_28_18_DC_output_table$Emissions, "Event Results/DC_Nov_28_18_Output_All_Hours.csv")
 
 ```
 
@@ -2755,6 +2799,14 @@ Cost_Table21 <- Nov_14_18_DC_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_U
   mutate(Cost1 = Event_Usage*P1) %>% 
   mutate(Cost_diff = Cost1-Cost0)
 #View(Cost_Table13)
+
+
+#Emissions Results
+#View(Nov_14_18_DC_scaled_baseline$EV_Demand)
+write_csv(Nov_14_18_DC_scaled_baseline$EV_Demand, "Event Results/DC_Nov_14_18_Demand_Summary.csv")
+Nov_14_18_DC_output_table <- emissions_fcn_event(Nov_14_18_DC_scaled_baseline) 
+write_csv(Nov_14_18_DC_output_table$Emissions_Table, "Event Results/DC_Nov_14_18_Output_Summary.csv") #write emissions to csv
+write_csv(Nov_14_18_DC_output_table$Emissions, "Event Results/DC_Nov_14_18_Output_All_Hours.csv")
 ```
 
 #Scenario 22- Oct 30, 2018 DC EVENT + Baseline (scaled for 150 chargers) 
@@ -2828,6 +2880,14 @@ Cost_Table22 <- Oct_30_18_DC_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_U
   mutate(Cost1 = Event_Usage*P1) %>% 
   mutate(Cost_diff = Cost1-Cost0)
 #View(Cost_Table22)
+
+
+#Emissions Results
+#View(Nov_14_18_DC_scaled_baseline$EV_Demand)
+write_csv(Oct_30_18_DC_scaled_baseline$EV_Demand, "Event Results/DC_Oct_30_18_Demand_Summary.csv")
+Oct_30_18_DC_output_table <- emissions_fcn_event(Oct_30_18_DC_scaled_baseline) 
+write_csv(Oct_30_18_DC_output_table$Emissions_Table, "Event Results/DC_Oct_30_18_Output_Summary.csv") #write emissions to csv
+write_csv(Oct_30_18_DC_output_table$Emissions, "Event Results/DC_Oct_30_18_Output_All_Hours.csv")
 ```
 
 #Scenario 23- Oct 16, 2018 DC EVENT + Baseline (scaled for 110 chargers) 
@@ -2901,6 +2961,15 @@ Cost_Table23 <- Oct_16_18_DC_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_U
   mutate(Cost1 = Event_Usage*P1) %>% 
   mutate(Cost_diff = Cost1-Cost0)
 #View(Cost_Table22)
+
+
+
+#Emissions Results
+#View(Oct_16_18_DC_scaled_baseline$EV_Demand)
+write_csv(Oct_16_18_DC_scaled_baseline$EV_Demand, "Event Results/DC_Oct_16_18_Demand_Summary.csv")
+Oct_16_18_DC_output_table <- emissions_fcn_event(Oct_16_18_DC_scaled_baseline) 
+write_csv(Oct_16_18_DC_output_table$Emissions_Table, "Event Results/DC_Oct_16_18_Output_Summary.csv") #write emissions to csv
+write_csv(Oct_16_18_DC_output_table$Emissions, "Event Results/DC_Oct_16_18_Output_All_Hours.csv")
 ```
 
 #Scenario 24- Sep 27, 2018 DC EVENT + Baseline (scaled for 176 chargers) 
@@ -2974,6 +3043,14 @@ Cost_Table24 <- Sep_27_18_DC_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_U
   mutate(Cost1 = Event_Usage*P1) %>% 
   mutate(Cost_diff = Cost1-Cost0)
 #View(Cost_Table24)
+
+
+#Emissions Results
+#View(Sep_27_18_DC_scaled_baseline$EV_Demand)
+write_csv(Sep_27_18_DC_scaled_baseline$EV_Demand, "Event Results/DC_Sep_27_18_Demand_Summary.csv")
+Sep_27_18_DC_output_table <- emissions_fcn_event(Sep_27_18_DC_scaled_baseline) 
+write_csv(Sep_27_18_DC_output_table$Emissions_Table, "Event Results/DC_Sep_27_18_Output_Summary.csv") #write emissions to csv
+write_csv(Sep_27_18_DC_output_table$Emissions, "Event Results/DC_Sep_27_18_Output_All_Hours.csv")
 ```
 
 #Scenario 25- Aug 30, 2018 DC EVENT + Baseline (scaled for 133 chargers) 
@@ -3047,6 +3124,14 @@ Cost_Table25 <- Aug_30_18_DC_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_U
   mutate(Cost1 = Event_Usage*P1) %>% 
   mutate(Cost_diff = Cost1-Cost0)
 #View(Cost_Table25)
+
+
+#Emissions Results
+#View(Aug_30_18_DC_scaled_baseline$EV_Demand)
+write_csv(Aug_30_18_DC_scaled_baseline$EV_Demand, "Event Results/DC_Aug_30_18_Demand_Summary.csv")
+Aug_30_18_DC_output_table <- emissions_fcn_event(Aug_30_18_DC_scaled_baseline) 
+write_csv(Aug_30_18_DC_output_table$Emissions_Table, "Event Results/DC_Aug_30_18_Output_Summary.csv") #write emissions to csv
+write_csv(Aug_30_18_DC_output_table$Emissions, "Event Results/DC_Aug_30_18_Output_All_Hours.csv")
 ```
 
 
@@ -3121,6 +3206,15 @@ Cost_Table26 <- Jul_31_18_DC_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_U
   mutate(Cost1 = Event_Usage*P1) %>% 
   mutate(Cost_diff = Cost1-Cost0)
 #View(Cost_Table26)
+
+
+
+#Emissions Results
+#View(Jul_31_18_DC_scaled_baseline$EV_Demand)
+write_csv(Jul_31_18_DC_scaled_baseline$EV_Demand, "Event Results/DC_Jul_31_18_Demand_Summary.csv")
+Jul_31_18_DC_output_table <- emissions_fcn_event(Jul_31_18_DC_scaled_baseline) 
+write_csv(Jul_31_18_DC_output_table$Emissions_Table, "Event Results/DC_Jul_31_18_Output_Summary.csv") #write emissions to csv
+write_csv(Jul_31_18_DC_output_table$Emissions, "Event Results/DC_Jul_31_18_Output_All_Hours.csv")
 ```
 
 
@@ -3196,6 +3290,14 @@ Cost_Table27 <- Jul_11_18_DC_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_U
   mutate(Cost1 = Event_Usage*P1) %>% 
   mutate(Cost_diff = Cost1-Cost0)
 #View(Cost_Table27)
+
+
+#Emissions Results
+#View(Jul_11_18_DC_scaled_baseline$EV_Demand)
+write_csv(Jul_11_18_DC_scaled_baseline$EV_Demand, "Event Results/DC_Jul_11_18_Demand_Summary.csv")
+Jul_11_18_DC_output_table <- emissions_fcn_event(Jul_11_18_DC_scaled_baseline) 
+write_csv(Jul_11_18_DC_output_table$Emissions_Table, "Event Results/DC_Jul_3=11_18_Output_Summary.csv") #write emissions to csv
+write_csv(Jul_11_18_DC_output_table$Emissions, "Event Results/DC_Jul_11_18_Output_All_Hours.csv")
 
 ```
 
@@ -3273,6 +3375,15 @@ Cost_Table44 <- Nov_28_18_Fleet_scaled_baseline$EV_Demand[c("Hr","X0","P0","Even
   mutate(Cost1 = Event_Usage*P1) %>% 
   mutate(Cost_diff = Cost1-Cost0)
 #View(Cost_Table44)
+
+
+
+#Emissions Results
+#View(Jul_11_18_DC_scaled_baseline$EV_Demand)
+write_csv(Nov_28_18_Fleet_scaled_baseline$EV_Demand, "Event Results/Fleet_Nov_28_18_Demand_Summary.csv")
+Nov_28_18_Fleet_output_table <- emissions_fcn_event(Nov_28_18_Fleet_scaled_baseline) 
+write_csv(Nov_28_18_Fleet_output_table$Emissions_Table, "Event Results/Fleet_Nov_28_18_Output_Summary.csv") #write emissions to csv
+write_csv(Nov_28_18_Fleet_output_table$Emissions, "Event Results/Fleet_Nov_28_18_Output_All_Hours.csv")
 ```
 
 #Scenario 28 - Nov 14, 2018 Fleet EVENT + Baseline (scaled for 68 chargers) 
@@ -3346,6 +3457,16 @@ Cost_Table28 <- Nov_14_18_Fleet_scaled_baseline$EV_Demand[c("Hr","X0","P0","Even
   mutate(Cost1 = Event_Usage*P1) %>% 
   mutate(Cost_diff = Cost1-Cost0)
 #View(Cost_Table28)
+
+
+
+
+#Emissions Results
+#View(Nov_14_18_Fleet_scaled_baseline$EV_Demand)
+write_csv(Nov_14_18_Fleet_scaled_baseline$EV_Demand, "Event Results/Fleet_Nov_14_18_Demand_Summary.csv")
+Nov_14_18_Fleet_output_table <- emissions_fcn_event(Nov_14_18_Fleet_scaled_baseline) 
+write_csv(Nov_14_18_Fleet_output_table$Emissions_Table, "Event Results/Fleet_Nov_14_18_Output_Summary.csv") #write emissions to csv
+write_csv(Nov_14_18_Fleet_output_table$Emissions, "Event Results/Fleet_Nov_14_18_Output_All_Hours.csv")
 ```
 
 #Scenario 29 - Oct 30, 2018 Fleet EVENT + Baseline (scaled for 67 chargers) 
@@ -3412,6 +3533,22 @@ geom_line(aes(y=Theoretical_Max))
 Demand_Graph29
 
 ggsave("Event Graphs/Oct_30_18_Fleet_Event_Usage.png", Demand_Graph29, device = "png", width = 8, height = 4.5)
+
+#COST
+Cost_Table29 <- Oct_30_18_Fleet_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_Usage","P1")] %>% 
+  mutate(Cost0 = X0*P0) %>% 
+  mutate(Cost1 = Event_Usage*P1) %>% 
+  mutate(Cost_diff = Cost1-Cost0)
+#View(Cost_Table29)
+
+
+
+#Emissions Results
+#View(Oct_30_18_Fleet_scaled_baseline$EV_Demand)
+write_csv(Oct_30_18_Fleet_scaled_baseline$EV_Demand, "Event Results/Fleet_Oct_30_18_Demand_Summary.csv")
+Oct_30_18_Fleet_output_table <- emissions_fcn_event(Oct_30_18_Fleet_scaled_baseline) 
+write_csv(Oct_30_18_Fleet_output_table$Emissions_Table, "Event Results/Fleet_Oct_30_18_Output_Summary.csv") #write emissions to csv
+write_csv(Oct_30_18_Fleet_output_table$Emissions, "Event Results/Fleet_Oct_30_18_Output_All_Hours.csv")
 ```
 
 #Scenario 30 - October 16, 2018 Fleet EVENT + Baseline (scaled for 83 chargers) 
@@ -3485,6 +3622,15 @@ Cost_Table30 <- Oct_16_18_Fleet_scaled_baseline$EV_Demand[c("Hr","X0","P0","Even
   mutate(Cost1 = Event_Usage*P1) %>% 
   mutate(Cost_diff = Cost1-Cost0)
 #View(Cost_Table30)
+
+
+
+#Emissions Results
+#View(Oct_16_18_Fleet_scaled_baseline$EV_Demand)
+write_csv(Oct_16_18_Fleet_scaled_baseline$EV_Demand, "Event Results/Fleet_Oct_16_18_Demand_Summary.csv")
+Oct_16_18_Fleet_output_table <- emissions_fcn_event(Oct_16_18_Fleet_scaled_baseline) 
+write_csv(Oct_16_18_Fleet_output_table$Emissions_Table, "Event Results/Fleet_Oct_16_18_Output_Summary.csv") #write emissions to csv
+write_csv(Oct_16_18_Fleet_output_table$Emissions, "Event Results/Fleet_Oct_16_18_Output_All_Hours.csv")
 ```
 
 #Scenario 31 - September 27, 2018 Fleet EVENT + Baseline (scaled for 24 chargers) 
@@ -3558,6 +3704,15 @@ Cost_Table31 <- Sep_27_18_Fleet_scaled_baseline$EV_Demand[c("Hr","X0","P0","Even
   mutate(Cost1 = Event_Usage*P1) %>% 
   mutate(Cost_diff = Cost1-Cost0)
 #View(Cost_Table31)
+
+
+
+#Emissions Results
+#View(Sep_27_18_Fleet_scaled_baseline$EV_Demand)
+write_csv(Sep_27_18_Fleet_scaled_baseline$EV_Demand, "Event Results/Fleet_Sep_27_18_Demand_Summary.csv")
+Sep_27_18_Fleet_output_table <- emissions_fcn_event(Sep_27_18_Fleet_scaled_baseline) 
+write_csv(Sep_27_18_Fleet_output_table$Emissions_Table, "Event Results/Fleet_Sep_27_18_Output_Summary.csv") #write emissions to csv
+write_csv(Sep_27_18_Fleet_output_table$Emissions, "Event Results/Fleet_Sep_27_18_Output_All_Hours.csv")
 ```
 #Scenario 32 - August 30, 2018 Fleet EVENT + Baseline (scaled for X chargers) 
 
@@ -3630,6 +3785,15 @@ Cost_Table32 <- Aug_30_18_Fleet_scaled_baseline$EV_Demand[c("Hr","X0","P0","Even
   mutate(Cost1 = Event_Usage*P1) %>% 
   mutate(Cost_diff = Cost1-Cost0)
 #View(Cost_Table32)
+
+
+#Emissions Results
+#View(Aug_30_18_Fleet_scaled_baseline$EV_Demand)
+write_csv(Aug_30_18_Fleet_scaled_baseline$EV_Demand, "Event Results/Fleet_Aug_30_18_Demand_Summary.csv")
+Aug_30_18_Fleet_output_table <- emissions_fcn_event(Aug_30_18_Fleet_scaled_baseline) 
+write_csv(Aug_30_18_Fleet_output_table$Emissions_Table, "Event Results/Fleet_Aug_30_18_Output_Summary.csv") #write emissions to csv
+write_csv(Aug_30_18_Fleet_output_table$Emissions, "Event Results/Fleet_Aug_30_18_Output_All_Hours.csv")
+
 ```
 
 #Scenario 33 - July 31, 2018 Fleet EVENT + Baseline (scaled for 52 chargers) 
@@ -3703,6 +3867,16 @@ Cost_Table33 <- Jul_31_18_Fleet_scaled_baseline$EV_Demand[c("Hr","X0","P0","Even
   mutate(Cost1 = Event_Usage*P1) %>% 
   mutate(Cost_diff = Cost1-Cost0)
 #View(Cost_Table33)
+
+
+
+
+#Emissions Results
+#View(Jul_31_18_Fleet_scaled_baseline$EV_Demand)
+write_csv(Jul_31_18_Fleet_scaled_baseline$EV_Demand, "Event Results/Fleet_Jul_31_18_Demand_Summary.csv")
+Jul_31_18_Fleet_output_table <- emissions_fcn_event(Jul_31_18_Fleet_scaled_baseline) 
+write_csv(Jul_31_18_Fleet_output_table$Emissions_Table, "Event Results/Fleet_Jul_31_18_Output_Summary.csv") #write emissions to csv
+write_csv(Jul_31_18_Fleet_output_table$Emissions, "Event Results/Fleet_Jul_31_18_Output_All_Hours.csv")
 ```
 
 #Scenario 34 - July 11, 2018 Fleet EVENT + Baseline (scaled for 32 chargers) 
@@ -3776,6 +3950,14 @@ Cost_Table34 <- Jul_11_18_Fleet_scaled_baseline$EV_Demand[c("Hr","X0","P0","Even
   mutate(Cost1 = Event_Usage*P1) %>% 
   mutate(Cost_diff = Cost1-Cost0)
 #View(Cost_Table34)
+
+
+#Emissions Results
+#View(Jul_11_18_Fleet_scaled_baseline$EV_Demand)
+write_csv(Jul_11_18_Fleet_scaled_baseline$EV_Demand, "Event Results/Fleet_Jul_11_18_Demand_Summary.csv")
+Jul_11_18_Fleet_output_table <- emissions_fcn_event(Jul_11_18_Fleet_scaled_baseline) 
+write_csv(Jul_11_18_Fleet_output_table$Emissions_Table, "Event Results/Fleet_Jul_11_18_Output_Summary.csv") #write emissions to csv
+write_csv(Jul_11_18_Fleet_output_table$Emissions, "Event Results/Fleet_Jul_11_18_Output_All_Hours.csv")
 ```
 
 
@@ -3855,6 +4037,14 @@ Cost_Table35 <- Nov_28_18_MUD_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_
   mutate(Cost1 = Event_Usage*P1) %>% 
   mutate(Cost_diff = Cost1-Cost0)
 #View(Cost_Table35)
+
+
+#Emissions Results
+#View(Nov_28_18_MUD_scaled_baseline$EV_Demand)
+write_csv(Nov_28_18_MUD_scaled_baseline$EV_Demand, "Event Results/Fleet_Jul_11_18_Demand_Summary.csv")
+Nov_28_18_MUD_output_table <- emissions_fcn_event(Nov_28_18_MUD_scaled_baseline) 
+write_csv(Nov_28_18_MUD_output_table$Emissions_Table, "Event Results/Fleet_Jul_11_18_Output_Summary.csv") #write emissions to csv
+write_csv(Nov_28_18_MUD_output_table$Emissions, "Event Results/Fleet_Jul_11_18_Output_All_Hours.csv")
 ```
 
 #Scenario 36 - November 14, 2018 MUD EVENT + Baseline (scaled for 10 chargers) 
