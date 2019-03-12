@@ -3822,6 +3822,8 @@ Cost_Table37 <- Oct_30_18_MUD_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_
   mutate(Cost_diff = Cost1-Cost0)
 #View(Cost_Table37)
 ```
+
+
 #Scenario 38 - October 16, 2018 MUD EVENT + Baseline (scaled for X chargers) 
 
 Event: MUD, October 16, 2018, TOU EV-4, $0.05 Discount (11AM-3PM)
@@ -3885,7 +3887,7 @@ geom_line(aes(y=Theoretical_Max))
 
 Demand_Graph38
 
-ggsave("Oct_16_18_MUD_Event_Usage.pdf", Demand_Graph38, device = "pdf", width = 8, height = 4.5)
+ggsave("Event Graphs/Oct_16_18_MUD_Event_Usage.png", Demand_Graph38, device = "png", width = 8, height = 4.5)
 
 #COST
 Cost_Table38 <- Oct_16_18_MUD_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_Usage","P1")] %>% 
@@ -3958,7 +3960,7 @@ geom_line(aes(y=Theoretical_Max))
 
 Demand_Graph39
 
-ggsave("Sep_27_18_MUD_Event_Usage.pdf", Demand_Graph39, device = "pdf", width = 8, height = 4.5)
+ggsave("Event Graphs/Sep_27_18_MUD_Event_Usage.png", Demand_Graph39, device = "png", width = 8, height = 4.5)
 
 #COST
 Cost_Table39 <- Sep_27_18_MUD_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_Usage","P1")] %>% 
@@ -4031,7 +4033,7 @@ geom_line(aes(y=Theoretical_Max))
 
 Demand_Graph40
 
-ggsave("Aug_30_18_MUD_Event_Usage.pdf", Demand_Graph40, device = "pdf", width = 8, height = 4.5)
+ggsave("Event Graphs/Aug_30_18_MUD_Event_Usage.png", Demand_Graph40, device = "png", width = 8, height = 4.5)
 
 #COST
 Cost_Table40 <- Aug_30_18_MUD_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_Usage","P1")] %>% 
@@ -4103,7 +4105,7 @@ geom_line(aes(y=Theoretical_Max))
 
 Demand_Graph41
 
-ggsave("Jul_31_18_MUD_Event_Usage.pdf", Demand_Graph41, device = "pdf", width = 8, height = 4.5)
+ggsave("Event Graphs/Jul_31_18_MUD_Event_Usage.png", Demand_Graph41, device = "png", width = 8, height = 4.5)
 
 #COST
 Cost_Table41 <- Jul_31_18_MUD_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_Usage","P1")] %>% 
@@ -4176,7 +4178,7 @@ geom_line(aes(y=Theoretical_Max))
 
 Demand_Graph42
 
-ggsave("Jul_11_18_MUD_Event_Usage.pdf", Demand_Graph42, device = "pdf", width = 8, height = 4.5)
+ggsave("Event Graphs/Jul_11_18_MUD_Event_Usage.png", Demand_Graph42, device = "png", width = 8, height = 4.5)
 
 #COST
 Cost_Table42 <- Jul_11_18_MUD_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_Usage","P1")] %>% 
