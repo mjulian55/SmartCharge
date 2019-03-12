@@ -710,10 +710,10 @@ FW1 <- simulation(simulations = 1000, sim_seg = "Workplace",
                        sim_int_equals_baseline = FALSE) 
 
 #View(FW1$sim_result_summary)
-write_csv(FW1$sim_result_summary, "Results/Workplace_PW6S_Demand_Summary.csv")
+write_csv(FW1$sim_result_summary, "Results/Workplace_FW1_Demand_Summary.csv")
 
 FW1_output_table <- emissions_fcn(FW1) 
-write_csv(FW1_output_table$Emissions_Table, "Results/Workplace_PW6S_Output_Summary.csv") #write emissions to csv
+write_csv(FW1_output_table$Emissions_Table, "Results/Workplace_FW1_Output_Summary.csv") #write emissions to csv
 write_csv(FW1_output_table$Emissions, "Results/Workplace_FW1_Output_All_Hours.csv")
 
 ```
