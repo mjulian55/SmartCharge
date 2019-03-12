@@ -1854,7 +1854,12 @@ geom_line(aes(y=Theoretical_Max))
 
 Demand_Graph13
 
-ggsave("Nov_14_WP_Event_Usage.pdf", Demand_Graph13, device = "pdf", width = 8, height = 4.5)
+ggsave("Event Graphs/Nov_14_WP_Event_Usage.png", Demand_Graph13, device = "png", width = 8, height = 4.5)
+
+
+
+
+
 
 #COST
 Cost_Table13 <- Nov_14_18_WP_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_Usage","P1")] %>% 
@@ -1862,6 +1867,33 @@ Cost_Table13 <- Nov_14_18_WP_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_U
   mutate(Cost1 = Event_Usage*P1) %>% 
   mutate(Cost_diff = Cost1-Cost0)
 #View(Cost_Table13)
+
+
+
+write_csv(PM5$sim_result_summary, "Results/MUDs_PM5_Demand_Summary.csv")
+
+#run emissions and write to csv
+PM5_output_table <- emissions_fcn(PM5) 
+#View(PM5_output_table$Emissions_Table)
+#View(PM5_output_table$Emissions)
+
+write_csv(PM5_output_table$Emissions_Table, "Results/MUDs_PM5_Output_Summary.csv") #write emissions to csv
+write_csv(PM5_output_table$Emissions, "Results/MUDs_PM5_Output_All_Hours.csv")
+
+
+
+
+
+
+#View(Nov_14_18_WP_scaled_baseline$EV_Demand)
+
+write_csv(Nov_14_18_WP_scaled_baseline$EV_Demand, "Event Results/Workplace_Nov_14_18_Demand_Summary.csv")
+
+Nov_14_18_WP_output_table <- emissions_fcn(Nov_14_18_WP_scaled_baseline) 
+
+write_csv(Nov_14_18_WP_output_table$Emissions_Table, "Event Results/Workplace_Nov_14_18_Output_Summary.csv") #write emissions to csv
+
+write_csv(Nov_14_18_WP_output_table$Emissions, "Event Results/Workplace_Nov_14_18_Output_All_Hours.csv")
 
 
 ```
@@ -1928,7 +1960,7 @@ geom_line(aes(y=Theoretical_Max))
 
 Demand_Graph14
 
-ggsave("Nov_28_WP_Event_Usage.pdf", Demand_Graph14, device = "pdf", width = 8, height = 4.5)
+ggsave("Event Graphs/Nov_28_WP_Event_Usage.png", Demand_Graph14, device = "png", width = 8, height = 4.5)
 
 #COST
 Cost_Table14 <- Nov_28_18_WP_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_Usage","P1")] %>% 
@@ -2003,7 +2035,7 @@ geom_line(aes(y=Theoretical_Max))
 
 Demand_Graph15
 
-ggsave("Oct_30_WP_Event_Usage.pdf", Demand_Graph15, device = "pdf", width = 8, height = 4.5)
+ggsave("Event Graphs/Oct_30_WP_Event_Usage.png", Demand_Graph15, device = "png", width = 8, height = 4.5)
 
 #COST
 Cost_Table15 <- Oct_30_18_WP_scaled_model_run$EV_Demand[c("Hr","X0","P0","Event_Usage","P1")] %>% 
@@ -2075,7 +2107,7 @@ geom_line(aes(y=Theoretical_Max))
 
 Demand_Graph16
 
-ggsave("Oct_16_WP_Event_Usage.pdf", Demand_Graph16, device = "pdf", width = 8, height = 4.5)
+ggsave("Event Graphs/Oct_16_WP_Event_Usage.png", Demand_Graph16, device = "png", width = 8, height = 4.5)
 
 
 #COST
@@ -2153,7 +2185,7 @@ geom_line(aes(y=Theoretical_Max))
 
 Demand_Graph17
 
-ggsave("Sep_27_WP_Event_Usage.pdf", Demand_Graph17, device = "pdf", width = 8, height = 4.5)
+ggsave("Event Graphs/Sep_27_WP_Event_Usage.png", Demand_Graph17, device = "png", width = 8, height = 4.5)
 
 #Cost
 Cost_Table17 <- Sep_27_18_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_Usage","P1")] %>% 
@@ -2226,7 +2258,10 @@ geom_line(aes(y=Theoretical_Max))
 
 Demand_Graph18
 
-ggsave("Aug_30_WP_Event_Usage.pdf", Demand_Graph18, device = "pdf", width = 8, height = 4.5)
+ggsave("Event Graphs/Aug_30_WP_Event_Usage.png", Demand_Graph18, device = "png", width = 8, height = 4.5)
+
+
+
 
 #Cost
 Cost_Table18 <- Aug_30_18_scaled_model_run$EV_Demand[c("Hr","X0","P0","Event_Usage","P1")] %>% 
@@ -2304,7 +2339,7 @@ geom_line(aes(y=Theoretical_Max))
 
 Demand_Graph19
 
-ggsave("Jul_31_WP_Event_Usage.pdf", Demand_Graph19, device = "pdf", width = 8, height = 4.5)
+ggsave("Event Graphs/Jul_31_WP_Event_Usage.png", Demand_Graph19, device = "png", width = 8, height = 4.5)
 
 #Cost
 Cost_Table19 <- Jul_31_18_scaled_model_run$EV_Demand[c("Hr","X0","P0","Event_Usage","P1")] %>% 
@@ -2379,7 +2414,7 @@ geom_line(aes(y=Theoretical_Max))
 
 Demand_Graph43
 
-ggsave("Jul_11_WP_Event_Usage.pdf", Demand_Graph19, device = "pdf", width = 8, height = 4.5)
+ggsave("Event Graphs/Jul_11_WP_Event_Usage.png", Demand_Graph19, device = "png", width = 8, height = 4.5)
 
 #Cost
 Cost_Table43 <- Jul_11_18_scaled_model_run$EV_Demand[c("Hr","X0","P0","Event_Usage","P1")] %>% 
@@ -2456,7 +2491,7 @@ geom_line(aes(y=Theoretical_Max))
 
 Demand_Graph20
 
-ggsave("Nov_28_DC_Event_Usage.pdf", Demand_Graph20, device = "pdf", width = 8, height = 4.5)
+ggsave("Event Graphs/Nov_28_DC_Event_Usage.png", Demand_Graph20, device = "png", width = 8, height = 4.5)
 
 #Cost
 Cost_Table20 <- Nov_28_18_DC_scaled_model_run$EV_Demand[c("Hr","X0","P0","Event_Usage","P1")] %>% 
@@ -2530,7 +2565,7 @@ geom_line(aes(y=Theoretical_Max))
 
 Demand_Graph21
 
-ggsave("Nov_14_DC_Event_Usage.pdf", Demand_Graph21, device = "pdf", width = 8, height = 4.5)
+ggsave("Event Graphs/Nov_14_DC_Event_Usage.png", Demand_Graph21, device = "png", width = 8, height = 4.5)
 
 #COST
 Cost_Table21 <- Nov_14_18_DC_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_Usage","P1")] %>% 
@@ -2603,7 +2638,7 @@ geom_line(aes(y=Theoretical_Max))
 
 Demand_Graph22
 
-ggsave("Oct_30_18_DC_Event_Usage.pdf", Demand_Graph22, device = "pdf", width = 8, height = 4.5)
+ggsave("Event Graphs/Oct_30_18_DC_Event_Usage.png", Demand_Graph22, device = "png", width = 8, height = 4.5)
 
 #COST
 Cost_Table22 <- Oct_30_18_DC_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_Usage","P1")] %>% 
@@ -2676,7 +2711,7 @@ geom_line(aes(y=Theoretical_Max))
 
 Demand_Graph23
 
-ggsave("Oct_16_18_DC_Event_Usage.pdf", Demand_Graph23, device = "pdf", width = 8, height = 4.5)
+ggsave("Event Graphs/Oct_16_18_DC_Event_Usage.png", Demand_Graph23, device = "png", width = 8, height = 4.5)
 
 #COST
 Cost_Table23 <- Oct_16_18_DC_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_Usage","P1")] %>% 
@@ -2749,7 +2784,7 @@ geom_line(aes(y=Theoretical_Max))
 
 Demand_Graph24
 
-ggsave("Sep_27_18_DC_Event_Usage.pdf", Demand_Graph24, device = "pdf", width = 8, height = 4.5)
+ggsave("Event Graphs/Sep_27_18_DC_Event_Usage.png", Demand_Graph24, device = "png", width = 8, height = 4.5)
 
 #COST
 Cost_Table24 <- Sep_27_18_DC_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_Usage","P1")] %>% 
@@ -2822,7 +2857,7 @@ geom_line(aes(y=Theoretical_Max))
 
 Demand_Graph25
 
-ggsave("Aug_30_18_DC_Event_Usage.pdf", Demand_Graph25, device = "pdf", width = 8, height = 4.5)
+ggsave("Event Graphs/Aug_30_18_DC_Event_Usage.png", Demand_Graph25, device = "png", width = 8, height = 4.5)
 
 #COST
 Cost_Table25 <- Aug_30_18_DC_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_Usage","P1")] %>% 
@@ -2896,7 +2931,7 @@ geom_line(aes(y=Theoretical_Max))
 
 Demand_Graph26
 
-ggsave("Jul_31_18_DC_Event_Usage.pdf", Demand_Graph26, device = "pdf", width = 8, height = 4.5)
+ggsave("Event Graphs/Jul_31_18_DC_Event_Usage.png", Demand_Graph26, device = "png", width = 8, height = 4.5)
 
 #COST
 Cost_Table26 <- Jul_31_18_DC_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_Usage","P1")] %>% 
@@ -2971,7 +3006,7 @@ geom_line(aes(y=Theoretical_Max))
 
 Demand_Graph27
 
-ggsave("Jul_11_18_DC_Event_Usage.pdf", Demand_Graph27, device = "pdf", width = 8, height = 4.5)
+ggsave("Event Graphs/Jul_11_18_DC_Event_Usage.png", Demand_Graph27, device = "png", width = 8, height = 4.5)
 
 #COST
 Cost_Table27 <- Jul_11_18_DC_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_Usage","P1")] %>% 
