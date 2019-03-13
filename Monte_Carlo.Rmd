@@ -25,7 +25,7 @@ CONTEXT
 
 
 
-```{r loadlib, message=FALSE, warning=FALSE}
+```{r hourly_demand, message=FALSE, warning=FALSE}
 
 source("hourly_demand_function.R")
 
@@ -348,7 +348,7 @@ Emissions_Table <- Emissions_Table %>%
   mutate(CO2ChangeCost = CO2Change*CO2cost)
  
 #Curtailment Cost Reduction
-Xcurtpotential <- sum(Emissions$Xcurt) #eek. this 75% is weird and doesn't match the solar fuel mix %. we need another column for solar reduction potential in the fuel mix. 
+Xcurtpotential <- sum(Emissions$Xcurt)
 Xcurtextra <- sum(Emissions$Xextra) 
 Xcurtproportion <- Xcurtpotential/sum(Emissions$curt)
 
@@ -2405,7 +2405,7 @@ Sep_27_18_WP_scaled_baseline <- hourly_demand(
                     intervention_chargers =
                     Sep_27_18_event,
                     int_equals_baseline = FALSE,
-                    include_wknds = FALSE)
+                    include_wknds = FALSE, intervention_hours = c(17:21))
 
 
 Sep_27_18_Event_Usage <- filter(event_data, Date == "2018-9-27" & segment == "Workplace") %>%
