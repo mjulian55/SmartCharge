@@ -1238,7 +1238,7 @@ Demand_GraphFDC1 <- ggplot(data = graph_tableFDC1, aes(x = Hr)) +
   geom_line(aes(y = value, color=condition)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
   panel.background = element_blank(), axis.line = element_line(colour = "black")) +
-  labs(title="Destination Centers SC.6 Hourly Demand Forecast n\(Discount+all comms+throttling 12-15) ",
+  labs(title="Destination Centers SC.6 Hourly Demand Forecast\n (Discount+all comms+throttling 12-15) ",
   subtitle="Summer 2030 2018 (4378 Chargers) Model Simulation",
   y="EV Charging Demand (kW)",
   x="Hour",
