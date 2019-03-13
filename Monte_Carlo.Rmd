@@ -4556,7 +4556,7 @@ Jul_31_18_MUD_scaled_baseline <- hourly_demand(
                     seg =  "Multi Unit Dwelling",
                     intervention_chargers =
                     Jul_31_18_MUD_event,
-                    int_equals_baseline = FALSE)
+                    int_equals_baseline = FALSE, price_change = 0)
 
 
 
