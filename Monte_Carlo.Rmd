@@ -25,7 +25,7 @@ CONTEXT
 
 
 
-```{r hourly_demand, message=FALSE, warning=FALSE}
+```{r loadlib, message=FALSE, warning=FALSE}
 
 source("hourly_demand_function.R")
 
@@ -46,7 +46,7 @@ SIMULATION
 
 
 simulation <- function(simulations = 100, 
-                       methods_included = c(2:4),
+                       methods_included = c(1:3),
                        sim_method = mthd,
                        sim_avg_elasticity = avg_elst,
                        sim_seg = sg,
@@ -74,7 +74,7 @@ simulation <- function(simulations = 100,
   
   #self and cross elasticities 
   #eliminate cross elasticities from 0 to 1
-   if(sim_method == 1) {
+   if(sim_method == 4) {
     Elasticities <- Elasticities_cross
   } else{
     Elasticities <- Elasticities_no_cross
@@ -1037,7 +1037,28 @@ write_csv(PDC5S_output_table$Emissions, "Results/Destination_Centers_PDC5S_Outpu
                     
                     
 
+#FDC1: $0.05 Discount (12:00-15:00) + all comms + morning throttling +TOU19 + 2030 chargers
+FDC1 <- simulation(simulations = 1000, 
+                    sim_seg = "Destination Center",
+                    sim_month = 7,
+                    sim_year = 2018,
+                    sim_throttle_amount = -0.5,
+                    sim_throttle_hours = c(7:11),
+                    sim_price_change = -0.05,
+                    sim_intervention_hours = c(12:15),
+                    sim_air_pollution_comm = TRUE,
+                    sim_price_comm = TRUE,
+                    sim_new_tou = 2019,
+                    sim_intervention_chargers = 4378, #of chargers 
+                    sim_int_equals_baseline = FALSE,
+                    sim_curt_year=2030)
 
+write_csv(FDC1$sim_result_summary, "Results/Destination_Centers_FDC1_Demand_Summary.csv")
+FDC1_output_table <- emissions_fcn(FDC1)
+View(FDC1_output_table$Emissions_Table)
+View(FDC1_output_table$Emissions)
+write_csv(FDC1_output_table$Emissions_Table, "Results/Destination_Centers_FDC1_Output_Summary.csv") #write emissions to csv
+write_csv(FDC1_output_table$Emissions, "Results/Destination_Centers_FDC1_Output_All_Hours.csv")
 
 
 ```
@@ -1974,14 +1995,8 @@ heat_map_matrix<-Method1_test$matrix #turn this into a heat map
 
 
 #One run of each method for the same scenario (Default for all: Workplace, November, 2018, no weekends, 5 cent discount 12:15, baseline # chargers, no throttling, no air pollution communication, no price communication, 2018 tou) -- want a graphed output of baseline versus intervention for each 
-#Method1 -- default run above
-#Method1_test_for_graph <- Method1_test$EV_Demand
-
-#Method 1 -- broken scenario
-#Method1_broken <- hourly_demand(method = 1, include_wknds = FALSE, price_comm = FALSE, elasticity_schedule = 7, price_change = -0.05, intervention_hours = c(5)) 
-
-#Method1_broken_for_graph <- Method1_broken$EV_Demand
-
+#Method1 -- run above
+Method1_test_for_graph <- Method1_test$EV_Demand
 
 #Method 2
 Method2_test <- hourly_demand(method = 2, include_wknds = FALSE, price_comm = FALSE, elasticity_schedule = 7)

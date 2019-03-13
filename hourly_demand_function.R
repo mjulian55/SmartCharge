@@ -460,7 +460,7 @@ Xi <- Xi_choose_weekends %>%
     #makes a data frame named after the current hour with each of the above variables
   }
   
-  if(method == 1) {
+  if(method == 4) {
     #spline the midpoint table
     for (i in x) {
       current_hr <- eval(parse(text = sub("XX", i, "Midpoints.XX"))) #calls current hours midpoint table
@@ -589,33 +589,33 @@ Xi <- Xi_choose_weekends %>%
   #find magnitude of new demand
   EV_Demand <- mutate(EV_Demand, X1 = (1+X1p)*X0) #adds new demand in kW variable (X1)
 
-  # for methods 3 and 4 amend new demand with alternative methods
-  #method 3 = find non-intervention hours in order to make net zero (through forced load shifting)
-  if(method == 3) {
-    X1_method3 <- EV_Demand$X1
-    X1_method3[-intervention_hours] <- X1_method3[-intervention_hours] -(EV_Demand$X0[-intervention_hours]/sum(EV_Demand$X0[-intervention_hours]))*sum(EV_Demand$X1-EV_Demand$X0)
+  # for methods 2 and 3 amend new demand with alternative methods
+  #method 2 = find non-intervention hours in order to make net zero (through forced load shifting)
+  if(method == 2) {
+    X1_method2 <- EV_Demand$X1
+    X1_method2[-intervention_hours] <- X1_method2[-intervention_hours] -(EV_Demand$X0[-intervention_hours]/sum(EV_Demand$X0[-intervention_hours]))*sum(EV_Demand$X1-EV_Demand$X0)
     
     EV_Demand <- EV_Demand %>% 
-      mutate(X1=X1_method3)
+      mutate(X1=X1_method2)
   }
   
-  #method 4 = find non-intervention hours such that it ensures the net load change suggested by the average elasticity remains true
-  else if(method == 4) {
-    base_avg_price_mthd_4 <- crossprod(EV_Demand$P0, EV_Demand$X0)/sum(EV_Demand$X0) #average initial price
-    int_avg_price_mthd_4 <- crossprod(EV_Demand$P1, EV_Demand$X0)/sum(EV_Demand$X0) #average new price (this still uses the base demand, which is weird)
-    avg_price_change_mthd_4 <- int_avg_price_mthd_4 - base_avg_price_mthd_4 #average change in price
-    avg_price_change_pct_mthd_4 <- avg_price_change_mthd_4/base_avg_price_mthd_4 #average percentage change in price
+  #method 3 = find non-intervention hours such that it ensures the net load change suggested by the average elasticity remains true
+  else if(method == 3) {
+    base_avg_price_mthd_3 <- crossprod(EV_Demand$P0, EV_Demand$X0)/sum(EV_Demand$X0) #average initial price
+    int_avg_price_mthd_3 <- crossprod(EV_Demand$P1, EV_Demand$X0)/sum(EV_Demand$X0) #average new price (this still uses the base demand, which is weird)
+    avg_price_change_mthd_3 <- int_avg_price_mthd_3 - base_avg_price_mthd_3 #average change in price
+    avg_price_change_pct_mthd_3 <- avg_price_change_mthd_3/base_avg_price_mthd_3 #average percentage change in price
     
-    net_change_demand_pct <- avg_price_change_pct_mthd_4*avg_elasticity #average change in demand due to change and price and elasticity
+    net_change_demand_pct <- avg_price_change_pct_mthd_3*avg_elasticity #average change in demand due to change and price and elasticity
     net_change_demand <- net_change_demand_pct*sum(EV_Demand$X0) #average magnitude of the change in demand
     
     net_change_demand_out_int <- net_change_demand - sum(EV_Demand$X1 - EV_Demand$X0) #magnitude of demand change in the non-intervention windows
     
-    X1_method4 <- EV_Demand$X1
-    X1_method4[-intervention_hours] <- X1_method4[-intervention_hours] + (EV_Demand$X0[-intervention_hours]/sum(EV_Demand$X0[-intervention_hours])*c(net_change_demand_out_int))
+    X1_method3 <- EV_Demand$X1
+    X1_method3[-intervention_hours] <- X1_method3[-intervention_hours] + (EV_Demand$X0[-intervention_hours]/sum(EV_Demand$X0[-intervention_hours])*c(net_change_demand_out_int))
     
     EV_Demand <- EV_Demand %>% 
-      mutate(X1=X1_method4)
+      mutate(X1=X1_method3)
   }
   
   #for methods 1 and 2
