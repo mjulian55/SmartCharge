@@ -149,6 +149,61 @@ simulation <- function(simulations = 100,
 #sim1 <- simulation()
 ```
 
+## Graph code template
+
+```{r eval=FALSE}
+
+ggplot(INSERT_SIMULATION_RUN$sim_result_summary) +
+      geom_line(aes(x = Hr, y = Xf_mean,color = "Intervention Demand"), 
+                size = 2.5, 
+                alpha = 0.75) + #This is the Xf line
+      
+      geom_line(aes(x = Hr,
+                    y = X0_mean,
+                    color = "Baseline Demand"), 
+                size = 2.5, 
+                alpha = 0.75) + #This is the X0 line
+      ggtitle("INSERT TITLE HERE") +
+      xlab("Hour of the Day") +
+      ylab("Electricity Demand (kilowatts)") +
+      
+      geom_rect(aes(xmin= INSERT_DISCOUNT_START_TIME,
+                    xmax=INSERT_DISCOUNT_END_TIME,
+                    ymin=-Inf,
+                    ymax=Inf,
+                    fill = "Discount"),
+                alpha=0.02) + #this is the discount rectangle REMOVE IF NO DISCOUNT
+      
+
+      geom_rect(aes(xmin=INSERT_REBATE_START_TIME,
+                    xmax=INSERT_REBATE_END_TIME,
+                    ymin=-Inf,
+                    ymax=Inf,
+                    fill="Rebate"),
+                alpha=0.02) + #This is the rebate rectangle REMOVE IF NO REBATE
+      
+      geom_rect(aes(xmin= INSERT_THROTTLE_START_TIME,
+                    xmax=INSERT_THROTTLE_END_TIME,
+                    ymin=-Inf,
+                    ymax=Inf,
+                    fill = "Throttle"),
+                alpha=0.02) + #this is the throttle rectangle REMOVE IF NO THROTTLE
+      
+      scale_x_continuous(limits = c(1,24),breaks = c(1:24), expand = c(0,0)) +
+      scale_y_continuous(expand = c(0,0)) +
+      scale_fill_brewer("Interventions",palette = "Set2" , guide = guide_legend(override.aes = list(alpha = 0.5))) +
+      scale_color_brewer("Demand", palette = "Dark2", direction = -1) +
+      #scale_fill_manual('Interventions', values = c("Disount" = 'cadetblue3',"Rebate" = 'thistle3', "Throttle" = 'darksalmon'),  guide = guide_legend(override.aes = list(alpha = 0.5))) +
+      theme(legend.position = "bottom") +
+      theme_classic()
+
+
+```
+
+
+
+
+
 Chunk below takes a LONG TIME to run
 
 ```{r simulation_aggregation, eval=FALSE, include=FALSE}
@@ -2024,18 +2079,132 @@ ggsave("Results Graphs/MUDs_FM1_Demand_Summary.png", Demand_GraphFM1, device = "
 Method1_test <- hourly_demand(method = 1, include_wknds = FALSE, price_comm = FALSE, elasticity_schedule = 7)
 Method1_test_for_graph <- Method1_test$EV_Demand
 
+
+Method1_example_graph <- ggplot(Method1_test_for_graph) +
+      geom_line(aes(x = Hr, y = Xf,color = "Intervention Demand"), 
+                size = 2.5, 
+                alpha = 0.75) + #This is the Xf line
+      
+      geom_line(aes(x = Hr,
+                    y = X0,
+                    color = "Baseline Demand"), 
+                size = 2.5, 
+                alpha = 0.75) + #This is the X0 line
+      ggtitle("Method 1") +
+      xlab("Hour of the Day") +
+      ylab("Electricity Demand (kilowatts)") +
+      
+      geom_rect(aes(xmin= 12,
+                    xmax=15,
+                    ymin=-Inf,
+                    ymax=Inf,
+                    fill = "Discount"),
+                alpha=0.02) + #this is the discount rectangle REMOVE IF NO DISCOUNT
+      scale_x_continuous(limits = c(1,24),breaks = c(1:24), expand = c(0,0)) +
+      scale_y_continuous(expand = c(0,0)) +
+      scale_fill_brewer("Interventions",palette = "Set2" , guide = guide_legend(override.aes = list(alpha = 0.5))) +
+      scale_color_brewer("Demand", palette = "Dark2", direction = -1) +
+      #scale_fill_manual('Interventions', values = c("Disount" = 'cadetblue3',"Rebate" = 'thistle3', "Throttle" = 'darksalmon'),  guide = guide_legend(override.aes = list(alpha = 0.5))) +
+      theme(legend.position = "bottom") +
+      theme_classic()
+
 #Method 2
 Method2_test <- hourly_demand(method = 2, include_wknds = FALSE, price_comm = FALSE, elasticity_schedule = 7)
 Method2_test_for_graph <- Method2_test$EV_Demand
+
+Method2_example_graph <- ggplot(Method2_test_for_graph) +
+      geom_line(aes(x = Hr, y = Xf,color = "Intervention Demand"), 
+                size = 2.5, 
+                alpha = 0.75) + #This is the Xf line
+      
+      geom_line(aes(x = Hr,
+                    y = X0,
+                    color = "Baseline Demand"), 
+                size = 2.5, 
+                alpha = 0.75) + #This is the X0 line
+      ggtitle("Method 2") +
+      xlab("Hour of the Day") +
+      ylab("Electricity Demand (kilowatts)") +
+      
+      geom_rect(aes(xmin= 12,
+                    xmax=15,
+                    ymin=-Inf,
+                    ymax=Inf,
+                    fill = "Discount"),
+                alpha=0.02) + #this is the discount rectangle REMOVE IF NO DISCOUNT
+      scale_x_continuous(limits = c(1,24),breaks = c(1:24), expand = c(0,0)) +
+      scale_y_continuous(expand = c(0,0)) +
+      scale_fill_brewer("Interventions",palette = "Set2" , guide = guide_legend(override.aes = list(alpha = 0.5))) +
+      scale_color_brewer("Demand", palette = "Dark2", direction = -1) +
+      #scale_fill_manual('Interventions', values = c("Disount" = 'cadetblue3',"Rebate" = 'thistle3', "Throttle" = 'darksalmon'),  guide = guide_legend(override.aes = list(alpha = 0.5))) +
+      theme(legend.position = "bottom") +
+      theme_classic()
 
 #Method 3 (default run - average elasticity = -0.4)
 Method3_test <- hourly_demand(method = 3, include_wknds = FALSE, price_comm = FALSE, elasticity_schedule = 7)
 Method3_test_for_graph <- Method3_test$EV_Demand
 
+Method3_example_graph <- ggplot(Method3_test_for_graph) +
+      geom_line(aes(x = Hr, y = Xf,color = "Intervention Demand"), 
+                size = 2.5, 
+                alpha = 0.75) + #This is the Xf line
+      
+      geom_line(aes(x = Hr,
+                    y = X0,
+                    color = "Baseline Demand"), 
+                size = 2.5, 
+                alpha = 0.75) + #This is the X0 line
+      ggtitle("Method 3") +
+      xlab("Hour of the Day") +
+      ylab("Electricity Demand (kilowatts)") +
+      
+      geom_rect(aes(xmin= 12,
+                    xmax=15,
+                    ymin=-Inf,
+                    ymax=Inf,
+                    fill = "Discount"),
+                alpha=0.02) + #this is the discount rectangle REMOVE IF NO DISCOUNT
+      scale_x_continuous(limits = c(1,24),breaks = c(1:24), expand = c(0,0)) +
+      scale_y_continuous(expand = c(0,0)) +
+      scale_fill_brewer("Interventions",palette = "Set2" , guide = guide_legend(override.aes = list(alpha = 0.5))) +
+      scale_color_brewer("Demand", palette = "Dark2", direction = -1) +
+      #scale_fill_manual('Interventions', values = c("Disount" = 'cadetblue3',"Rebate" = 'thistle3', "Throttle" = 'darksalmon'),  guide = guide_legend(override.aes = list(alpha = 0.5))) +
+      theme(legend.position = "bottom") +
+      theme_classic()
+
+
 #Method4 -- run above
 Method4_test <- hourly_demand(method = 1, include_wknds = FALSE, price_comm = FALSE, elasticity_schedule = 7) #selecting winter weekday ev medium as example elasticity set this is the old method 1
 Method4_test_for_graph <- Method4_test$EV_Demand
 
+
+Method4_example_graph <- ggplot(Method4_test_for_graph) +
+      geom_line(aes(x = Hr, y = Xf,color = "Intervention Demand"), 
+                size = 2.5, 
+                alpha = 0.75) + #This is the Xf line
+      
+      geom_line(aes(x = Hr,
+                    y = X0,
+                    color = "Baseline Demand"), 
+                size = 2.5, 
+                alpha = 0.75) + #This is the X0 line
+      ggtitle("Method 4") +
+      xlab("Hour of the Day") +
+      ylab("Electricity Demand (kilowatts)") +
+      
+      geom_rect(aes(xmin= 12,
+                    xmax=15,
+                    ymin=-Inf,
+                    ymax=Inf,
+                    fill = "Discount"),
+                alpha=0.02) + #this is the discount rectangle REMOVE IF NO DISCOUNT
+      scale_x_continuous(limits = c(1,24),breaks = c(1:24), expand = c(0,0)) +
+      scale_y_continuous(expand = c(0,0)) +
+      scale_fill_brewer("Interventions",palette = "Set2" , guide = guide_legend(override.aes = list(alpha = 0.5))) +
+      scale_color_brewer("Demand", palette = "Dark2", direction = -1) +
+      #scale_fill_manual('Interventions', values = c("Disount" = 'cadetblue3',"Rebate" = 'thistle3', "Throttle" = 'darksalmon'),  guide = guide_legend(override.aes = list(alpha = 0.5))) +
+      theme(legend.position = "bottom") +
+      theme_classic()
 
 # spline_example <- Method1_test$matrix[12] #turn this into a line graph. 
 #one 24 x 24 hour matrix from one set of SDGE elasticities with cross (I need to know which set) -- want this heat mapped
@@ -2045,6 +2214,43 @@ Method4_test_for_graph <- Method4_test$EV_Demand
 
 #One run of the simulation for the same scenario above -- want a graphed output (same as what the result simulation graph looks like for all of them)
 Sim_test_report <- simulation(simulations = 1000, sim_include_wknds = FALSE, sim_price_comm = FALSE)
+
+
+sim_example_graph <- ggplot(Sim_test_report$sim_result_summary) +
+      geom_line(aes(x = Hr, y = Xf_mean,color = "Intervention Demand"), 
+                size = 2.5, 
+                alpha = 0.75) + #This is the Xf line
+      
+      geom_line(aes(x = Hr,
+                    y = X0_mean,
+                    color = "Baseline Demand"), 
+                size = 2.5, 
+                alpha = 0.75) + #This is the X0 line
+      ggtitle("Monte Carlo Simulation") +
+      xlab("Hour of the Day") +
+      ylab("Electricity Demand (kilowatts)") +
+      
+      geom_rect(aes(xmin= 12,
+                    xmax=15,
+                    ymin=-Inf,
+                    ymax=Inf,
+                    fill = "Discount"),
+                alpha=0.02) + #this is the discount rectangle REMOVE IF NO DISCOUNT
+      scale_x_continuous(limits = c(1,24),breaks = c(1:24), expand = c(0,0)) +
+      scale_y_continuous(expand = c(0,0)) +
+      scale_fill_brewer("Interventions",palette = "Set2" , guide = guide_legend(override.aes = list(alpha = 0.5))) +
+      scale_color_brewer("Demand", palette = "Dark2", direction = -1) +
+      #scale_fill_manual('Interventions', values = c("Disount" = 'cadetblue3',"Rebate" = 'thistle3', "Throttle" = 'darksalmon'),  guide = guide_legend(override.aes = list(alpha = 0.5))) +
+      theme(legend.position = "bottom") +
+      theme_classic()
+
+
+
+Method1_example_graph
+Method2_example_graph
+Method3_example_graph
+Method4_example_graph
+sim_example_graph
 
 ```
 
