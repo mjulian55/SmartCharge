@@ -2240,13 +2240,14 @@ select(Oct_30_18_LS) %>%
 unlist()
 
 Oct_30_18_WP_scaled_baseline <- hourly_demand(
-                    month = 10,
-                    year = 2018,
-                    seg =  "Workplace",
-                    intervention_chargers =
-                    Oct_30_18_WP_event,
-                    int_equals_baseline = FALSE,
-                    include_wknds = FALSE)
+                          intervention_hours = c(12:15), 
+                          month = 10,
+                          year = 2018,
+                          seg =  "Workplace",
+                          intervention_chargers =
+                          Oct_30_18_WP_event,
+                          int_equals_baseline = FALSE,
+                          include_wknds = FALSE)
 
 Oct_30_18_WP_Event_Usage <- filter(event_data, Date == "2018-10-30" & segment == "Workplace") %>%
 select(Demand) %>%
