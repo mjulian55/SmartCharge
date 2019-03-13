@@ -306,6 +306,10 @@ Emissions <- Emissions %>%
   mutate (CO2Xdelta = Xdelta*CO2Marginal) %>% 
   mutate (NOXXdelta= Xdelta*NOXMarginal)
 
+Emissions <- Emissions %>%
+  mutate(CO2Xdelta = ifelse(-CO2Xdelta > CO2X0, -CO2X0, CO2Xdelta)) %>% 
+mutate (NOXXdelta = ifelse(-NOXXdelta > NOXX0, -NOXX0, NOXXdelta))
+
 #calculate emissions for final
 Emissions <- Emissions %>%
   mutate (CO2Xf = CO2X0+CO2Xdelta) %>% # baseline emissions - change for emissions associated with final demand
