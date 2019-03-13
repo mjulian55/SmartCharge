@@ -4205,7 +4205,7 @@ Cost_Table35 <- Nov_14_18_MUD_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_
 #Emissions Results
 #View(Nov_14_18_MUD_scaled_baseline$EV_Demand)
 write_csv(Nov_14_18_MUD_scaled_baseline$EV_Demand, "Event Results/MUD_Nov_14_18_Demand_Summary.csv")
-Nov_14_18_MUD_output_table <- emissions_fcn_event(Nov_14_18_MUD_scaled_baseline) 
+Nov_14_18_MUD_output_table <- emissions_fcn_event(Nov_14_18_MUD_scaled_baseline$EV_Demand, intervention_hours = c(12:15)) 
 write_csv(Nov_14_18_MUD_output_table$Emissions_Table, "Event Results/MUD_Nov_14_18_Output_Summary.csv") #write emissions to csv
 write_csv(Nov_14_18_MUD_output_table$Emissions, "Event Results/MUD_Nov_14_18_Output_All_Hours.csv")
 ```
