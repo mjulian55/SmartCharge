@@ -25,7 +25,7 @@ CONTEXT
 
 
 
-```{r loadlib, message=FALSE, warning=FALSE}
+```{r hourly_demand, message=FALSE, warning=FALSE}
 
 source("hourly_demand_function.R")
 
@@ -1974,8 +1974,14 @@ heat_map_matrix<-Method1_test$matrix #turn this into a heat map
 
 
 #One run of each method for the same scenario (Default for all: Workplace, November, 2018, no weekends, 5 cent discount 12:15, baseline # chargers, no throttling, no air pollution communication, no price communication, 2018 tou) -- want a graphed output of baseline versus intervention for each 
-#Method1 -- run above
-Method1_test_for_graph <- Method1_test$EV_Demand
+#Method1 -- default run above
+#Method1_test_for_graph <- Method1_test$EV_Demand
+
+#Method 1 -- broken scenario
+#Method1_broken <- hourly_demand(method = 1, include_wknds = FALSE, price_comm = FALSE, elasticity_schedule = 7, price_change = -0.05, intervention_hours = c(5)) 
+
+#Method1_broken_for_graph <- Method1_broken$EV_Demand
+
 
 #Method 2
 Method2_test <- hourly_demand(method = 2, include_wknds = FALSE, price_comm = FALSE, elasticity_schedule = 7)
