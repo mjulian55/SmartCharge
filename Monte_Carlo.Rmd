@@ -2088,7 +2088,7 @@ Method1_example_graph <- ggplot(Method1_test_for_graph) +
       xlab("Hour of the Day") +
       ylab("Electricity Demand (kilowatts)") +
       
-      geom_rect(aes(xmin= 12,
+      geom_rect(aes(xmin= 11,
                     xmax=15,
                     ymin=-Inf,
                     ymax=Inf,
@@ -2101,6 +2101,7 @@ Method1_example_graph <- ggplot(Method1_test_for_graph) +
       #scale_fill_manual('Interventions', values = c("Disount" = 'cadetblue3',"Rebate" = 'thistle3', "Throttle" = 'darksalmon'),  guide = guide_legend(override.aes = list(alpha = 0.5))) +
       theme(legend.position = "bottom") +
       theme_classic()
+
 #Method 2
 Method2_test <- hourly_demand(method = 2, include_wknds = FALSE, price_comm = FALSE, elasticity_schedule = 7)
 Method2_test_for_graph <- Method2_test$EV_Demand
@@ -2118,7 +2119,7 @@ Method2_example_graph <- ggplot(Method2_test_for_graph) +
       xlab("Hour of the Day") +
       ylab("Electricity Demand (kilowatts)") +
       
-      geom_rect(aes(xmin= 12,
+      geom_rect(aes(xmin= 11,
                     xmax=15,
                     ymin=-Inf,
                     ymax=Inf,
@@ -2148,7 +2149,7 @@ Method3_example_graph <- ggplot(Method3_test_for_graph) +
       xlab("Hour of the Day") +
       ylab("Electricity Demand (kilowatts)") +
       
-      geom_rect(aes(xmin= 12,
+      geom_rect(aes(xmin= 11,
                     xmax=15,
                     ymin=-Inf,
                     ymax=Inf,
@@ -2161,8 +2162,9 @@ Method3_example_graph <- ggplot(Method3_test_for_graph) +
       #scale_fill_manual('Interventions', values = c("Disount" = 'cadetblue3',"Rebate" = 'thistle3', "Throttle" = 'darksalmon'),  guide = guide_legend(override.aes = list(alpha = 0.5))) +
       theme(legend.position = "bottom") +
       theme_classic()
-#Method4 -- run above
-Method4_test <- hourly_demand(method = 1, include_wknds = FALSE, price_comm = FALSE, elasticity_schedule = 7) #selecting winter weekday ev medium as example elasticity set this is the old method 1
+
+#Method4
+Method4_test <- hourly_demand(method = 4, include_wknds = FALSE, price_comm = FALSE, elasticity_schedule = 7) #selecting winter weekday ev medium as example elasticity set this is the old method 1
 Method4_test_for_graph <- Method4_test$EV_Demand
 Method4_example_graph <- ggplot(Method4_test_for_graph) +
       geom_line(aes(x = Hr, y = Xf,color = "Intervention Demand"), 
@@ -2178,7 +2180,7 @@ Method4_example_graph <- ggplot(Method4_test_for_graph) +
       xlab("Hour of the Day") +
       ylab("Electricity Demand (kilowatts)") +
       
-      geom_rect(aes(xmin= 12,
+      geom_rect(aes(xmin= 11,
                     xmax=15,
                     ymin=-Inf,
                     ymax=Inf,
@@ -2210,7 +2212,7 @@ sim_example_graph <- ggplot(Sim_test_report$sim_result_summary) +
       xlab("Hour of the Day") +
       ylab("Electricity Demand (kilowatts)") +
       
-      geom_rect(aes(xmin= 12,
+      geom_rect(aes(xmin= 11,
                     xmax=15,
                     ymin=-Inf,
                     ymax=Inf,
@@ -2223,11 +2225,21 @@ sim_example_graph <- ggplot(Sim_test_report$sim_result_summary) +
       #scale_fill_manual('Interventions', values = c("Disount" = 'cadetblue3',"Rebate" = 'thistle3', "Throttle" = 'darksalmon'),  guide = guide_legend(override.aes = list(alpha = 0.5))) +
       theme(legend.position = "bottom") +
       theme_classic()
+
 Method1_example_graph
+ggsave("Results Graphs/Method1_example_graph.png", Method1_example_graph, device = "png", width = 8, height = 4.5)
+
 Method2_example_graph
+ggsave("Results Graphs/Method2_example_graph.png", Method2_example_graph, device = "png", width = 8, height = 4.5)
+
 Method3_example_graph
+ggsave("Results Graphs/Method3_example_graph.png", Method3_example_graph, device = "png", width = 8, height = 4.5)
+
 Method4_example_graph
+ggsave("Results Graphs/Method4_example_graph.png", Method4_example_graph, device = "png", width = 8, height = 4.5)
+
 sim_example_graph
+ggsave("Results Graphs/sim_example_graph.png", sim_example_graph, device = "png", width = 8, height = 4.5)
 ```
 
 
