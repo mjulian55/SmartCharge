@@ -731,7 +731,7 @@ Demand_GraphPW1S <- ggplot(data = graph_tablePW1S, aes(x = Hr)) +
   geom_line(aes(y = value, color=condition)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
   panel.background = element_blank(), axis.line = element_line(colour = "black")) +
-  labs(title="Workplaces (PW1S) (discount, price comm, throttling) Hourly Demand Forecast",
+  labs(title="Workplaces (PW1S) Hourly Demand Forecast\n (discount, price comm, throttling)",
   subtitle="Baseline July 2018 (596 Chargers) \n Model Simulation",
   y="EV Charging Demand (kW)",
   x="Hour",
@@ -751,7 +751,7 @@ ggsave("Results Graphs/Workplace_PW1S_Demand_Summary.png", Demand_GraphPW1S, dev
 
 
 
-#PW2S Graph (discount + price comm + morning throttling)
+#PW2S Graph (discount + price comm + morning throttling + TOU 2019)
 PW2S_demand_summary <- read_csv("Results/Workplace_PW2S_Demand_Summary.csv") 
 
 graph_tablePW2S <- PW2S_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
@@ -762,7 +762,7 @@ Demand_GraphPW2S <- ggplot(data = graph_tablePW2S, aes(x = Hr)) +
   geom_line(aes(y = value, color=condition)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
   panel.background = element_blank(), axis.line = element_line(colour = "black")) +
-  labs(title="Workplaces (PW2S) (discount, price comm, throttling) Hourly Demand Forecast",
+  labs(title="Workplaces (PW2S) Hourly Demand Forecast\n (discount, price comm, throttling, TOU 2019)",
   subtitle="Baseline July 2018 (596 Chargers) \n Model Simulation",
   y="EV Charging Demand (kW)",
   x="Hour",
@@ -793,7 +793,7 @@ Demand_GraphPW3S <- ggplot(data = graph_tablePW3S, aes(x = Hr)) +
   geom_line(aes(y = value, color=condition)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
   panel.background = element_blank(), axis.line = element_line(colour = "black")) +
-  labs(title="Workplaces (PW3S) (discount, all comm, throttling) Hourly Demand Forecast",
+  labs(title="Workplaces (PW3S) Hourly Demand Forecast\n(discount, all comm, throttling)",
   subtitle="Baseline July 2018 (596 Chargers) \n Model Simulation",
   y="EV Charging Demand (kW)",
   x="Hour",
@@ -826,7 +826,7 @@ Demand_GraphPW4S <- ggplot(data = graph_tablePW4S, aes(x = Hr)) +
   geom_line(aes(y = value, color=condition)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
   panel.background = element_blank(), axis.line = element_line(colour = "black")) +
-  labs(title="Workplaces (PW4S) (discount, price comm) Hourly Demand Forecast",
+  labs(title="Workplaces (PW4S) Hourly Demand Forecast\n(discount, price comm)",
   subtitle="Baseline July 2018 (596 Chargers) \n Model Simulation",
   y="EV Charging Demand (kW)",
   x="Hour",
@@ -856,7 +856,7 @@ Demand_GraphPW5S <- ggplot(data = graph_tablePW5S, aes(x = Hr)) +
   geom_line(aes(y = value, color=condition)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
   panel.background = element_blank(), axis.line = element_line(colour = "black")) +
-  labs(title="Workplaces (PW5S) (discount, no comm, throttling) Hourly Demand Forecast",
+  labs(title="Workplaces (PW5S) Hourly Demand Forecast\n(discount, no comm, throttling)",
   subtitle="Baseline July 2018 (596 Chargers) \n Model Simulation",
   y="EV Charging Demand (kW)",
   x="Hour",
@@ -886,7 +886,7 @@ Demand_GraphPW6S <- ggplot(data = graph_tablePW6S, aes(x = Hr)) +
   geom_line(aes(y = value, color=condition)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
   panel.background = element_blank(), axis.line = element_line(colour = "black")) +
-  labs(title="Workplaces (PW6S) (discount, air comm, throttling) Hourly Demand Forecast",
+  labs(title="Workplaces (PW6S) Hourly Demand Forecast\n (discount, air comm, throttling)",
   subtitle="Baseline July 2018 (596 Chargers) \n Model Simulation",
   y="EV Charging Demand (kW)",
   x="Hour",
@@ -1962,14 +1962,14 @@ ggsave("Results Graphs/MUDs_FM1_Demand_Summary.png", Demand_GraphFM1, device = "
 ```{r example_graphs, message=FALSE, warning=FALSE}
 
 #one fully splined elasticity -- want this as a line graph
-#Method1_test <- hourly_demand(method = 1, include_wknds = FALSE, price_comm = FALSE, elasticity_schedule = 7) #selecting winter weekday ev medium as example elasticity set
+Method1_test <- hourly_demand(method = 1, include_wknds = FALSE, price_comm = FALSE, elasticity_schedule = 7) #selecting winter weekday ev medium as example elasticity set
 
-#spline_example <- Method1_test$matrix[12] #turn this into a line graph. 
+spline_example <- Method1_test$matrix[12] #turn this into a line graph. 
 
 
 
 #one 24 x 24 hour matrix from one set of SDGE elasticities with cross (I need to know which set) -- want this heat mapped
-#heat_map_matrix<-Method1_test$matrix #turn this into a heat map
+heat_map_matrix<-Method1_test$matrix #turn this into a heat map
 
 
 
