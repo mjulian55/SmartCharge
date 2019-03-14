@@ -2138,6 +2138,8 @@ Method2_example_graph <- ggplot(Method2_test_for_graph) +
       theme_classic()
 #Method 3 (default run - average elasticity = -0.4)
 Method3_test <- hourly_demand(method = 3, include_wknds = FALSE, price_comm = FALSE, elasticity_schedule = 7)
+write_csv(Method3_test$EV_Demand, "Results/Method3_test.csv")
+
 Method3_test_for_graph <- Method3_test$EV_Demand
 Method3_example_graph <- ggplot(Method3_test_for_graph) +
       geom_line(aes(x = Hr, y = Xf,color = "Intervention Demand"), 
