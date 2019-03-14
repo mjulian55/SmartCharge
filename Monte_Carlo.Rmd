@@ -1021,8 +1021,8 @@ write_csv(PDC1S$sim_result_summary, "Results/Destination_Centers_PDC1S_Demand_Su
 
 #run emissions and write to csv
 PDC1S_output_table <- emissions_fcn(PDC1S) 
-View(PDC1S_output_table$Emissions_Table)
-View(PDC1S_output_table$Emissions)
+#View(PDC1S_output_table$Emissions_Table)
+#View(PDC1S_output_table$Emissions)
 write_csv(PDC1S_output_table$Emissions_Table, "Results/Destination_Centers_PDC1S_Output_Summary.csv") #write emissions to csv
 write_csv(PDC1S_output_table$Emissions, "Results/Destination_Centers_PDC1S_Output_All_Hours.csv")
 
@@ -1040,8 +1040,8 @@ PDC2S <- simulation(simulations = 1000,
 write_csv(PDC2S$sim_result_summary, "Results/Destination_Centers_PDC2S_Demand_Summary.csv")
 #run emissions and write to csv
 PDC2S_output_table <- emissions_fcn(PDC2S) 
-View(PDC2S_output_table$Emissions_Table)
-View(PDC2S_output_table$Emissions)
+#View(PDC2S_output_table$Emissions_Table)
+#View(PDC2S_output_table$Emissions)
 write_csv(PDC2S_output_table$Emissions_Table, "Results/Destination_Centers_PDC2S_Output_Summary.csv") #write emissions to csv
 write_csv(PDC2S_output_table$Emissions, "Results/Destination_Centers_PDC2S_Output_All_Hours.csv")
 
@@ -1057,8 +1057,8 @@ PDC3S <- simulation(simulations = 1000,
 
 write_csv(PDC3S$sim_result_summary, "Results/Destination_Centers_PDC3S_Demand_Summary.csv")
 PDC3S_output_table <- emissions_fcn(PDC3S)
-View(PDC3S_output_table$Emissions_Table)
-View(PDC3S_output_table$Emissions)
+#View(PDC3S_output_table$Emissions_Table)
+#View(PDC3S_output_table$Emissions)
 write_csv(PDC3S_output_table$Emissions_Table, "Results/Destination_Centers_PDC3S_Output_Summary.csv") #write emissions to csv
 write_csv(PDC3S_output_table$Emissions, "Results/Destination_Centers_PDC3S_Output_All_Hours.csv")
 
@@ -1074,8 +1074,8 @@ PDC4S <- simulation(simulations = 1000,
 
 write_csv(PDC4S$sim_result_summary, "Results/Destination_Centers_PDC4S_Demand_Summary.csv")
 PDC4S_output_table <- emissions_fcn(PDC4S)
-View(PDC4S_output_table$Emissions_Table)
-View(PDC4S_output_table$Emissions)
+#View(PDC4S_output_table$Emissions_Table)
+#View(PDC4S_output_table$Emissions)
 write_csv(PDC4S_output_table$Emissions_Table, "Results/Destination_Centers_PDC4S_Output_Summary.csv") #write emissions to csv
 write_csv(PDC4S_output_table$Emissions, "Results/Destination_Centers_PDC4S_Output_All_Hours.csv")
 
@@ -1094,8 +1094,8 @@ PDC5S <- simulation(simulations = 1000,
 
 write_csv(PDC5S$sim_result_summary, "Results/Destination_Centers_PDC5S_Demand_Summary.csv")
 PDC5S_output_table <- emissions_fcn(PDC5S)
-View(PDC5S_output_table$Emissions_Table)
-View(PDC5S_output_table$Emissions)
+#View(PDC5S_output_table$Emissions_Table)
+#View(PDC5S_output_table$Emissions)
 write_csv(PDC5S_output_table$Emissions_Table, "Results/Destination_Centers_PDC5S_Output_Summary.csv") #write emissions to csv
 write_csv(PDC5S_output_table$Emissions, "Results/Destination_Centers_PDC5S_Output_All_Hours.csv")
                     
@@ -1119,8 +1119,8 @@ FDC1 <- simulation(simulations = 1000,
 
 write_csv(FDC1$sim_result_summary, "Results/Destination_Centers_FDC1_Demand_Summary.csv")
 FDC1_output_table <- emissions_fcn(FDC1)
-View(FDC1_output_table$Emissions_Table)
-View(FDC1_output_table$Emissions)
+#View(FDC1_output_table$Emissions_Table)
+#View(FDC1_output_table$Emissions)
 write_csv(FDC1_output_table$Emissions_Table, "Results/Destination_Centers_FDC1_Output_Summary.csv") #write emissions to csv
 write_csv(FDC1_output_table$Emissions, "Results/Destination_Centers_FDC1_Output_All_Hours.csv")
 
