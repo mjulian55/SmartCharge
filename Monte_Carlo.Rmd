@@ -751,6 +751,49 @@ write_csv(PW6S_output_table$Emissions, "Results/Workplace_PW6S_Output_All_Hours.
 
 
 
+#PW7S = rebate + throttling + no comm
+PW7S <- simulation(simulations = 1000, sim_seg = "Workplace",
+                       sim_month = 7, 
+                       sim_year = 2018,
+                       sim_include_wknds = FALSE,
+                       sim_charger_power = pwr,
+                       sim_price_change = 0.10, 
+                       sim_intervention_hours = c(17:21),
+                       sim_throttle_amount = -0.5, 
+                       sim_throttle_hours = c(17:21),
+                       sim_air_pollution_comm = FALSE, #yes comm
+                       sim_price_comm = FALSE, 
+                       sim_curt_year=2018) 
+#View(PW7S$sim_result_summary)
+write_csv(PW7S$sim_result_summary, "Results/Workplace_PW7S_Demand_Summary.csv")
+
+PW7S_output_table <- emissions_fcn(PW7S) 
+write_csv(PW7S_output_table$Emissions_Table, "Results/Workplace_PW7S_Output_Summary.csv") #write emissions to csv
+write_csv(PW7S_output_table$Emissions, "Results/Workplace_PW7S_Output_All_Hours.csv")
+
+
+#PW8S = discount + throttling + no comm
+PW8S <- simulation(simulations = 1000, sim_seg = "Workplace",
+                       sim_month = 11, 
+                       sim_year = 2018,
+                       sim_include_wknds = FALSE,
+                       sim_charger_power = pwr,
+                       sim_price_change = -0.05, 
+                       sim_intervention_hours = c(12:15),
+                       sim_throttle_amount = -0.5, 
+                       sim_throttle_hours = c(7:11),
+                       sim_air_pollution_comm = FALSE,
+                       sim_price_comm = FALSE, 
+                       sim_curt_year=2018) 
+#View(PW8S$sim_result_summary)
+write_csv(PW8S$sim_result_summary, "Results/Workplace_PW8S_Demand_Summary.csv")
+
+PW8S_output_table <- emissions_fcn(PW8S) 
+write_csv(PW8S_output_table$Emissions_Table, "Results/Workplace_PW8S_Output_Summary.csv") #write emissions to csv
+write_csv(PW8S_output_table$Emissions, "Results/Workplace_PW8S_Output_All_Hours.csv")
+
+
+
 
 #FW1 = discount + throttling + air poll & price comm, TOU19 intervention, 2030 chargers
 FW1 <- simulation(simulations = 1000, sim_seg = "Workplace",
