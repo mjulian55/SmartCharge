@@ -658,7 +658,10 @@ Xi <- Xi_choose_weekends %>%
   EV_Demand <- mutate(EV_Demand, Xint_effect = Xt - X0)
   
   EV_Demand <- mutate(EV_Demand, MT = Max_Theory, Curt = curtailment_test$Curt, Xf = ifelse(Xt > MT, MT, Xt)) %>% 
-    mutate(Xf = ifelse(Xf < 0 , 0, Xf))
+    mutate(Xf = ifelse(Xf < 0 , 0, Xf)) 
+  
+  EV_Demand <- EV_Demand %>% 
+    mutate(Xint_effect = ifelse(-Xint_effect >X0, -X0, Xint_effect))
   
   
   ####

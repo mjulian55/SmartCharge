@@ -306,6 +306,10 @@ Emissions <- Emissions %>%
   mutate (CO2Xdelta = Xdelta*CO2Marginal) %>% 
   mutate (NOXXdelta= Xdelta*NOXMarginal)
 
+Emissions <- Emissions %>%
+  mutate(CO2Xdelta = ifelse(-CO2Xdelta > CO2X0, -CO2X0, CO2Xdelta)) %>% 
+mutate (NOXXdelta = ifelse(-NOXXdelta > NOXX0, -NOXX0, NOXXdelta))
+
 #calculate emissions for final
 Emissions <- Emissions %>%
   mutate (CO2Xf = CO2X0+CO2Xdelta) %>% # baseline emissions - change for emissions associated with final demand
@@ -1060,8 +1064,8 @@ write_csv(PDC1S$sim_result_summary, "Results/Destination_Centers_PDC1S_Demand_Su
 
 #run emissions and write to csv
 PDC1S_output_table <- emissions_fcn(PDC1S) 
-View(PDC1S_output_table$Emissions_Table)
-View(PDC1S_output_table$Emissions)
+#View(PDC1S_output_table$Emissions_Table)
+#View(PDC1S_output_table$Emissions)
 write_csv(PDC1S_output_table$Emissions_Table, "Results/Destination_Centers_PDC1S_Output_Summary.csv") #write emissions to csv
 write_csv(PDC1S_output_table$Emissions, "Results/Destination_Centers_PDC1S_Output_All_Hours.csv")
 
@@ -1079,8 +1083,8 @@ PDC2S <- simulation(simulations = 1000,
 write_csv(PDC2S$sim_result_summary, "Results/Destination_Centers_PDC2S_Demand_Summary.csv")
 #run emissions and write to csv
 PDC2S_output_table <- emissions_fcn(PDC2S) 
-View(PDC2S_output_table$Emissions_Table)
-View(PDC2S_output_table$Emissions)
+#View(PDC2S_output_table$Emissions_Table)
+#View(PDC2S_output_table$Emissions)
 write_csv(PDC2S_output_table$Emissions_Table, "Results/Destination_Centers_PDC2S_Output_Summary.csv") #write emissions to csv
 write_csv(PDC2S_output_table$Emissions, "Results/Destination_Centers_PDC2S_Output_All_Hours.csv")
 
@@ -1096,8 +1100,8 @@ PDC3S <- simulation(simulations = 1000,
 
 write_csv(PDC3S$sim_result_summary, "Results/Destination_Centers_PDC3S_Demand_Summary.csv")
 PDC3S_output_table <- emissions_fcn(PDC3S)
-View(PDC3S_output_table$Emissions_Table)
-View(PDC3S_output_table$Emissions)
+#View(PDC3S_output_table$Emissions_Table)
+#View(PDC3S_output_table$Emissions)
 write_csv(PDC3S_output_table$Emissions_Table, "Results/Destination_Centers_PDC3S_Output_Summary.csv") #write emissions to csv
 write_csv(PDC3S_output_table$Emissions, "Results/Destination_Centers_PDC3S_Output_All_Hours.csv")
 
@@ -1113,8 +1117,8 @@ PDC4S <- simulation(simulations = 1000,
 
 write_csv(PDC4S$sim_result_summary, "Results/Destination_Centers_PDC4S_Demand_Summary.csv")
 PDC4S_output_table <- emissions_fcn(PDC4S)
-View(PDC4S_output_table$Emissions_Table)
-View(PDC4S_output_table$Emissions)
+#View(PDC4S_output_table$Emissions_Table)
+#View(PDC4S_output_table$Emissions)
 write_csv(PDC4S_output_table$Emissions_Table, "Results/Destination_Centers_PDC4S_Output_Summary.csv") #write emissions to csv
 write_csv(PDC4S_output_table$Emissions, "Results/Destination_Centers_PDC4S_Output_All_Hours.csv")
 
@@ -1133,8 +1137,8 @@ PDC5S <- simulation(simulations = 1000,
 
 write_csv(PDC5S$sim_result_summary, "Results/Destination_Centers_PDC5S_Demand_Summary.csv")
 PDC5S_output_table <- emissions_fcn(PDC5S)
-View(PDC5S_output_table$Emissions_Table)
-View(PDC5S_output_table$Emissions)
+#View(PDC5S_output_table$Emissions_Table)
+#View(PDC5S_output_table$Emissions)
 write_csv(PDC5S_output_table$Emissions_Table, "Results/Destination_Centers_PDC5S_Output_Summary.csv") #write emissions to csv
 write_csv(PDC5S_output_table$Emissions, "Results/Destination_Centers_PDC5S_Output_All_Hours.csv")
                     
@@ -1158,8 +1162,8 @@ FDC1 <- simulation(simulations = 1000,
 
 write_csv(FDC1$sim_result_summary, "Results/Destination_Centers_FDC1_Demand_Summary.csv")
 FDC1_output_table <- emissions_fcn(FDC1)
-View(FDC1_output_table$Emissions_Table)
-View(FDC1_output_table$Emissions)
+#View(FDC1_output_table$Emissions_Table)
+#View(FDC1_output_table$Emissions)
 write_csv(FDC1_output_table$Emissions_Table, "Results/Destination_Centers_FDC1_Output_Summary.csv") #write emissions to csv
 write_csv(FDC1_output_table$Emissions, "Results/Destination_Centers_FDC1_Output_All_Hours.csv")
 
@@ -2131,7 +2135,7 @@ Method1_example_graph <- ggplot(Method1_test_for_graph) +
       xlab("Hour of the Day") +
       ylab("Electricity Demand (kilowatts)") +
       
-      geom_rect(aes(xmin= 12,
+      geom_rect(aes(xmin= 11,
                     xmax=15,
                     ymin=-Inf,
                     ymax=Inf,
@@ -2144,6 +2148,7 @@ Method1_example_graph <- ggplot(Method1_test_for_graph) +
       #scale_fill_manual('Interventions', values = c("Disount" = 'cadetblue3',"Rebate" = 'thistle3', "Throttle" = 'darksalmon'),  guide = guide_legend(override.aes = list(alpha = 0.5))) +
       theme(legend.position = "bottom") +
       theme_classic()
+
 #Method 2
 Method2_test <- hourly_demand(method = 2, include_wknds = FALSE, price_comm = FALSE, elasticity_schedule = 7)
 Method2_test_for_graph <- Method2_test$EV_Demand
@@ -2161,7 +2166,7 @@ Method2_example_graph <- ggplot(Method2_test_for_graph) +
       xlab("Hour of the Day") +
       ylab("Electricity Demand (kilowatts)") +
       
-      geom_rect(aes(xmin= 12,
+      geom_rect(aes(xmin= 11,
                     xmax=15,
                     ymin=-Inf,
                     ymax=Inf,
@@ -2176,6 +2181,8 @@ Method2_example_graph <- ggplot(Method2_test_for_graph) +
       theme_classic()
 #Method 3 (default run - average elasticity = -0.4)
 Method3_test <- hourly_demand(method = 3, include_wknds = FALSE, price_comm = FALSE, elasticity_schedule = 7)
+write_csv(Method3_test$EV_Demand, "Results/Method3_test.csv")
+
 Method3_test_for_graph <- Method3_test$EV_Demand
 Method3_example_graph <- ggplot(Method3_test_for_graph) +
       geom_line(aes(x = Hr, y = Xf,color = "Intervention Demand"), 
@@ -2191,7 +2198,7 @@ Method3_example_graph <- ggplot(Method3_test_for_graph) +
       xlab("Hour of the Day") +
       ylab("Electricity Demand (kilowatts)") +
       
-      geom_rect(aes(xmin= 12,
+      geom_rect(aes(xmin= 11,
                     xmax=15,
                     ymin=-Inf,
                     ymax=Inf,
@@ -2204,8 +2211,9 @@ Method3_example_graph <- ggplot(Method3_test_for_graph) +
       #scale_fill_manual('Interventions', values = c("Disount" = 'cadetblue3',"Rebate" = 'thistle3', "Throttle" = 'darksalmon'),  guide = guide_legend(override.aes = list(alpha = 0.5))) +
       theme(legend.position = "bottom") +
       theme_classic()
-#Method4 -- run above
-Method4_test <- hourly_demand(method = 1, include_wknds = FALSE, price_comm = FALSE, elasticity_schedule = 7) #selecting winter weekday ev medium as example elasticity set this is the old method 1
+
+#Method4
+Method4_test <- hourly_demand(method = 4, include_wknds = FALSE, price_comm = FALSE, elasticity_schedule = 7) #selecting winter weekday ev medium as example elasticity set this is the old method 1
 Method4_test_for_graph <- Method4_test$EV_Demand
 Method4_example_graph <- ggplot(Method4_test_for_graph) +
       geom_line(aes(x = Hr, y = Xf,color = "Intervention Demand"), 
@@ -2221,7 +2229,7 @@ Method4_example_graph <- ggplot(Method4_test_for_graph) +
       xlab("Hour of the Day") +
       ylab("Electricity Demand (kilowatts)") +
       
-      geom_rect(aes(xmin= 12,
+      geom_rect(aes(xmin= 11,
                     xmax=15,
                     ymin=-Inf,
                     ymax=Inf,
@@ -2253,7 +2261,7 @@ sim_example_graph <- ggplot(Sim_test_report$sim_result_summary) +
       xlab("Hour of the Day") +
       ylab("Electricity Demand (kilowatts)") +
       
-      geom_rect(aes(xmin= 12,
+      geom_rect(aes(xmin= 11,
                     xmax=15,
                     ymin=-Inf,
                     ymax=Inf,
@@ -2266,11 +2274,21 @@ sim_example_graph <- ggplot(Sim_test_report$sim_result_summary) +
       #scale_fill_manual('Interventions', values = c("Disount" = 'cadetblue3',"Rebate" = 'thistle3', "Throttle" = 'darksalmon'),  guide = guide_legend(override.aes = list(alpha = 0.5))) +
       theme(legend.position = "bottom") +
       theme_classic()
+
 Method1_example_graph
+ggsave("Results Graphs/Method1_example_graph.png", Method1_example_graph, device = "png", width = 8, height = 4.5)
+
 Method2_example_graph
+ggsave("Results Graphs/Method2_example_graph.png", Method2_example_graph, device = "png", width = 8, height = 4.5)
+
 Method3_example_graph
+ggsave("Results Graphs/Method3_example_graph.png", Method3_example_graph, device = "png", width = 8, height = 4.5)
+
 Method4_example_graph
+ggsave("Results Graphs/Method4_example_graph.png", Method4_example_graph, device = "png", width = 8, height = 4.5)
+
 sim_example_graph
+ggsave("Results Graphs/sim_example_graph.png", sim_example_graph, device = "png", width = 8, height = 4.5)
 ```
 
 
