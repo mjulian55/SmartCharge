@@ -618,7 +618,7 @@ return(list(Emissions=Emissions, Emissions_Table=Emissions_Table))
 
 #PW1S = discount + price comm + morning throttling
 PW1S <- simulation(simulations = 1000, sim_seg = "Workplace",
-                       sim_month = 7, 
+                       sim_month = 11, 
                        sim_year = 2018,
                        sim_include_wknds = FALSE,
                        sim_charger_power = pwr,
@@ -639,9 +639,9 @@ write_csv(PW1S_output_table$Emissions, "Results/Workplace_PW1S_Output_All_Hours.
 
 
 
-#PW2S = discount + price comm + morning throttling
+#PW2S = discount + price comm + morning throttling +2019 TOU
 PW2S <- simulation(simulations = 1000, sim_seg = "Workplace",
-                       sim_month = 7, 
+                       sim_month = 11, 
                        sim_year = 2018,
                        sim_include_wknds = FALSE,
                        sim_charger_power = pwr,
@@ -664,20 +664,19 @@ write_csv(PW2S_output_table$Emissions, "Results/Workplace_PW2S_Output_All_Hours.
 
 
 
-
-#PW3S = discount + throttling + all comm
+#PW3S = discount + price comm
 PW3S <- simulation(simulations = 1000, sim_seg = "Workplace",
-                       sim_month = 7, 
+                       sim_month = 11, 
                        sim_year = 2018,
                        sim_include_wknds = FALSE,
                        sim_charger_power = pwr,
                        sim_price_change = -0.05, 
                        sim_intervention_hours = c(12:15),
-                       sim_throttle_amount = -0.5, 
-                       sim_throttle_hours = c(7:11),
-                       sim_air_pollution_comm = TRUE, #yes comm
-                       sim_price_comm = TRUE, #yes comm
+                       sim_throttle_amount = 0, #No throttling 
+                       sim_air_pollution_comm = FALSE, 
+                       sim_price_comm = TRUE,
                        sim_curt_year=2018) 
+#View(PW3S$sim_result_summary)
 write_csv(PW3S$sim_result_summary, "Results/Workplace_PW3S_Demand_Summary.csv")
 
 #run emissions and write to csv
@@ -688,32 +687,12 @@ write_csv(PW3S_output_table$Emissions, "Results/Workplace_PW3S_Output_All_Hours.
 
 
 
-#PW4S = discount + price comm
+
+
+
+#PW4S = discount + throttling + no comm
 PW4S <- simulation(simulations = 1000, sim_seg = "Workplace",
-                       sim_month = 7, 
-                       sim_year = 2018,
-                       sim_include_wknds = FALSE,
-                       sim_charger_power = pwr,
-                       sim_price_change = -0.05, 
-                       sim_intervention_hours = c(12:15),
-                       sim_throttle_amount = 0, #No throttling 
-                       sim_air_pollution_comm = FALSE, 
-                       sim_price_comm = TRUE,
-                       sim_curt_year=2018) 
-#View(PW4S$sim_result_summary)
-write_csv(PW4S$sim_result_summary, "Results/Workplace_PW4S_Demand_Summary.csv")
-
-#run emissions and write to csv
-PW4S_output_table <- emissions_fcn(PW4S) 
-write_csv(PW4S_output_table$Emissions_Table, "Results/Workplace_PW4S_Output_Summary.csv") #write emissions to csv
-write_csv(PW4S_output_table$Emissions, "Results/Workplace_PW4S_Output_All_Hours.csv")
-
-
-
-
-#PW5S = discount + throttling + no comm
-PW5S <- simulation(simulations = 1000, sim_seg = "Workplace",
-                       sim_month = 7, 
+                       sim_month = 11, 
                        sim_year = 2018,
                        sim_include_wknds = FALSE,
                        sim_charger_power = pwr,
@@ -724,9 +703,32 @@ PW5S <- simulation(simulations = 1000, sim_seg = "Workplace",
                        sim_air_pollution_comm = FALSE, #no comm
                        sim_price_comm = FALSE, # no comm
                        sim_curt_year=2018) 
-write_csv(PW5S$sim_result_summary, "Results/Workplace_PW5S_Demand_Summary.csv")
+write_csv(PW4S$sim_result_summary, "Results/Workplace_PW4S_Demand_Summary.csv")
 
 #run emissions and write to csv
+PW4S_output_table <- emissions_fcn(PW4S) 
+write_csv(PW4S_output_table$Emissions_Table, "Results/Workplace_PW4S_Output_Summary.csv") #write emissions to csv
+write_csv(PW4S_output_table$Emissions, "Results/Workplace_PW4S_Output_All_Hours.csv")
+
+
+
+#-------not used in report-------
+#PW5S = rebate + throttling + no comm
+PW5S <- simulation(simulations = 1000, sim_seg = "Workplace",
+                       sim_month = 7, 
+                       sim_year = 2018,
+                       sim_include_wknds = FALSE,
+                       sim_charger_power = pwr,
+                       sim_price_change = 0.10, 
+                       sim_intervention_hours = c(17:21),
+                       sim_throttle_amount = -0.5, 
+                       sim_throttle_hours = c(17:21),
+                       sim_air_pollution_comm = FALSE, #yes comm
+                       sim_price_comm = FALSE, 
+                       sim_curt_year=2018) 
+#View(PW5S$sim_result_summary)
+write_csv(PW5S$sim_result_summary, "Results/Workplace_PW5S_Demand_Summary.csv")
+
 PW5S_output_table <- emissions_fcn(PW5S) 
 write_csv(PW5S_output_table$Emissions_Table, "Results/Workplace_PW5S_Output_Summary.csv") #write emissions to csv
 write_csv(PW5S_output_table$Emissions, "Results/Workplace_PW5S_Output_All_Hours.csv")
@@ -735,7 +737,7 @@ write_csv(PW5S_output_table$Emissions, "Results/Workplace_PW5S_Output_All_Hours.
 
 #PW6S = discount + throttling + air poll comm
 PW6S <- simulation(simulations = 1000, sim_seg = "Workplace",
-                       sim_month = 7, 
+                       sim_month = 11, 
                        sim_year = 2018,
                        sim_include_wknds = FALSE,
                        sim_charger_power = pwr,
@@ -754,30 +756,8 @@ write_csv(PW6S_output_table$Emissions_Table, "Results/Workplace_PW6S_Output_Summ
 write_csv(PW6S_output_table$Emissions, "Results/Workplace_PW6S_Output_All_Hours.csv")
 
 
-
-#PW7S = rebate + throttling + no comm
+#PW7S = discount + throttling + all comm
 PW7S <- simulation(simulations = 1000, sim_seg = "Workplace",
-                       sim_month = 7, 
-                       sim_year = 2018,
-                       sim_include_wknds = FALSE,
-                       sim_charger_power = pwr,
-                       sim_price_change = 0.10, 
-                       sim_intervention_hours = c(17:21),
-                       sim_throttle_amount = -0.5, 
-                       sim_throttle_hours = c(17:21),
-                       sim_air_pollution_comm = FALSE, #yes comm
-                       sim_price_comm = FALSE, 
-                       sim_curt_year=2018) 
-#View(PW7S$sim_result_summary)
-write_csv(PW7S$sim_result_summary, "Results/Workplace_PW7S_Demand_Summary.csv")
-
-PW7S_output_table <- emissions_fcn(PW7S) 
-write_csv(PW7S_output_table$Emissions_Table, "Results/Workplace_PW7S_Output_Summary.csv") #write emissions to csv
-write_csv(PW7S_output_table$Emissions, "Results/Workplace_PW7S_Output_All_Hours.csv")
-
-
-#PW8S = discount + throttling + no comm
-PW8S <- simulation(simulations = 1000, sim_seg = "Workplace",
                        sim_month = 11, 
                        sim_year = 2018,
                        sim_include_wknds = FALSE,
@@ -786,18 +766,17 @@ PW8S <- simulation(simulations = 1000, sim_seg = "Workplace",
                        sim_intervention_hours = c(12:15),
                        sim_throttle_amount = -0.5, 
                        sim_throttle_hours = c(7:11),
-                       sim_air_pollution_comm = FALSE,
-                       sim_price_comm = FALSE, 
+                       sim_air_pollution_comm = TRUE, #yes comm
+                       sim_price_comm = TRUE, #yes comm
                        sim_curt_year=2018) 
-#View(PW8S$sim_result_summary)
-write_csv(PW8S$sim_result_summary, "Results/Workplace_PW8S_Demand_Summary.csv")
+write_csv(PW7S$sim_result_summary, "Results/Workplace_PW7S_Demand_Summary.csv")
 
-PW8S_output_table <- emissions_fcn(PW8S) 
-write_csv(PW8S_output_table$Emissions_Table, "Results/Workplace_PW8S_Output_Summary.csv") #write emissions to csv
-write_csv(PW8S_output_table$Emissions, "Results/Workplace_PW8S_Output_All_Hours.csv")
+#run emissions and write to csv
+PW7S_output_table <- emissions_fcn(PW7S) 
+write_csv(PW7S_output_table$Emissions_Table, "Results/Workplace_PW7S_Output_Summary.csv") #write emissions to csv
+write_csv(PW7S_output_table$Emissions, "Results/Workplace_PW7S_Output_All_Hours.csv")
 
-
-
+#------------------------------------------
 
 #FW1 = discount + throttling + air poll & price comm, TOU19 intervention, 2030 chargers
 FW1 <- simulation(simulations = 1000, sim_seg = "Workplace",
@@ -839,7 +818,7 @@ Demand_GraphPW1S <- ggplot(data = graph_tablePW1S, aes(x = Hr)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
   panel.background = element_blank(), axis.line = element_line(colour = "black")) +
   labs(title="Workplaces (PW1S) Hourly Demand Forecast\n (discount, price comm, throttling)",
-  subtitle="Baseline July 2018 (596 Chargers) \n Model Simulation",
+  subtitle="Baseline November 2018 (596 Chargers) \n Model Simulation",
   y="EV Charging Demand (kW)",
   x="Hour",
   color=NULL) +
@@ -870,7 +849,7 @@ Demand_GraphPW2S <- ggplot(data = graph_tablePW2S, aes(x = Hr)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
   panel.background = element_blank(), axis.line = element_line(colour = "black")) +
   labs(title="Workplaces (PW2S) Hourly Demand Forecast\n (discount, price comm, throttling, TOU 2019)",
-  subtitle="Baseline July 2018 (596 Chargers) \n Model Simulation",
+  subtitle="Baseline November 2018 (596 Chargers) \n Model Simulation",
   y="EV Charging Demand (kW)",
   x="Hour",
   color=NULL) +
@@ -900,8 +879,8 @@ Demand_GraphPW3S <- ggplot(data = graph_tablePW3S, aes(x = Hr)) +
   geom_line(aes(y = value, color=condition)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
   panel.background = element_blank(), axis.line = element_line(colour = "black")) +
-  labs(title="Workplaces (PW3S) Hourly Demand Forecast\n(discount, all comm, throttling)",
-  subtitle="Baseline July 2018 (596 Chargers) \n Model Simulation",
+  labs(title="Workplaces (PW3S) Hourly Demand Forecast\n(discount, price comm, throttling)",
+  subtitle="Baseline November 2018 (596 Chargers) \n Model Simulation",
   y="EV Charging Demand (kW)",
   x="Hour",
   color=NULL) +
@@ -934,7 +913,7 @@ Demand_GraphPW4S <- ggplot(data = graph_tablePW4S, aes(x = Hr)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
   panel.background = element_blank(), axis.line = element_line(colour = "black")) +
   labs(title="Workplaces (PW4S) Hourly Demand Forecast\n(discount, price comm)",
-  subtitle="Baseline July 2018 (596 Chargers) \n Model Simulation",
+  subtitle="Baseline November 2018 (596 Chargers) \n Model Simulation",
   y="EV Charging Demand (kW)",
   x="Hour",
   color=NULL) +
@@ -964,7 +943,7 @@ Demand_GraphPW5S <- ggplot(data = graph_tablePW5S, aes(x = Hr)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
   panel.background = element_blank(), axis.line = element_line(colour = "black")) +
   labs(title="Workplaces (PW5S) Hourly Demand Forecast\n(discount, no comm, throttling)",
-  subtitle="Baseline July 2018 (596 Chargers) \n Model Simulation",
+  subtitle="Baseline November 2018 (596 Chargers) \n Model Simulation",
   y="EV Charging Demand (kW)",
   x="Hour",
   color=NULL) +
@@ -994,7 +973,7 @@ Demand_GraphPW6S <- ggplot(data = graph_tablePW6S, aes(x = Hr)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
   panel.background = element_blank(), axis.line = element_line(colour = "black")) +
   labs(title="Workplaces (PW6S) Hourly Demand Forecast\n (discount, air comm, throttling)",
-  subtitle="Baseline July 2018 (596 Chargers) \n Model Simulation",
+  subtitle="Baseline November 2018 (596 Chargers) \n Model Simulation",
   y="EV Charging Demand (kW)",
   x="Hour",
   color=NULL) +
@@ -1024,7 +1003,7 @@ Demand_GraphFW1 <- ggplot(data = graph_tableFW1, aes(x = Hr)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
   panel.background = element_blank(), axis.line = element_line(colour = "black")) +
   labs(title="Workplaces (FW1) Hourly Demand Forecast\n(discount, throttling, air & price comm, TOU 19, 2030 chargers)",
-  subtitle="Baseline July 2018 (31435 Chargers) \n Model Simulation",
+  subtitle="Baseline November 2018 (31435 Chargers) \n Model Simulation",
   y="EV Charging Demand (kW)",
   x="Hour",
   color=NULL) +
