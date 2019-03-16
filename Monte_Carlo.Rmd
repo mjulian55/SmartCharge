@@ -419,7 +419,8 @@ Emissions_Table <- Emissions_Table %>%
 Emissions_Table <- Emissions_Table %>% 
   mutate(PropDemandChange = Xchange/Xinitial) %>% 
   mutate(PropCO2Change = CO2Change/CO2Initial) %>% 
-  mutate(PropNOXChange = NOXChange/NOXInitial)
+  mutate(PropNOXChange = NOXChange/NOXInitial) %>% 
+  mutate(PropCustCostChange = CustCostChange/CustCostInitial)
 
 
 return(list(Emissions=Emissions, Emissions_Table=Emissions_Table))
