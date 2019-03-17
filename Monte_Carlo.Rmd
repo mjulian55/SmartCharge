@@ -813,7 +813,7 @@ write_csv(FW1_output_table$Emissions, "Results/Workplace_FW1_Output_All_Hours.cs
 
 ```{r workplace_graphs, message=FALSE}
 
-#PW1S Graph (discount + price comm + morning throttling)
+#PW1S
 PW1S_demand_summary <- read_csv("Results/Workplace_PW1S_Demand_Summary.csv") 
 
 graph_tablePW1S <- PW1S_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
@@ -844,7 +844,7 @@ ggsave("Results Graphs/Workplace_PW1S_Demand_Summary.png", Demand_GraphPW1S, dev
 
 
 
-#PW2S Graph (discount + price comm + morning throttling + TOU 2019)
+#PW2S 
 PW2S_demand_summary <- read_csv("Results/Workplace_PW2S_Demand_Summary.csv") 
 
 graph_tablePW2S <- PW2S_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
@@ -875,7 +875,7 @@ ggsave("Results Graphs/Workplace_PW2S_Demand_Summary.png", Demand_GraphPW2S, dev
 
 
 
-#PW3S Graph (discount + throttling + all comm)
+#PW3S
 PW3S_demand_summary <- read_csv("Results/Workplace_PW3S_Demand_Summary.csv") 
 
 graph_tablePW3S <- PW3S_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
@@ -908,7 +908,7 @@ ggsave("Results Graphs/Workplace_PW3S_Demand_Summary.png", Demand_GraphPW3S, dev
 
 
 
-#PW4 Graph (discount + price comm)
+#PW4
 PW4S_demand_summary <- read_csv("Results/Workplace_PW4S_Demand_Summary.csv") 
 
 graph_tablePW4S <- PW4S_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
@@ -938,7 +938,7 @@ Demand_GraphPW4S <- ggplot(data = graph_tablePW4S, aes(x = Hr)) +
 ggsave("Results Graphs/Workplace_PW4S_Demand_Summary.png", Demand_GraphPW4S, device = "png", width = 8, height = 4.5)
 
 
-###PW5S = discount + throttling + no comm
+###PW5S 
 PW5S_demand_summary <- read_csv("Results/Workplace_PW5S_Demand_Summary.csv") 
 
 graph_tablePW5S <- PW5S_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
@@ -968,7 +968,7 @@ Demand_GraphPW5S <- ggplot(data = graph_tablePW5S, aes(x = Hr)) +
 ggsave("Results Graphs/Workplace_PW5S_Demand_Summary.png", Demand_GraphPW5S, device = "png", width = 8, height = 4.5)
 
 
-#PW6S = discount + throttling + air poll comm
+#PW6S 
 PW6S_demand_summary <- read_csv("Results/Workplace_PW6S_Demand_Summary.csv") 
 
 graph_tablePW6S <- PW6S_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
@@ -998,7 +998,7 @@ Demand_GraphPW6S <- ggplot(data = graph_tablePW6S, aes(x = Hr)) +
 ggsave("Results Graphs/Workplace_PW6S_Demand_Summary.png", Demand_GraphPW6S, device = "png", width = 8, height = 4.5)
 
 
-#FW1 Graph (discount + throttling + air poll & price comm, TOU19 intervention, 2030 chargers)
+#FW1 Graph 
 FW1_demand_summary <- read_csv("Results/Workplace_FW1_Demand_Summary.csv") 
 
 graph_tableFW1<- FW1_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
@@ -1149,7 +1149,7 @@ write_csv(FDC1_output_table$Emissions, "Results/Destination_Centers_FDC1_Output_
 ```
 
 ```{r destination_center_graphs}
-#PDC1S:  discount -0.05 (default) 12-15+ price comms only + morning throttling
+#PDC1S
 PDC1S_demand_summary <- read_csv("Results/Destination_Centers_PDC1S_Demand_Summary.csv") 
 
 graph_tablePDC1S <- PDC1S_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
@@ -1182,7 +1182,7 @@ ggsave("Results Graphs/Destination_Centers_PDC1S_Demand_Summary.png", Demand_Gra
 
 
 
-#PDC2S:  discount -0.05 (default) 12-15+ all comms + morning throttling
+#PDC2S
 PDC2S_demand_summary <- read_csv("Results/Destination_Centers_PDC2S_Demand_Summary.csv") 
 
 graph_tablePDC2S <- PDC2S_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
@@ -1214,7 +1214,7 @@ ggsave("Results Graphs/Destination_Centers_PDC2S_Demand_Summary.png", Demand_Gra
 
 
 
-#PDC3S: discount -0.05 (default) 12-15+ air poll comms + morning throttling
+#PDC3S
 PDC3S_demand_summary <- read_csv("Results/Destination_Centers_PDC3S_Demand_Summary.csv") 
 
 graph_tablePDC3S <- PDC3S_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
@@ -1248,7 +1248,7 @@ ggsave("Results Graphs/Destination_Centers_PDC3S_Demand_Summary.png", Demand_Gra
 
 
 
-#PDC4S: discount -0.05 (default) 12-15+ no comms + morning throttling
+#PDC4S
 PDC4S_demand_summary <- read_csv("Results/Destination_Centers_PDC4S_Demand_Summary.csv") 
 
 graph_tablePDC4S <- PDC4S_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
@@ -1281,7 +1281,7 @@ ggsave("Results Graphs/Destination_Centers_PDC4S_Demand_Summary.png", Demand_Gra
 
 
 
-#PDC5S: $0.10 Rebate (17:00 – 21:00) + no comms + morning throttling
+#PDC5S
 PDC5S_demand_summary <- read_csv("Results/Destination_Centers_PDC5S_Demand_Summary.csv") 
 
 graph_tablePDC5S <- PDC5S_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
@@ -1312,7 +1312,7 @@ Demand_GraphPDC5S <- ggplot(data = graph_tablePDC5S, aes(x = Hr)) +
 ggsave("Results Graphs/Destination_Centers_PDC5S_Demand_Summary.png", Demand_GraphPDC5S, device = "png", width = 8, height = 4.5)
 
 
-#FDC1: $0.05 Discount (12:00-15:00) + all comms + morning throttling +TOU19 + 2030 chargers
+#FDC1
 FDC1_demand_summary <- read_csv("Results/Destination_Centers_FDC1_Demand_Summary.csv") 
 
 graph_tableFDC1 <- FDC1_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
@@ -1340,28 +1340,6 @@ Demand_GraphFDC1 <- ggplot(data = graph_tableFDC1, aes(x = Hr)) +
 #Demand_GraphFDC1
 ggsave("Results Graphs/Destination_Centers_FDC1_Demand_Summary.png", Demand_GraphFDC1, device = "png", width = 8, height = 4.5)
 
-#PDC1S:  discount -0.05 (default) 12-15+ price comms only + morning throttling
-write_csv(PDC1S$sim_result_summary, "Results/Destination_Centers_PDC2S_Demand_Summary.csv")
-#run emissions and write to csv
-
-#PDC2S:  discount -0.05 (default) 12-15+ all comms + morning throttling
-write_csv(PDC2S$sim_result_summary, "Results/Destination_Centers_PDC2S_Demand_Summary.csv")
-#run emissions and write to csv
-
-
-#PDC3S: discount -0.05 (default) 12-15+ air poll comms + morning throttling
-write_csv(PDC3S$sim_result_summary, "Results/Destination_Centers_PDC3S_Demand_Summary.csv")
-
-
-#PDC4S: discount -0.05 (default) 12-15+ no comms + morning throttling
-write_csv(PDC4S$sim_result_summary, "Results/Destination_Centers_PDC4S_Demand_Summary.csv")
-
-
-#PDC5S: $0.10 Rebate (17:00 – 21:00) + no comms + morning throttling
-write_csv(PDC5S$sim_result_summary, "Results/Destination_Centers_PDC5S_Demand_Summary.csv")
-
-#FDC1: $0.05 Discount (12:00-15:00) + all comms + morning throttling +TOU19 + 2030 chargers
-write_csv(FDC1$sim_result_summary, "Results/Destination_Centers_FDC1_Demand_Summary.csv")
 ```
 
 
@@ -1560,7 +1538,7 @@ write_csv(FF1_output_table$Emissions, "Results/Fleets_FF1_Output_All_Hours.csv")
 
 ```{r fleet_graphs}
 
-# PF1: Present, Fleet, 1 (rebate, price comm, 83 chargers)
+# PF1
 PF1_demand_summary <- read_csv("Results/Fleets_PF1_Demand_Summary.csv") 
 
 graph_tablePF1 <- PF1_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
@@ -1572,7 +1550,7 @@ Demand_GraphPF1 <- ggplot(data = graph_tablePF1, aes(x = Hr)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
   panel.background = element_blank(), axis.line = element_line(colour = "black")) +
   labs(title="Fleets (PF1) (rebate, price comm) Hourly Demand Forecast",
-  subtitle="Baseline November 2018 (83 Chargers) \n Model Simulation",
+  subtitle="Baseline July 2018 (83 Chargers) \n Model Simulation",
   y="EV Charging Demand (kW)",
   x="Hour",
   color=NULL) +
@@ -1589,7 +1567,7 @@ Demand_GraphPF1 <- ggplot(data = graph_tablePF1, aes(x = Hr)) +
 ggsave("Results Graphs/Fleets_PF1_Demand_Summary.png", Demand_GraphPF1, device = "png", width = 8, height = 4.5)
 
 
-# PF2: Present, Fleet, 2 (rebate, price comm, new 2019 TOU rate, 83 chargers)
+# PF2
 PF2_demand_summary <- read_csv("Results/Fleets_PF2_Demand_Summary.csv") 
 
 graph_tablePF2 <- PF2_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
@@ -1601,7 +1579,7 @@ Demand_GraphPF2 <- ggplot(data = graph_tablePF2, aes(x = Hr)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
   panel.background = element_blank(), axis.line = element_line(colour = "black")) +
   labs(title="Fleets (PF2) (rebate, price comm, new 2019 TOU rate) Hourly Demand Forecast",
-  subtitle="Baseline November 2018 (83 Chargers) \n Model Simulation",
+  subtitle="Baseline July 2018 (83 Chargers) \n Model Simulation",
   y="EV Charging Demand (kW)",
   x="Hour",
   color=NULL) +
@@ -1619,7 +1597,7 @@ ggsave("Results Graphs/Fleets_PF2_Demand_Summary.png", Demand_GraphPF2, device =
 
 
 
-# PF3S: Present, Fleet, 3(discount, 100% price comm)
+# PF3S
 PF3S_demand_summary <- read_csv("Results/Fleets_PF3S_Demand_Summary.csv") 
 
 graph_tablePF3S <- PF3S_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
@@ -1631,7 +1609,7 @@ Demand_GraphPF3S <- ggplot(data = graph_tablePF3S, aes(x = Hr)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
   panel.background = element_blank(), axis.line = element_line(colour = "black")) +
   labs(title="Fleets (PF3) (discount, price comm) Hourly Demand Forecast",
-  subtitle="Baseline July 2018 (83 Chargers) \n Model Simulation",
+  subtitle="Baseline November 2018 (83 Chargers) \n Model Simulation",
   y="EV Charging Demand (kW)",
   x="Hour",
   color=NULL) +
@@ -1647,9 +1625,7 @@ Demand_GraphPF3S <- ggplot(data = graph_tablePF3S, aes(x = Hr)) +
 #Demand_GraphPF3S
 ggsave("Results Graphs/Fleets_PF3S_Demand_Summary.png", Demand_GraphPF3S, device = "png", width = 8, height = 4.5)
 
-# PF4S: Present, Fleet, 4, Summer
-# $0.05 Discount (12:00 – 15:00); 100% Price Communication; 50% Throttling (07:00-11:00 and 17:00-21:00)
-
+# PF4S
 PF4S_demand_summary <- read_csv("Results/Fleets_PF4S_Demand_Summary.csv") 
 
 graph_tablePF4S <- PF4S_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
@@ -1661,7 +1637,7 @@ Demand_GraphPF4S <- ggplot(data = graph_tablePF4S, aes(x = Hr)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
   panel.background = element_blank(), axis.line = element_line(colour = "black")) +
   labs(title="Fleets (PF4S) (discount (11:00-15:00), price comm, throttling(06:00 – 11:00 and 18:00-21:00)) Hourly Demand Forecast",
-  subtitle="Baseline July 2018 (83 Chargers) \n Model Simulation",
+  subtitle="Baseline November 2018 (83 Chargers) \n Model Simulation",
   y="EV Charging Demand (kW)",
   x="Hour",
   color=NULL) +
@@ -1679,9 +1655,7 @@ Demand_GraphPF4S <- ggplot(data = graph_tablePF4S, aes(x = Hr)) +
 ggsave("Results Graphs/Fleets_PF4S_Demand_Summary.png", Demand_GraphPF4S, device = "png", width = 8, height = 4.5)
 
 
-# PF5S: Present, Fleet, 5, Summer
-# $0.05 Discount (12:00 – 15:00); $0.10 Rebate (17:00 – 21:00); 2019 New Summer TOU rate; 100% Price Communication
-
+# PF5S
 PF5S_demand_summary <- read_csv("Results/Fleets_PF5S_Demand_Summary.csv") 
 
 graph_tablePF5S <- PF5S_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
@@ -1693,7 +1667,7 @@ Demand_GraphPF5S <- ggplot(data = graph_tablePF5S, aes(x = Hr)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
   panel.background = element_blank(), axis.line = element_line(colour = "black")) +
   labs(title="Fleets (PF5S) (discount (11:00-15:00), price comm, rebate (17:00-21:00), 2019 TOU Rate) Hourly Demand Forecast",
-  subtitle="Baseline July 2018 (83 Chargers) \n Model Simulation",
+  subtitle="Baseline November 2018 (83 Chargers) \n Model Simulation",
   y="EV Charging Demand (kW)",
   x="Hour",
   color=NULL) +
@@ -1711,7 +1685,7 @@ Demand_GraphPF5S <- ggplot(data = graph_tablePF5S, aes(x = Hr)) +
 ggsave("Results Graphs/Fleets_PF5S_Demand_Summary.png", Demand_GraphPF5S, device = "png", width = 8, height = 4.5)
 
 
-# FF1: Future, 2019 tou, rebate, price comm
+# FF1
 FF1_demand_summary <- read_csv("Results/Fleets_FF1_Demand_Summary.csv") 
 
 graph_tableFF1 <- FF1_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
@@ -1723,7 +1697,7 @@ Demand_GraphFF1 <- ggplot(data = graph_tableFF1, aes(x = Hr)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
   panel.background = element_blank(), axis.line = element_line(colour = "black")) +
   labs(title="Fleets (FF1) (2019 tou, price comm, 4378 chargers, rebate) Hourly Demand Forecast",
-  subtitle="Baseline Nov 2018 (83 Chargers) \n Model Simulation (2030 scenario)",
+  subtitle="Baseline July 2018 (83 Chargers) \n Model Simulation (2030 scenario)",
   y="EV Charging Demand (kW)",
   x="Hour",
   color=NULL) +
@@ -1906,7 +1880,7 @@ Demand_GraphPM1 <- ggplot(data = graph_tablePM1, aes(x = Hr)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
   panel.background = element_blank(), axis.line = element_line(colour = "black")) +
   labs(title="MUDs (PM1) (rebate, price comm) Hourly Demand Forecast",
-  subtitle="Baseline November 2018 (X Chargers) \n Model Simulation",
+  subtitle="Baseline July 2018 (X Chargers) \n Model Simulation",
   y="EV Charging Demand (kW)",
   x="Hour",
   color=NULL) +
@@ -1926,7 +1900,7 @@ ggsave("Results Graphs/MUDs_PM1_Demand_Summary.png", Demand_GraphPM1, device = "
 
 
 
-#PM2 = throttling + price comms (can't run throttling with no comms b/c comms is contingent on a price change). so this is a little weird
+#PM2
 PM2_demand_summary <- read_csv("Results/MUDs_PM2_Demand_Summary.csv")
 
 graph_tablePM2 <- PM2_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
@@ -1938,7 +1912,7 @@ Demand_GraphPM2 <- ggplot(data = graph_tablePM2, aes(x = Hr)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
   panel.background = element_blank(), axis.line = element_line(colour = "black")) +
   labs(title="MUDs (PM2) (throttling, price comm) Hourly Demand Forecast",
-  subtitle="Baseline November 2018 (X Chargers) \n Model Simulation",
+  subtitle="Baseline July 2018 (X Chargers) \n Model Simulation",
   y="EV Charging Demand (kW)",
   x="Hour",
   color=NULL) +
@@ -1956,7 +1930,7 @@ ggsave("Results Graphs/MUDs_PM2_Demand_Summary.png", Demand_GraphPM2, device = "
 
 
 
-#PM3 = new tou + rebate + price communication
+#PM3
 PM3_demand_summary <- read_csv("Results/MUDs_PM3_Demand_Summary.csv") 
 
 graph_tablePM3 <- PM3_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
@@ -1987,7 +1961,7 @@ ggsave("Results Graphs/MUDs_PM3_Demand_Summary.png", Demand_GraphPM3, device = "
 
 
 
-#PM4 = new tou + all communication
+#PM4
 PM4_demand_summary <- read_csv("Results/MUDs_PM4_Demand_Summary.csv") 
 
 graph_tablePM4 <- PM4_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
@@ -2018,7 +1992,7 @@ ggsave("Results Graphs/MUDs_PM4_Demand_Summary.png", Demand_GraphPM4, device = "
 
 
 
-#PM 5 = new tou + air pollution communication
+#PM 5 
 PM5_demand_summary <- read_csv("Results/MUDs_PM5_Demand_Summary.csv") 
 
 graph_tablePM5 <- PM5_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
@@ -2060,7 +2034,7 @@ Demand_GraphFM1 <- ggplot(data = graph_tableFM1, aes(x = Hr)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
   panel.background = element_blank(), axis.line = element_line(colour = "black")) +
   labs(title="MUDs (FM1) (2030 scaled, 2019 tou, rebate) Hourly Demand Forecast",
-  subtitle="Baseline November 2018 (X Chargers) \n Model Simulation Scaled 2030",
+  subtitle="Baseline July 2018 (X Chargers) \n Model Simulation Scaled 2030",
   y="EV Charging Demand (kW)",
   x="Hour",
   color=NULL) +
