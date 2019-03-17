@@ -1102,6 +1102,7 @@ PDC4S <- simulation(simulations = 1000,
                     sim_air_pollution_comm = FALSE)
 
 write_csv(PDC4S$sim_result_summary, "Results/Destination_Centers_PDC4S_Demand_Summary.csv")
+
 PDC4S_output_table <- emissions_fcn(PDC4S)
 #View(PDC4S_output_table$Emissions_Table)
 #View(PDC4S_output_table$Emissions)
