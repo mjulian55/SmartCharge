@@ -1787,8 +1787,8 @@ write_csv(PM1_output_table$Emissions, "Results/MUDs_PM1_Output_All_Hours.csv")
 
 
 
-#PM2 = throttling + price comms (can't run throttling with no comms b/c comms is contingent on a price change). so this is a little weird. 
-PM2 <- simulation(simulation =1000, sim_seg = "Multi Unit Dwelling",
+#PM3 = throttling + price comms (can't run throttling with no comms b/c comms is contingent on a price change). so this is a little weird. 
+PM3 <- simulation(simulation =1000, sim_seg = "Multi Unit Dwelling",
                        sim_month = 11,
                        sim_year = 2018,
                        sim_include_wknds = FALSE,
@@ -1799,21 +1799,18 @@ PM2 <- simulation(simulation =1000, sim_seg = "Multi Unit Dwelling",
                        sim_air_pollution_comm = FALSE,
                        sim_price_comm = TRUE,
                        sim_curt_year=2018)
-#View(PM2$sim_result_summary)
 
 #write simulation summary results to csv to use for graph!
-write_csv(PM2$sim_result_summary, "Results/MUDs_PM2_Demand_Summary.csv")
+write_csv(PM3$sim_result_summary, "Results/MUDs_PM2_Demand_Summary.csv")
 
 #run emissions and write to csv
-PM2_output_table <- emissions_fcn(PM2) 
-#View(PM2_output_table$Emissions_Table)
-#View(PM2_output_table$Emissions)
-write_csv(PM2_output_table$Emissions_Table, "Results/MUDs_PM2_Output_Summary.csv") #write emissions to csv
-write_csv(PM2_output_table$Emissions, "Results/MUDs_PM2_Output_All_Hours.csv")
+PM3_output_table <- emissions_fcn(PM3) 
+write_csv(PM3_output_table$Emissions_Table, "Results/MUDs_PM3_Output_Summary.csv") #write emissions to csv
+write_csv(PM3_output_table$Emissions, "Results/MUDs_PM3_Output_All_Hours.csv")
 
 
-#PM3 = new tou + rebate + price communication
-PM3 <- simulation (simulation = 1000, sim_seg = "Multi Unit Dwelling",
+#PM2 = new tou + rebate + price communication
+PM2 <- simulation (simulation = 1000, sim_seg = "Multi Unit Dwelling",
                        sim_month = 11,
                        sim_year = 2018,
                        sim_include_wknds = FALSE,
@@ -1826,15 +1823,15 @@ PM3 <- simulation (simulation = 1000, sim_seg = "Multi Unit Dwelling",
 
 #View(PM3$sim_result_summary)
 #write simulation summary results to csv to use for graph!
-write_csv(PM3$sim_result_summary, "Results/MUDs_PM3_Demand_Summary.csv")
-PM3_demand_summary <- read_csv("Results/MUDs_PM3_Demand_Summary.csv") #read it back in for the graph
+write_csv(PM2$sim_result_summary, "Results/MUDs_PM2_Demand_Summary.csv")
+PM2_demand_summary <- read_csv("Results/MUDs_PM2_Demand_Summary.csv") #read it back in for the graph
 
 #run emissions and write to csv
-PM3_output_table <- emissions_fcn(PM3) 
+PM2_output_table <- emissions_fcn(PM2) 
 #View(PM3_output_table$Emissions_Table)
 #View(PM3_output_table$Emissions)
-write_csv(PM3_output_table$Emissions_Table, "Results/MUDs_PM3_Output_Summary.csv") #write emissions to csv
-write_csv(PM3_output_table$Emissions, "Results/MUDs_PM3_Output_All_Hours.csv")
+write_csv(PM2_output_table$Emissions_Table, "Results/MUDs_PM2_Output_Summary.csv") #write emissions to csv
+write_csv(PM2_output_table$Emissions, "Results/MUDs_PM2_Output_All_Hours.csv")
 
 #PM4 = new tou + all communication
 PM4 <- simulation (simulation = 1000, sim_seg = "Multi Unit Dwelling",
