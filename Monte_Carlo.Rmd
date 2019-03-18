@@ -4945,7 +4945,8 @@ Max_theory_table #This shows the theoretical max per market segment (and total) 
 
 
 ```{r new_Graph_design}
- library(wesanderson)
+# library(wesanderson)
+#library(extrafont)
 Method1_test <- hourly_demand(method = 1, include_wknds = FALSE, price_comm = FALSE, elasticity_schedule = 7)
 Method1_test_for_graph <- Method1_test$EV_Demand
 Test_example_graph <- ggplot(Method1_test_for_graph) +
@@ -4959,7 +4960,7 @@ Test_example_graph <- ggplot(Method1_test_for_graph) +
                 alpha = 0.75) + #This is the X0 line
       ggtitle("Method 1") +
       xlab("Hour of the Day") +
-      ylab("Electricity Demand (kilowatts)") +
+      ylab("Electricity Demand (kW)") +
       geom_rect(aes(xmin= 11,
                     xmax=15,
                     ymin=-Inf,
@@ -4990,10 +4991,10 @@ geom_rect(aes(xmin= 16,
     # scale_color_brewer("Demand", palette = "Dark2", direction = -1) +
   #scale_fill_manual('Interventions', values = wes_palette("Darjeeling1")) +
      scale_fill_manual('Interventions', values = c("Discount" = 'green',"Throttle" = 'red1', "Rebate" = 'yellow1', "Throttle and Rebate" = "#C7B19C"),  guide = guide_legend(override.aes = list(alpha = 0.1))) +
-   scale_color_manual(values = c("Baseline Demand" = "red3", "Intervention Demand" ="dodgerblue2")) +
+   scale_color_manual('Demand', values = c("Baseline Demand" = "red3", "Intervention Demand" ="dodgerblue2")) +
   # scale_color_manual(labels=c("Baseline Demand","Intervention Demand"), values = c("green", "orange")) +
       theme(legend.position = "bottom") +
-      theme_classic()
+      theme_classic(base_family = "Helvetica")
 
 Test_example_graph
 ggsave("Results Graphs/test_graph.png", Test_example_graph, device = "png", width = 8, height = 4.5)
