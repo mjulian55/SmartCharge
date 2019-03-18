@@ -794,7 +794,7 @@ write_csv(PW7S_output_table$Emissions, "Results/Workplace_PW7S_Output_All_Hours.
 
 #FW1 = discount + throttling + air poll & price comm, TOU19 intervention, 2030 chargers
 FW1 <- simulation(simulations = 1000, sim_seg = "Workplace",
-                       sim_month = 7, 
+                       sim_month = 11, 
                        sim_year = 2018,
                        sim_include_wknds = FALSE,
                        sim_charger_power = pwr,
@@ -836,183 +836,163 @@ Demand_GraphPW1S <- ggplot(data = graph_tablePW1S, aes(x = Hr)) +
                 size = 0.9, 
                 alpha = 0.75) + #This is the Xf line
   geom_line(aes(x = Hr,
-                    y = X0_mean,
-                    color = "Baseline Demand"),
-               size = 0.9, 
-                alpha = 0.75) + #This is the X0 line
-  xlab("Hour of the Day") +
-  ylab("Electricity Demand (kW)") +
-  geom_rect(aes(xmin= 11,
-                    xmax=15,
-                    ymin=-Inf,
-                    ymax=Inf,
-                    fill = "Discount"),
-                alpha=0.005) +
-  geom_rect(aes(xmin= 6,
-                   xmax=11,
-                    ymin=-Inf,
-                    ymax=Inf,
-                    fill = "Throttle"),
-                alpha=0.005) +
-  scale_x_continuous(limits = c(0,24),breaks = c(0:24), expand = c(0,0)) +
- #     scale_y_continuous(expand = c(0,0)) +
-      scale_fill_manual('Interventions', values = c("Discount" = 'green',"Throttle" = 'red1', "Rebate" = 'yellow1', "Throttle and Rebate" = "#C7B19C"),  guide = guide_legend(override.aes = list(alpha = 0.1))) +
-   scale_color_manual('Demand', values = c("Baseline Demand" = "red3", "Intervention Demand" ="dodgerblue2")) +
-      theme(legend.position = "bottom") +
-      theme_classic(base_family = "Helvetica")
-
-
-Demand_GraphPW1S
-#Demand_GraphPW1S
-ggsave("Results Graphs/Workplace_PW1S_Demand_Summary.png", Demand_GraphPW1S, device = "png", width = 8, height = 4.5)
-
-
-
-
-# COPIED TEMPLATE
-hr_24<- graph_tablePW1S[24,]
-hr_24[1,1] <- 0
-graph_tablePW1S <- rbind(hr_24,graph_tablePW1S)
-
-
-Demand_GraphPW1S <- ggplot(data = graph_tablePW1S, aes(x = Hr)) +
-      geom_line(aes(x = Hr, y = Xf_mean, color = "Intervention Demand"), 
+                y = X0_mean,
+                color = "Baseline Demand"),
                 size = 0.9, 
-                alpha = 0.75) + #This is the Xf line
-      geom_line(aes(x = Hr,
-                    y = X0_mean,
-                    color = "Baseline Demand"),
-               size = 0.9, 
                 alpha = 0.75) + #This is the X0 line
+      theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+      panel.background = element_blank(), axis.line = element_line(colour = "black")) +
       xlab("Hour of the Day") +
       ylab("Electricity Demand (kW)") +
-      geom_rect(aes(xmin= 11,
-                    xmax=15,
-                    ymin=-Inf,
-                    ymax=Inf,
-                    fill = "Discount"),
-                alpha=0.005) + #this is the discount rectangle REMOVE IF NO DISCOUNT
-      geom_rect(aes(xmin= 16,
-                   xmax=21,
-                   ymin=-Inf,
-                   ymax=Inf,
-                    fill = "Rebate"),
-                alpha=0.005) + #this is the rebate rectangle REMOVE IF NO REBATE
-      geom_rect(aes(xmin= 6,
-                   xmax=11,
-                    ymin=-Inf,
-                    ymax=Inf,
-                    fill = "Throttle"),
-                alpha=0.005) + #this is the throttle rectangle REMOVE IF NO THROTTLING
-      geom_rect(aes(xmin= 22,
-                    xmax=24,
-                   ymin=-Inf,
-                    ymax=Inf,
-                    fill = "Throttle and Rebate"),
-                alpha=0.01) + #this is the throttle+rebate rectangle REMOVE IF NO THROTTLING+REBATE
-      scale_x_continuous(limits = c(1,24),breaks = c(1:24), expand = c(0,0)) +
+  geom_rect(aes(xmin= 11,
+                xmax=15,
+                ymin=-Inf,
+                ymax=Inf,
+                fill = "Discount"),
+                alpha=0.005) +
+  geom_rect(aes(xmin= 6,
+                xmax=11,
+                ymin=-Inf,
+                ymax=Inf,
+                fill = "Throttle"),
+                alpha=0.005) +
+      scale_x_continuous(limits = c(0,24),breaks = c(0:24), expand = c(0,0)) +
       scale_fill_manual('Interventions', values = c("Discount" = 'green',"Throttle" = 'red1', "Rebate" = 'yellow1', "Throttle and Rebate" = "#C7B19C"),  guide = guide_legend(override.aes = list(alpha = 0.1))) +
-   scale_color_manual('Demand', values = c("Baseline Demand" = "red3", "Intervention Demand" ="dodgerblue2")) +
       theme(legend.position = "bottom") +
-      theme_classic(base_family = "Helvetica")
-
-
-
-
-
+      scale_color_manual('Demand', values = c("Baseline Demand" = "red3", "Intervention Demand" ="dodgerblue2"))
+     
+Demand_GraphPW1S
+ggsave("Results Graphs/Workplace_PW1S_Demand_Summary.png", Demand_GraphPW1S, device = "png", width = 8, height = 4.5)
 
 
 #PW2S 
 PW2S_demand_summary <- read_csv("Results/Workplace_PW2S_Demand_Summary.csv") 
 
-graph_tablePW2S <- PW2S_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
-  gather(condition,value,c("X0_mean","Xf_mean")) 
+graph_tablePW2S <- PW2S_demand_summary[c("Hr","X0_mean","Xf_mean")] #%>% 
+  #gather(condition,value,c("X0_mean","Xf_mean")) 
 #%>% mutate(Theoretical_Max=PW2S_demand_summary$MT[1])
 
+hr_24<- graph_tablePW2S[24,]
+hr_24[1,1] <- 0
+graph_tablePW2S <- rbind(hr_24,graph_tablePW2S)
+
 Demand_GraphPW2S <- ggplot(data = graph_tablePW2S, aes(x = Hr)) +
-  geom_line(aes(y = value, color=condition)) +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-  panel.background = element_blank(), axis.line = element_line(colour = "black")) +
-  labs(title="Workplaces (PW2S) Hourly Demand Forecast\n (discount, price comm, throttling, TOU 2019)",
-  subtitle="Baseline November 2018 (596 Chargers) \n Model Simulation",
-  y="EV Charging Demand (kW)",
-  x="Hour",
-  color=NULL) +
-  geom_rect(aes(xmin=6,xmax=11,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
-  geom_rect(aes(xmin=11,xmax=15,ymin=-Inf,ymax=Inf, fill = "Discount"),alpha=0.0075) +
-  scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
-  scale_color_manual(labels=c("Baseline Demand","Intervention Demand"), values = c("purple", "blue")) +
-  theme(plot.title = element_text(hjust = 0.5)) +
-  theme(plot.subtitle = element_text(hjust = 0.5))+
-  theme(legend.position="bottom") +
-  scale_fill_manual('Interventions',values = c('green','yellow'),  guide = guide_legend(override.aes = list(alpha = 0.15)))
-  
+   geom_line(aes(x = Hr, y = Xf_mean, color = "Intervention Demand"), 
+                size = 0.9, 
+                alpha = 0.75) + #This is the Xf line
+  geom_line(aes(x = Hr,
+                y = X0_mean,
+                color = "Baseline Demand"),
+                size = 0.9, 
+                alpha = 0.75) + #This is the X0 line
+      theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+      panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+      xlab("Hour of the Day") +
+      ylab("Electricity Demand (kW)") +
+  geom_rect(aes(xmin= 11,
+                xmax=15,
+                ymin=-Inf,
+                ymax=Inf,
+                fill = "Discount"),
+                alpha=0.005) +
+  geom_rect(aes(xmin= 6,
+                xmax=11,
+                ymin=-Inf,
+                ymax=Inf,
+                fill = "Throttle"),
+                alpha=0.005) +
+      scale_x_continuous(limits = c(0,24),breaks = c(0:24), expand = c(0,0)) +
+      scale_fill_manual('Interventions', values = c("Discount" = 'green',"Throttle" = 'red1', "Rebate" = 'yellow1', "Throttle and Rebate" = "#C7B19C"),  guide = guide_legend(override.aes = list(alpha = 0.1))) +
+      theme(legend.position = "bottom") +
+      scale_color_manual('Demand', values = c("Baseline Demand" = "red3", "Intervention Demand" ="dodgerblue2"))
+      
 
-#Demand_GraphPW2S
+
+Demand_GraphPW2S
 ggsave("Results Graphs/Workplace_PW2S_Demand_Summary.png", Demand_GraphPW2S, device = "png", width = 8, height = 4.5)
-
 
 
 #PW3S
 PW3S_demand_summary <- read_csv("Results/Workplace_PW3S_Demand_Summary.csv") 
 
-graph_tablePW3S <- PW3S_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
-  gather(condition,value,c("X0_mean","Xf_mean")) 
+graph_tablePW3S <- PW3S_demand_summary[c("Hr","X0_mean","Xf_mean")] #%>% 
+  #gather(condition,value,c("X0_mean","Xf_mean")) 
 #%>% mutate(Theoretical_Max=PW3S_demand_summary$MT[1])
 
-Demand_GraphPW3S <- ggplot(data = graph_tablePW3S, aes(x = Hr)) +
-  geom_line(aes(y = value, color=condition)) +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-  panel.background = element_blank(), axis.line = element_line(colour = "black")) +
-  labs(title="Workplaces (PW3S) Hourly Demand Forecast\n(discount, price comm, throttling)",
-  subtitle="Baseline November 2018 (596 Chargers) \n Model Simulation",
-  y="EV Charging Demand (kW)",
-  x="Hour",
-  color=NULL) +
-  geom_rect(aes(xmin=6,xmax=11,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
-  geom_rect(aes(xmin=11,xmax=15,ymin=-Inf,ymax=Inf, fill = "Discount"),alpha=0.0075) +
-  scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
-  scale_color_manual(labels=c("Baseline Demand","Intervention Demand"), values = c("purple", "blue")) +
-  theme(plot.title = element_text(hjust = 0.5)) +
-  theme(plot.subtitle = element_text(hjust = 0.5))+
-  theme(legend.position="bottom") +
-  scale_fill_manual('Interventions',values = c('green','yellow'),  guide = guide_legend(override.aes = list(alpha = 0.15)))
-  
+hr_24<- graph_tablePW3S[24,]
+hr_24[1,1] <- 0
+graph_tablePW3S <- rbind(hr_24,graph_tablePW3S)
 
+Demand_GraphPW3S <- ggplot(data = graph_tablePW3S, aes(x = Hr)) +
+  geom_line(aes(x = Hr, y = Xf_mean, color = "Intervention Demand"), 
+                size = 0.9, 
+                alpha = 0.75) + #This is the Xf line
+  geom_line(aes(x = Hr,
+                y = X0_mean,
+                color = "Baseline Demand"),
+                size = 0.9, 
+                alpha = 0.75) + #This is the X0 line
+      theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+      panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+      xlab("Hour of the Day") +
+      ylab("Electricity Demand (kW)") +
+  geom_rect(aes(xmin= 11,
+                xmax=15,
+                ymin=-Inf,
+                ymax=Inf,
+                fill = "Discount"),
+                alpha=0.005) +
+      scale_x_continuous(limits = c(0,24),breaks = c(0:24), expand = c(0,0)) +
+      scale_fill_manual('Interventions', values = c("Discount" = 'green',"Throttle" = 'red1', "Rebate" = 'yellow1', "Throttle and Rebate" = "#C7B19C"),  guide = guide_legend(override.aes = list(alpha = 0.1))) +
+      theme(legend.position = "bottom") +
+      scale_color_manual('Demand', values = c("Baseline Demand" = "red3", "Intervention Demand" ="dodgerblue2"))
+      
+  
 Demand_GraphPW3S
 ggsave("Results Graphs/Workplace_PW3S_Demand_Summary.png", Demand_GraphPW3S, device = "png", width = 8, height = 4.5)
-
-
-
 
 
 #PW4
 PW4S_demand_summary <- read_csv("Results/Workplace_PW4S_Demand_Summary.csv") 
 
-graph_tablePW4S <- PW4S_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
-  gather(condition,value,c("X0_mean","Xf_mean")) 
+graph_tablePW4S <- PW4S_demand_summary[c("Hr","X0_mean","Xf_mean")] #%>% 
+  #gather(condition,value,c("X0_mean","Xf_mean")) 
 #%>% mutate(Theoretical_Max=PW4S_demand_summary$MT[1])
+hr_24<- graph_tablePW4S[24,]
+hr_24[1,1] <- 0
+graph_tablePW4S <- rbind(hr_24,graph_tablePW4S)
 
 Demand_GraphPW4S <- ggplot(data = graph_tablePW4S, aes(x = Hr)) +
-  geom_line(aes(y = value, color=condition)) +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-  panel.background = element_blank(), axis.line = element_line(colour = "black")) +
-  labs(title="Workplaces (PW4S) Hourly Demand Forecast\n(discount, price comm)",
-  subtitle="Baseline November 2018 (596 Chargers) \n Model Simulation",
-  y="EV Charging Demand (kW)",
-  x="Hour",
-  color=NULL) +
-  # geom_rect(aes(xmin=6,xmax=11,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
-  geom_rect(aes(xmin=11,xmax=15,ymin=-Inf,ymax=Inf, fill = "Discount"),alpha=0.0075) +
-  scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
-  scale_color_manual(labels=c("Baseline Demand","Intervention Demand"), values = c("purple", "blue")) +
-  theme(plot.title = element_text(hjust = 0.5)) +
-  theme(plot.subtitle = element_text(hjust = 0.5))+
-  theme(legend.position="bottom") +
-  scale_fill_manual('Interventions',values = c('green','yellow'),  guide = guide_legend(override.aes = list(alpha = 0.15)))
-  
+    geom_line(aes(x = Hr, y = Xf_mean, color = "Intervention Demand"), 
+                  size = 0.9, 
+                  alpha = 0.75) + #This is the Xf line
+    geom_line(aes(x = Hr,
+                  y = X0_mean,
+                  color = "Baseline Demand"),
+                  size = 0.9, 
+                  alpha = 0.75) + #This is the X0 line
+      theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+      panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+      xlab("Hour of the Day") +
+      ylab("Electricity Demand (kW)") +
+    geom_rect(aes(xmin= 11,
+                xmax=15,
+                ymin=-Inf,
+                ymax=Inf,
+                fill = "Discount"),
+                alpha=0.005) +
+   geom_rect(aes(xmin= 6,
+                xmax=11,
+                ymin=-Inf,
+                ymax=Inf,
+                fill = "Throttle"),
+                alpha=0.005) +
+    scale_x_continuous(limits = c(0,24),breaks = c(0:24), expand = c(0,0)) +
+    scale_fill_manual('Interventions', values = c("Discount" = 'green',"Throttle" = 'red1', "Rebate" = 'yellow1', "Throttle and Rebate" = "#C7B19C"),  guide = guide_legend(override.aes = list(alpha = 0.1))) +
+    theme(legend.position = "bottom") +
+    scale_color_manual('Demand', values = c("Baseline Demand" = "red3", "Intervention Demand" ="dodgerblue2"))
 
-#Demand_GraphPW4S
+Demand_GraphPW4S
 ggsave("Results Graphs/Workplace_PW4S_Demand_Summary.png", Demand_GraphPW4S, device = "png", width = 8, height = 4.5)
 
 
@@ -1079,28 +1059,43 @@ ggsave("Results Graphs/Workplace_PW6S_Demand_Summary.png", Demand_GraphPW6S, dev
 #FW1 Graph 
 FW1_demand_summary <- read_csv("Results/Workplace_FW1_Demand_Summary.csv") 
 
-graph_tableFW1<- FW1_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
-  gather(condition,value,c("X0_mean","Xf_mean")) 
+graph_tableFW1<- FW1_demand_summary[c("Hr","X0_mean","Xf_mean")] #%>% 
+  #gather(condition,value,c("X0_mean","Xf_mean")) 
 #%>% mutate(Theoretical_Max=FW1_demand_summary$MT[1])
 
+hr_24<- graph_tableFW1[24,]
+hr_24[1,1] <- 0
+graph_tableFW1 <- rbind(hr_24,graph_tableFW1)
+
 Demand_GraphFW1 <- ggplot(data = graph_tableFW1, aes(x = Hr)) +
-  geom_line(aes(y = value, color=condition)) +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-  panel.background = element_blank(), axis.line = element_line(colour = "black")) +
-  labs(title="Workplaces (FW1) Hourly Demand Forecast\n(discount, throttling, air & price comm, TOU 19, 2030 chargers)",
-  subtitle="Baseline November 2018 (31435 Chargers) \n Model Simulation",
-  y="EV Charging Demand (kW)",
-  x="Hour",
-  color=NULL) +
-  geom_rect(aes(xmin=6,xmax=11,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
-  geom_rect(aes(xmin=11,xmax=15,ymin=-Inf,ymax=Inf, fill = "Discount"),alpha=0.0075) +
-  scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
-  scale_color_manual(labels=c("Baseline Demand","Intervention Demand"), values = c("purple", "blue")) +
-  theme(plot.title = element_text(hjust = 0.5)) +
-  theme(plot.subtitle = element_text(hjust = 0.5))+
-  theme(legend.position="bottom") +
-  scale_fill_manual('Interventions',values = c('green','yellow'),  guide = guide_legend(override.aes = list(alpha = 0.15)))
-  
+   geom_line(aes(x = Hr, y = Xf_mean, color = "Intervention Demand"), 
+                size = 0.9, 
+                alpha = 0.75) + #This is the Xf line
+  geom_line(aes(x = Hr,
+                y = X0_mean,
+                color = "Baseline Demand"),
+                size = 0.9, 
+                alpha = 0.75) + #This is the X0 line
+      theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+      panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+      xlab("Hour of the Day") +
+      ylab("Electricity Demand (kW)") +
+  geom_rect(aes(xmin= 11,
+                xmax=15,
+                ymin=-Inf,
+                ymax=Inf,
+                fill = "Discount"),
+                alpha=0.005) +
+  geom_rect(aes(xmin= 6,
+                  xmax=11,
+                  ymin=-Inf,
+                  ymax=Inf,
+                  fill = "Throttle"),
+                alpha=0.005) +
+  scale_x_continuous(limits = c(0,24),breaks = c(0:24), expand = c(0,0)) +
+      scale_fill_manual('Interventions', values = c("Discount" = 'green',"Throttle" = 'red1', "Rebate" = 'yellow1', "Throttle and Rebate" = "#C7B19C"),  guide = guide_legend(override.aes = list(alpha = 0.1))) +
+      theme(legend.position = "bottom") +
+      scale_color_manual('Demand', values = c("Baseline Demand" = "red3", "Intervention Demand" ="dodgerblue2"))
 
 Demand_GraphFW1
 ggsave("Results Graphs/Workplace_FW1_Demand_Summary.png", Demand_GraphFW1, device = "png", width = 8, height = 4.5)
@@ -1230,65 +1225,142 @@ write_csv(FDC1_output_table$Emissions, "Results/Destination_Centers_FDC1_Output_
 #PDC1S
 PDC1S_demand_summary <- read_csv("Results/Destination_Centers_PDC1S_Demand_Summary.csv") 
 
-graph_tablePDC1S <- PDC1S_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
-  gather(condition,value,c("X0_mean","Xf_mean")) 
+graph_tablePDC1S <- PDC1S_demand_summary[c("Hr","X0_mean","Xf_mean")] #%>% 
+  #gather(condition,value,c("X0_mean","Xf_mean")) 
 #%>% mutate(Theoretical_Max=PM1_demand_summary$MT[1])
 
+hr_24<- graph_tablePDC1S[24,]
+hr_24[1,1] <- 0
+graph_tablePDC1S <- rbind(hr_24,graph_tablePDC1S)
+
 Demand_GraphPDC1S <- ggplot(data = graph_tablePDC1S, aes(x = Hr)) +
-  geom_line(aes(y = value, color=condition)) +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-  panel.background = element_blank(), axis.line = element_line(colour = "black")) +
-  labs(title="Destination Centers SC.1 (discount+price com+throttling 6-11) Hourly Demand Forecast",
-  subtitle="November 2018 (234 Chargers) Model Simulation",
-  y="EV Charging Demand (kW)",
-  x="Hour",
-  color=NULL) +
-  geom_rect(aes(xmin=6,xmax=11,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
-  geom_rect(aes(xmin=11,xmax=15,ymin=-Inf,ymax=Inf, fill = "Discount"),alpha=0.0075) +
-  scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
-  scale_color_manual(labels=c("Baseline Demand","Intervention Demand"), values = c("purple", "blue")) +
-  theme(plot.title = element_text(hjust = 0.5)) +
-  theme(plot.subtitle = element_text(hjust = 0.5))+
-  theme(legend.position="bottom") +
-  scale_fill_manual('Interventions',values = c('green','yellow'),  guide = guide_legend(override.aes = list(alpha = 0.15)))
+  geom_line(aes(x = Hr, y = Xf_mean, color = "Intervention Demand"), 
+                size = 0.9, 
+                alpha = 0.75) + #This is the Xf line
+  geom_line(aes(x = Hr,
+                y = X0_mean,
+                color = "Baseline Demand"),
+                size = 0.9, 
+                alpha = 0.75) + #This is the X0 line
+      theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+      panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+      xlab("Hour of the Day") +
+      ylab("Electricity Demand (kW)") +
+  geom_rect(aes(xmin= 11,
+                xmax=15,
+                ymin=-Inf,
+                ymax=Inf,
+                fill = "Discount"),
+                alpha=0.005) +
+  geom_rect(aes(xmin= 6,
+                xmax=11,
+                ymin=-Inf,
+                ymax=Inf,
+                fill = "Throttle"),
+                alpha=0.005) +
+      scale_x_continuous(limits = c(0,24),breaks = c(0:24), expand = c(0,0)) +
+      scale_fill_manual('Interventions', values = c("Discount" = 'green',"Throttle" = 'red1', "Rebate" = 'yellow1', "Throttle and Rebate" = "#C7B19C"),  guide = guide_legend(override.aes = list(alpha = 0.1))) +
+      theme(legend.position = "bottom") +
+      scale_color_manual('Demand', values = c("Baseline Demand" = "red3", "Intervention Demand" ="dodgerblue2"))
   
 
-#Demand_GraphPDC1S
+Demand_GraphPDC1S
 ggsave("Results Graphs/Destination_Centers_PDC1S_Demand_Summary.png", Demand_GraphPDC1S, device = "png", width = 8, height = 4.5)
-
-
-
 
 
 #PDC2S
 PDC2S_demand_summary <- read_csv("Results/Destination_Centers_PDC2S_Demand_Summary.csv") 
 
-graph_tablePDC2S <- PDC2S_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
-  gather(condition,value,c("X0_mean","Xf_mean")) 
+graph_tablePDC2S <- PDC2S_demand_summary[c("Hr","X0_mean","Xf_mean")] #%>% 
+  #gather(condition,value,c("X0_mean","Xf_mean")) 
 #%>% mutate(Theoretical_Max=PM1_demand_summary$MT[1])
 
-Demand_GraphPDC2S <- ggplot(data = graph_tablePDC2S, aes(x = Hr)) +
-  geom_line(aes(y = value, color=condition)) +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-  panel.background = element_blank(), axis.line = element_line(colour = "black")) +
-  labs(title="Destination Centers SC.2 (discount+all comms+morning+throttling 6-11) Hourly Demand Forecast",
-  subtitle="Baseline November 2018 (234 Chargers) Model Simulation",
-  y="EV Charging Demand (kW)",
-  x="Hour",
-  color=NULL) +
-  geom_rect(aes(xmin=6,xmax=11,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
-  geom_rect(aes(xmin=11,xmax=15,ymin=-Inf,ymax=Inf, fill = "Discount"),alpha=0.0075) +
-  scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
-  scale_color_manual(labels=c("Baseline Demand","Intervention Demand"), values = c("purple", "blue")) +
-  theme(plot.title = element_text(hjust = 0.5)) +
-  theme(plot.subtitle = element_text(hjust = 0.5))+
-  theme(legend.position="bottom") +
-  scale_fill_manual('Interventions',values = c('green','yellow'),  guide = guide_legend(override.aes = list(alpha = 0.15)))
-  
+hr_24<- graph_tablePDC2S[24,]
+hr_24[1,1] <- 0
+graph_tablePDC2S <- rbind(hr_24,graph_tablePDC2S)
 
-#Demand_GraphPDC2S
+Demand_GraphPDC2S <- ggplot(data = graph_tablePDC2S, aes(x = Hr)) +
+  geom_line(aes(x = Hr, y = Xf_mean, color = "Intervention Demand"), 
+                size = 0.9, 
+                alpha = 0.75) + #This is the Xf line
+    geom_line(aes(x = Hr,
+                    y = X0_mean,
+                    color = "Baseline Demand"),
+               size = 0.9, 
+                alpha = 0.75) + #This is the X0 line
+      theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+      panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+      xlab("Hour of the Day") +
+      ylab("Electricity Demand (kW)") +
+    geom_rect(aes(xmin= 11,
+                  xmax=15,
+                  ymin=-Inf,
+                  ymax=Inf,
+                  fill = "Discount"),
+                alpha=0.005) + #this is the discount rectangle REMOVE IF NO DISCOUNT
+  geom_rect(aes(xmin= 6,
+                  xmax=11,
+                  ymin=-Inf,
+                  ymax=Inf,
+                  fill = "Throttle"),
+                alpha=0.005) + #this is the throttle rectangle REMOVE IF NO THROTTLING
+      scale_x_continuous(limits = c(0,24),breaks = c(0:24), expand = c(0,0)) +
+      scale_fill_manual('Interventions', values = c("Discount" = 'green',"Throttle" = 'red1', "Rebate" = 'yellow1', "Throttle and Rebate" = "#C7B19C"),  guide = guide_legend(override.aes = list(alpha = 0.1))) +
+      theme(legend.position = "bottom") +
+      scale_color_manual('Demand', values = c("Baseline Demand" = "red3", "Intervention Demand" ="dodgerblue2"))
+
+Demand_GraphPDC2S
 ggsave("Results Graphs/Destination_Centers_PDC2S_Demand_Summary.png", Demand_GraphPDC2S, device = "png", width = 8, height = 4.5)
 
+
+# COPIED TEMPLATE BEGINNING
+hr_24<- graph_tablePW1S[24,]
+hr_24[1,1] <- 0
+graph_tablePW1S <- rbind(hr_24,graph_tablePW1S)
+
+
+Demand_GraphPW1S <- ggplot(data = graph_tablePW1S, aes(x = Hr)) +
+    geom_line(aes(x = Hr, y = Xf_mean, color = "Intervention Demand"), 
+                size = 0.9, 
+                alpha = 0.75) + #This is the Xf line
+    geom_line(aes(x = Hr,
+                    y = X0_mean,
+                    color = "Baseline Demand"),
+               size = 0.9, 
+                alpha = 0.75) + #This is the X0 line
+      theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+      panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+      xlab("Hour of the Day") +
+      ylab("Electricity Demand (kW)") +
+    geom_rect(aes(xmin= 11,
+                  xmax=15,
+                  ymin=-Inf,
+                  ymax=Inf,
+                  fill = "Discount"),
+                alpha=0.005) + #this is the discount rectangle REMOVE IF NO DISCOUNT
+  geom_rect(aes(xmin= 6,
+                  xmax=11,
+                  ymin=-Inf,
+                  ymax=Inf,
+                  fill = "Throttle"),
+                alpha=0.005) + #this is the throttle rectangle REMOVE IF NO THROTTLING
+    geom_rect(aes(xmin= 16,
+                  xmax=21,
+                  ymin=-Inf,
+                  ymax=Inf,
+                  fill = "Rebate"),
+                alpha=0.005) + #this is the rebate rectangle REMOVE IF NO REBATE
+    geom_rect(aes(xmin= 22,
+                  xmax=24,
+                  ymin=-Inf,
+                  ymax=Inf,
+                  fill = "Throttle and Rebate"),
+                alpha=0.01) + #this is the throttle + rebate rectangle REMOVE IF NO THROTTLING + REBATE
+      scale_x_continuous(limits = c(0,24),breaks = c(0:24), expand = c(0,0)) +
+      scale_fill_manual('Interventions', values = c("Discount" = 'green',"Throttle" = 'red1', "Rebate" = 'yellow1', "Throttle and Rebate" = "#C7B19C"),  guide = guide_legend(override.aes = list(alpha = 0.1))) +
+      theme(legend.position = "bottom") +
+      scale_color_manual('Demand', values = c("Baseline Demand" = "red3", "Intervention Demand" ="dodgerblue2"))
+# COPIED TEMPLATE END
 
 
 
@@ -1322,10 +1394,6 @@ Demand_GraphPDC3S <- ggplot(data = graph_tablePDC3S, aes(x = Hr)) +
 ggsave("Results Graphs/Destination_Centers_PDC3S_Demand_Summary.png", Demand_GraphPDC3S, device = "png", width = 8, height = 4.5)
 
 
-
-
-
-
 #PDC4S
 PDC4S_demand_summary <- read_csv("Results/Destination_Centers_PDC4S_Demand_Summary.csv") 
 
@@ -1356,9 +1424,6 @@ Demand_GraphPDC4S <- ggplot(data = graph_tablePDC4S, aes(x = Hr)) +
 ggsave("Results Graphs/Destination_Centers_PDC4S_Demand_Summary.png", Demand_GraphPDC4S, device = "png", width = 8, height = 4.5)
 
 
-
-
-
 #PDC5S
 PDC5S_demand_summary <- read_csv("Results/Destination_Centers_PDC5S_Demand_Summary.csv") 
 
@@ -1385,7 +1450,6 @@ Demand_GraphPDC5S <- ggplot(data = graph_tablePDC5S, aes(x = Hr)) +
   scale_fill_manual('Interventions',values = c('green','yellow'),  guide = guide_legend(override.aes = list(alpha = 0.15)))
 
 
-
 #Demand_GraphPDC5S
 ggsave("Results Graphs/Destination_Centers_PDC5S_Demand_Summary.png", Demand_GraphPDC5S, device = "png", width = 8, height = 4.5)
 
@@ -1393,30 +1457,98 @@ ggsave("Results Graphs/Destination_Centers_PDC5S_Demand_Summary.png", Demand_Gra
 #FDC1
 FDC1_demand_summary <- read_csv("Results/Destination_Centers_FDC1_Demand_Summary.csv") 
 
-graph_tableFDC1 <- FDC1_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
-  gather(condition,value,c("X0_mean","Xf_mean")) 
+graph_tableFDC1 <- FDC1_demand_summary[c("Hr","X0_mean","Xf_mean")] #%>% 
+  #gather(condition,value,c("X0_mean","Xf_mean")) 
 #%>% mutate(Theoretical_Max=PM1_demand_summary$MT[1])
 
-Demand_GraphFDC1 <- ggplot(data = graph_tableFDC1, aes(x = Hr)) +
-  geom_line(aes(y = value, color=condition)) +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-  panel.background = element_blank(), axis.line = element_line(colour = "black")) +
-  labs(title="Destination Centers SC.6 Hourly Demand Forecast\n (Discount+all comms+throttling 12-15) ",
-  subtitle="Winter 2030 2018 (4378 Chargers) Model Simulation",
-  y="EV Charging Demand (kW)",
-  x="Hour",
-  color=NULL) +
-  geom_rect(aes(xmin=7,xmax=11,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
-  geom_rect(aes(xmin=12,xmax=15,ymin=-Inf,ymax=Inf, fill = "Discount"),alpha=0.0075) +
-  scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
-  scale_color_manual(labels=c("Baseline Demand","Intervention Demand"), values = c("purple", "blue")) +
-  theme(plot.title = element_text(hjust = 0.5)) +
-  theme(plot.subtitle = element_text(hjust = 0.5))+
-  theme(legend.position="bottom") +
-  scale_fill_manual('Interventions',values = c('green','yellow'),  guide = guide_legend(override.aes = list(alpha = 0.15)))
+hr_24<- graph_tableFDC1[24,]
+hr_24[1,1] <- 0
+graph_tableFDC1 <- rbind(hr_24,graph_tableFDC1)
 
-#Demand_GraphFDC1
+Demand_GraphFDC1 <- ggplot(data = graph_tableFDC1, aes(x = Hr)) +
+   geom_line(aes(x = Hr, y = Xf_mean, color = "Intervention Demand"), 
+                size = 0.9, 
+                alpha = 0.75) + #This is the Xf line
+    geom_line(aes(x = Hr,
+                    y = X0_mean,
+                    color = "Baseline Demand"),
+               size = 0.9, 
+                alpha = 0.75) + #This is the X0 line
+      theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+      panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+      xlab("Hour of the Day") +
+      ylab("Electricity Demand (kW)") +
+    geom_rect(aes(xmin= 11,
+                  xmax=15,
+                  ymin=-Inf,
+                  ymax=Inf,
+                  fill = "Discount"),
+                alpha=0.005) + #this is the discount rectangle REMOVE IF NO DISCOUNT
+  geom_rect(aes(xmin= 6,
+                xmax=11,
+                ymin=-Inf,
+                ymax=Inf,
+                fill = "Throttle"),
+                alpha=0.005) +
+      scale_x_continuous(limits = c(0,24),breaks = c(0:24), expand = c(0,0)) +
+      scale_fill_manual('Interventions', values = c("Discount" = 'green',"Throttle" = 'red1', "Rebate" = 'yellow1', "Throttle and Rebate" = "#C7B19C"),  guide = guide_legend(override.aes = list(alpha = 0.1))) +
+      theme(legend.position = "bottom") +
+      scale_color_manual('Demand', values = c("Baseline Demand" = "red3", "Intervention Demand" ="dodgerblue2"))
+
+
+Demand_GraphFDC1
 ggsave("Results Graphs/Destination_Centers_FDC1_Demand_Summary.png", Demand_GraphFDC1, device = "png", width = 8, height = 4.5)
+
+# COPIED TEMPLATE BEGINNING
+hr_24<- graph_tablePW1S[24,]
+hr_24[1,1] <- 0
+graph_tablePW1S <- rbind(hr_24,graph_tablePW1S)
+
+
+Demand_GraphPW1S <- ggplot(data = graph_tablePW1S, aes(x = Hr)) +
+    geom_line(aes(x = Hr, y = Xf_mean, color = "Intervention Demand"), 
+                size = 0.9, 
+                alpha = 0.75) + #This is the Xf line
+    geom_line(aes(x = Hr,
+                    y = X0_mean,
+                    color = "Baseline Demand"),
+               size = 0.9, 
+                alpha = 0.75) + #This is the X0 line
+      theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+      panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+      xlab("Hour of the Day") +
+      ylab("Electricity Demand (kW)") +
+    geom_rect(aes(xmin= 11,
+                  xmax=15,
+                  ymin=-Inf,
+                  ymax=Inf,
+                  fill = "Discount"),
+                alpha=0.005) + #this is the discount rectangle REMOVE IF NO DISCOUNT
+    geom_rect(aes(xmin= 6,
+                  xmax=11,
+                  ymin=-Inf,
+                  ymax=Inf,
+                  fill = "Throttle"),
+                alpha=0.005) + #this is the throttle rectangle REMOVE IF NO THROTTLING
+    geom_rect(aes(xmin= 16,
+                  xmax=21,
+                  ymin=-Inf,
+                  ymax=Inf,
+                  fill = "Rebate"),
+                alpha=0.005) + #this is the rebate rectangle REMOVE IF NO REBATE
+    geom_rect(aes(xmin= 22,
+                  xmax=24,
+                  ymin=-Inf,
+                  ymax=Inf,
+                  fill = "Throttle and Rebate"),
+                alpha=0.01) + #this is the throttle + rebate rectangle REMOVE IF NO THROTTLING + REBATE
+      scale_x_continuous(limits = c(0,24),breaks = c(0:24), expand = c(0,0)) +
+      scale_fill_manual('Interventions', values = c("Discount" = 'green',"Throttle" = 'red1', "Rebate" = 'yellow1', "Throttle and Rebate" = "#C7B19C"),  guide = guide_legend(override.aes = list(alpha = 0.1))) +
+      theme(legend.position = "bottom") +
+      scale_color_manual('Demand', values = c("Baseline Demand" = "red3", "Intervention Demand" ="dodgerblue2"))
+# COPIED TEMPLATE END
+
+
 
 ```
 
@@ -5076,6 +5208,56 @@ geom_rect(aes(xmin= 16,
 
 Test_example_graph
 ggsave("Results Graphs/test_graph.png", Test_example_graph, device = "png", width = 8, height = 4.5)
+
+
+# COPIED TEMPLATE BEGINNING
+hr_24<- graph_tablePW1S[24,]
+hr_24[1,1] <- 0
+graph_tablePW1S <- rbind(hr_24,graph_tablePW1S)
+
+
+Demand_GraphPW1S <- ggplot(data = graph_tablePW1S, aes(x = Hr)) +
+    geom_line(aes(x = Hr, y = Xf_mean, color = "Intervention Demand"), 
+                size = 0.9, 
+                alpha = 0.75) + #This is the Xf line
+    geom_line(aes(x = Hr,
+                    y = X0_mean,
+                    color = "Baseline Demand"),
+               size = 0.9, 
+                alpha = 0.75) + #This is the X0 line
+      theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+      panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+      xlab("Hour of the Day") +
+      ylab("Electricity Demand (kW)") +
+    geom_rect(aes(xmin= 11,
+                  xmax=15,
+                  ymin=-Inf,
+                  ymax=Inf,
+                  fill = "Discount"),
+                alpha=0.005) + #this is the discount rectangle REMOVE IF NO DISCOUNT
+    geom_rect(aes(xmin= 16,
+                  xmax=21,
+                  ymin=-Inf,
+                  ymax=Inf,
+                  fill = "Rebate"),
+                alpha=0.005) + #this is the rebate rectangle REMOVE IF NO REBATE
+    geom_rect(aes(xmin= 6,
+                  xmax=11,
+                  ymin=-Inf,
+                  ymax=Inf,
+                  fill = "Throttle"),
+                alpha=0.005) + #this is the throttle rectangle REMOVE IF NO THROTTLING
+    geom_rect(aes(xmin= 22,
+                  xmax=24,
+                  ymin=-Inf,
+                  ymax=Inf,
+                  fill = "Throttle and Rebate"),
+                alpha=0.01) + #this is the throttle + rebate rectangle REMOVE IF NO THROTTLING + REBATE
+      scale_x_continuous(limits = c(0,24),breaks = c(0:24), expand = c(0,0)) +
+      scale_fill_manual('Interventions', values = c("Discount" = 'green',"Throttle" = 'red1', "Rebate" = 'yellow1', "Throttle and Rebate" = "#C7B19C"),  guide = guide_legend(override.aes = list(alpha = 0.1))) +
+      theme(legend.position = "bottom") +
+      scale_color_manual('Demand', values = c("Baseline Demand" = "red3", "Intervention Demand" ="dodgerblue2"))
+# COPIED TEMPLATE END
 
 
 ```
