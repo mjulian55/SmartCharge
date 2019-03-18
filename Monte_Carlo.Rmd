@@ -306,6 +306,10 @@ Emissions <- Emissions %>%
   mutate (CO2Xdelta = Xdelta*CO2Marginal) %>% 
   mutate (NOXXdelta= Xdelta*NOXMarginal)
 
+Emissions <- Emissions %>%
+  mutate(CO2Xdelta = ifelse(-CO2Xdelta > CO2X0, -CO2X0, CO2Xdelta)) %>% 
+mutate (NOXXdelta = ifelse(-NOXXdelta > NOXX0, -NOXX0, NOXXdelta))
+
 #calculate emissions for final
 Emissions <- Emissions %>%
   mutate (CO2Xf = CO2X0+CO2Xdelta) %>% # baseline emissions - change for emissions associated with final demand
@@ -411,6 +415,13 @@ Curtailmentcost <- Xcurtpotential*-Curtailmentcost
 #add to output table
 Emissions_Table <- Emissions_Table %>% 
    mutate(RedCurtProp = c("NA", "NA", "NA", Xcurtproportion), SolarNonCurt= c("NA", "NA", "NA", Xcurtextra), ChangeCurtCost = c("NA", "NA", "NA", Curtailmentcost))
+
+Emissions_Table <- Emissions_Table %>% 
+  mutate(PropDemandChange = Xchange/Xinitial) %>% 
+  mutate(PropCO2Change = CO2Change/CO2Initial) %>% 
+  mutate(PropNOXChange = NOXChange/NOXInitial) %>% 
+  mutate(PropCustCostChange = CustCostChange/CustCostInitial)
+
 
 return(list(Emissions=Emissions, Emissions_Table=Emissions_Table))
 }
@@ -598,6 +609,12 @@ Curtailmentcost <- Xcurtpotential*-Curtailmentcost
 Emissions_Table <- Emissions_Table %>% 
    mutate(RedCurtProp = c("NA", "NA", "NA", Xcurtproportion), SolarNonCurt= c("NA", "NA", "NA", Xcurtextra), ChangeCurtCost = c("NA", "NA", "NA", Curtailmentcost))
 
+Emissions_Table <- Emissions_Table %>% 
+  mutate(PropDemandChange = Xchange/Xinitial) %>% 
+  mutate(PropCO2Change = CO2Change/CO2Initial) %>% 
+  mutate(PropNOXChange = NOXChange/NOXInitial) %>% 
+  mutate(PropCustCostChange = CustCostChange/CustCostInitial)
+
 return(list(Emissions=Emissions, Emissions_Table=Emissions_Table))
 }
 
@@ -614,7 +631,7 @@ return(list(Emissions=Emissions, Emissions_Table=Emissions_Table))
 
 #PW1S = discount + price comm + morning throttling
 PW1S <- simulation(simulations = 1000, sim_seg = "Workplace",
-                       sim_month = 7, 
+                       sim_month = 11, 
                        sim_year = 2018,
                        sim_include_wknds = FALSE,
                        sim_charger_power = pwr,
@@ -635,9 +652,9 @@ write_csv(PW1S_output_table$Emissions, "Results/Workplace_PW1S_Output_All_Hours.
 
 
 
-#PW2S = discount + price comm + morning throttling
+#PW2S = discount + price comm + morning throttling +2019 TOU
 PW2S <- simulation(simulations = 1000, sim_seg = "Workplace",
-                       sim_month = 7, 
+                       sim_month = 11, 
                        sim_year = 2018,
                        sim_include_wknds = FALSE,
                        sim_charger_power = pwr,
@@ -660,20 +677,19 @@ write_csv(PW2S_output_table$Emissions, "Results/Workplace_PW2S_Output_All_Hours.
 
 
 
-
-#PW3S = discount + throttling + all comm
+#PW3S = discount + price comm
 PW3S <- simulation(simulations = 1000, sim_seg = "Workplace",
-                       sim_month = 7, 
+                       sim_month = 11, 
                        sim_year = 2018,
                        sim_include_wknds = FALSE,
                        sim_charger_power = pwr,
                        sim_price_change = -0.05, 
                        sim_intervention_hours = c(12:15),
-                       sim_throttle_amount = -0.5, 
-                       sim_throttle_hours = c(7:11),
-                       sim_air_pollution_comm = TRUE, #yes comm
-                       sim_price_comm = TRUE, #yes comm
+                       sim_throttle_amount = 0, #No throttling 
+                       sim_air_pollution_comm = FALSE, 
+                       sim_price_comm = TRUE,
                        sim_curt_year=2018) 
+#View(PW3S$sim_result_summary)
 write_csv(PW3S$sim_result_summary, "Results/Workplace_PW3S_Demand_Summary.csv")
 
 #run emissions and write to csv
@@ -684,32 +700,12 @@ write_csv(PW3S_output_table$Emissions, "Results/Workplace_PW3S_Output_All_Hours.
 
 
 
-#PW4S = discount + price comm
+
+
+
+#PW4S = discount + throttling + no comm
 PW4S <- simulation(simulations = 1000, sim_seg = "Workplace",
-                       sim_month = 7, 
-                       sim_year = 2018,
-                       sim_include_wknds = FALSE,
-                       sim_charger_power = pwr,
-                       sim_price_change = -0.05, 
-                       sim_intervention_hours = c(12:15),
-                       sim_throttle_amount = 0, #No throttling 
-                       sim_air_pollution_comm = FALSE, 
-                       sim_price_comm = TRUE,
-                       sim_curt_year=2018) 
-#View(PW4S$sim_result_summary)
-write_csv(PW4S$sim_result_summary, "Results/Workplace_PW4S_Demand_Summary.csv")
-
-#run emissions and write to csv
-PW4S_output_table <- emissions_fcn(PW4S) 
-write_csv(PW4S_output_table$Emissions_Table, "Results/Workplace_PW4S_Output_Summary.csv") #write emissions to csv
-write_csv(PW4S_output_table$Emissions, "Results/Workplace_PW4S_Output_All_Hours.csv")
-
-
-
-
-#PW5S = discount + throttling + no comm
-PW5S <- simulation(simulations = 1000, sim_seg = "Workplace",
-                       sim_month = 7, 
+                       sim_month = 11, 
                        sim_year = 2018,
                        sim_include_wknds = FALSE,
                        sim_charger_power = pwr,
@@ -720,9 +716,32 @@ PW5S <- simulation(simulations = 1000, sim_seg = "Workplace",
                        sim_air_pollution_comm = FALSE, #no comm
                        sim_price_comm = FALSE, # no comm
                        sim_curt_year=2018) 
-write_csv(PW5S$sim_result_summary, "Results/Workplace_PW5S_Demand_Summary.csv")
+write_csv(PW4S$sim_result_summary, "Results/Workplace_PW4S_Demand_Summary.csv")
 
 #run emissions and write to csv
+PW4S_output_table <- emissions_fcn(PW4S) 
+write_csv(PW4S_output_table$Emissions_Table, "Results/Workplace_PW4S_Output_Summary.csv") #write emissions to csv
+write_csv(PW4S_output_table$Emissions, "Results/Workplace_PW4S_Output_All_Hours.csv")
+
+
+
+#-------not used in report-------
+#PW5S = rebate + throttling + no comm
+PW5S <- simulation(simulations = 1000, sim_seg = "Workplace",
+                       sim_month = 7, 
+                       sim_year = 2018,
+                       sim_include_wknds = FALSE,
+                       sim_charger_power = pwr,
+                       sim_price_change = 0.10, 
+                       sim_intervention_hours = c(17:21),
+                       sim_throttle_amount = -0.5, 
+                       sim_throttle_hours = c(17:21),
+                       sim_air_pollution_comm = FALSE, #yes comm
+                       sim_price_comm = FALSE, 
+                       sim_curt_year=2018) 
+#View(PW5S$sim_result_summary)
+write_csv(PW5S$sim_result_summary, "Results/Workplace_PW5S_Demand_Summary.csv")
+
 PW5S_output_table <- emissions_fcn(PW5S) 
 write_csv(PW5S_output_table$Emissions_Table, "Results/Workplace_PW5S_Output_Summary.csv") #write emissions to csv
 write_csv(PW5S_output_table$Emissions, "Results/Workplace_PW5S_Output_All_Hours.csv")
@@ -731,7 +750,7 @@ write_csv(PW5S_output_table$Emissions, "Results/Workplace_PW5S_Output_All_Hours.
 
 #PW6S = discount + throttling + air poll comm
 PW6S <- simulation(simulations = 1000, sim_seg = "Workplace",
-                       sim_month = 7, 
+                       sim_month = 11, 
                        sim_year = 2018,
                        sim_include_wknds = FALSE,
                        sim_charger_power = pwr,
@@ -750,7 +769,27 @@ write_csv(PW6S_output_table$Emissions_Table, "Results/Workplace_PW6S_Output_Summ
 write_csv(PW6S_output_table$Emissions, "Results/Workplace_PW6S_Output_All_Hours.csv")
 
 
+#PW7S = discount + throttling + all comm
+PW7S <- simulation(simulations = 1000, sim_seg = "Workplace",
+                       sim_month = 11, 
+                       sim_year = 2018,
+                       sim_include_wknds = FALSE,
+                       sim_charger_power = pwr,
+                       sim_price_change = -0.05, 
+                       sim_intervention_hours = c(12:15),
+                       sim_throttle_amount = -0.5, 
+                       sim_throttle_hours = c(7:11),
+                       sim_air_pollution_comm = TRUE, #yes comm
+                       sim_price_comm = TRUE, #yes comm
+                       sim_curt_year=2018) 
+write_csv(PW7S$sim_result_summary, "Results/Workplace_PW7S_Demand_Summary.csv")
 
+#run emissions and write to csv
+PW7S_output_table <- emissions_fcn(PW7S) 
+write_csv(PW7S_output_table$Emissions_Table, "Results/Workplace_PW7S_Output_Summary.csv") #write emissions to csv
+write_csv(PW7S_output_table$Emissions, "Results/Workplace_PW7S_Output_All_Hours.csv")
+
+#------------------------------------------
 
 #FW1 = discount + throttling + air poll & price comm, TOU19 intervention, 2030 chargers
 FW1 <- simulation(simulations = 1000, sim_seg = "Workplace",
@@ -780,7 +819,7 @@ write_csv(FW1_output_table$Emissions, "Results/Workplace_FW1_Output_All_Hours.cs
 
 ```{r workplace_graphs, message=FALSE}
 
-#PW1S Graph (discount + price comm + morning throttling)
+#PW1S
 PW1S_demand_summary <- read_csv("Results/Workplace_PW1S_Demand_Summary.csv") 
 
 graph_tablePW1S <- PW1S_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
@@ -792,7 +831,7 @@ Demand_GraphPW1S <- ggplot(data = graph_tablePW1S, aes(x = Hr)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
   panel.background = element_blank(), axis.line = element_line(colour = "black")) +
   labs(title="Workplaces (PW1S) Hourly Demand Forecast\n (discount, price comm, throttling)",
-  subtitle="Baseline July 2018 (596 Chargers) \n Model Simulation",
+  subtitle="Baseline November 2018 (596 Chargers) \n Model Simulation",
   y="EV Charging Demand (kW)",
   x="Hour",
   color=NULL) +
@@ -811,7 +850,7 @@ ggsave("Results Graphs/Workplace_PW1S_Demand_Summary.png", Demand_GraphPW1S, dev
 
 
 
-#PW2S Graph (discount + price comm + morning throttling + TOU 2019)
+#PW2S 
 PW2S_demand_summary <- read_csv("Results/Workplace_PW2S_Demand_Summary.csv") 
 
 graph_tablePW2S <- PW2S_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
@@ -823,7 +862,7 @@ Demand_GraphPW2S <- ggplot(data = graph_tablePW2S, aes(x = Hr)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
   panel.background = element_blank(), axis.line = element_line(colour = "black")) +
   labs(title="Workplaces (PW2S) Hourly Demand Forecast\n (discount, price comm, throttling, TOU 2019)",
-  subtitle="Baseline July 2018 (596 Chargers) \n Model Simulation",
+  subtitle="Baseline November 2018 (596 Chargers) \n Model Simulation",
   y="EV Charging Demand (kW)",
   x="Hour",
   color=NULL) +
@@ -842,7 +881,7 @@ ggsave("Results Graphs/Workplace_PW2S_Demand_Summary.png", Demand_GraphPW2S, dev
 
 
 
-#PW3S Graph (discount + throttling + all comm)
+#PW3S
 PW3S_demand_summary <- read_csv("Results/Workplace_PW3S_Demand_Summary.csv") 
 
 graph_tablePW3S <- PW3S_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
@@ -853,8 +892,8 @@ Demand_GraphPW3S <- ggplot(data = graph_tablePW3S, aes(x = Hr)) +
   geom_line(aes(y = value, color=condition)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
   panel.background = element_blank(), axis.line = element_line(colour = "black")) +
-  labs(title="Workplaces (PW3S) Hourly Demand Forecast\n(discount, all comm, throttling)",
-  subtitle="Baseline July 2018 (596 Chargers) \n Model Simulation",
+  labs(title="Workplaces (PW3S) Hourly Demand Forecast\n(discount, price comm, throttling)",
+  subtitle="Baseline November 2018 (596 Chargers) \n Model Simulation",
   y="EV Charging Demand (kW)",
   x="Hour",
   color=NULL) +
@@ -875,7 +914,7 @@ ggsave("Results Graphs/Workplace_PW3S_Demand_Summary.png", Demand_GraphPW3S, dev
 
 
 
-#PW4 Graph (discount + price comm)
+#PW4
 PW4S_demand_summary <- read_csv("Results/Workplace_PW4S_Demand_Summary.csv") 
 
 graph_tablePW4S <- PW4S_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
@@ -887,7 +926,7 @@ Demand_GraphPW4S <- ggplot(data = graph_tablePW4S, aes(x = Hr)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
   panel.background = element_blank(), axis.line = element_line(colour = "black")) +
   labs(title="Workplaces (PW4S) Hourly Demand Forecast\n(discount, price comm)",
-  subtitle="Baseline July 2018 (596 Chargers) \n Model Simulation",
+  subtitle="Baseline November 2018 (596 Chargers) \n Model Simulation",
   y="EV Charging Demand (kW)",
   x="Hour",
   color=NULL) +
@@ -905,7 +944,7 @@ Demand_GraphPW4S <- ggplot(data = graph_tablePW4S, aes(x = Hr)) +
 ggsave("Results Graphs/Workplace_PW4S_Demand_Summary.png", Demand_GraphPW4S, device = "png", width = 8, height = 4.5)
 
 
-###PW5S = discount + throttling + no comm
+###PW5S 
 PW5S_demand_summary <- read_csv("Results/Workplace_PW5S_Demand_Summary.csv") 
 
 graph_tablePW5S <- PW5S_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
@@ -917,7 +956,7 @@ Demand_GraphPW5S <- ggplot(data = graph_tablePW5S, aes(x = Hr)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
   panel.background = element_blank(), axis.line = element_line(colour = "black")) +
   labs(title="Workplaces (PW5S) Hourly Demand Forecast\n(discount, no comm, throttling)",
-  subtitle="Baseline July 2018 (596 Chargers) \n Model Simulation",
+  subtitle="Baseline November 2018 (596 Chargers) \n Model Simulation",
   y="EV Charging Demand (kW)",
   x="Hour",
   color=NULL) +
@@ -935,7 +974,7 @@ Demand_GraphPW5S <- ggplot(data = graph_tablePW5S, aes(x = Hr)) +
 ggsave("Results Graphs/Workplace_PW5S_Demand_Summary.png", Demand_GraphPW5S, device = "png", width = 8, height = 4.5)
 
 
-#PW6S = discount + throttling + air poll comm
+#PW6S 
 PW6S_demand_summary <- read_csv("Results/Workplace_PW6S_Demand_Summary.csv") 
 
 graph_tablePW6S <- PW6S_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
@@ -947,7 +986,7 @@ Demand_GraphPW6S <- ggplot(data = graph_tablePW6S, aes(x = Hr)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
   panel.background = element_blank(), axis.line = element_line(colour = "black")) +
   labs(title="Workplaces (PW6S) Hourly Demand Forecast\n (discount, air comm, throttling)",
-  subtitle="Baseline July 2018 (596 Chargers) \n Model Simulation",
+  subtitle="Baseline November 2018 (596 Chargers) \n Model Simulation",
   y="EV Charging Demand (kW)",
   x="Hour",
   color=NULL) +
@@ -965,7 +1004,7 @@ Demand_GraphPW6S <- ggplot(data = graph_tablePW6S, aes(x = Hr)) +
 ggsave("Results Graphs/Workplace_PW6S_Demand_Summary.png", Demand_GraphPW6S, device = "png", width = 8, height = 4.5)
 
 
-#FW1 Graph (discount + throttling + air poll & price comm, TOU19 intervention, 2030 chargers)
+#FW1 Graph 
 FW1_demand_summary <- read_csv("Results/Workplace_FW1_Demand_Summary.csv") 
 
 graph_tableFW1<- FW1_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
@@ -977,7 +1016,7 @@ Demand_GraphFW1 <- ggplot(data = graph_tableFW1, aes(x = Hr)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
   panel.background = element_blank(), axis.line = element_line(colour = "black")) +
   labs(title="Workplaces (FW1) Hourly Demand Forecast\n(discount, throttling, air & price comm, TOU 19, 2030 chargers)",
-  subtitle="Baseline July 2018 (31435 Chargers) \n Model Simulation",
+  subtitle="Baseline November 2018 (31435 Chargers) \n Model Simulation",
   y="EV Charging Demand (kW)",
   x="Hour",
   color=NULL) +
@@ -1003,41 +1042,34 @@ ggsave("Results Graphs/Workplace_FW1_Demand_Summary.png", Demand_GraphFW1, devic
 
 ```{r destination_center_scenarios, message=FALSE, warning=FALSE}
 
-#PDC1S:  discount -0.05 (default) 12-15+ price comms only + morning throttling
-PDC1S <- simulation(simulation = 1000,
+#PDC1S:  discount -0.05 (default) 12-15+ all comms + morning throttling
+PDC1S <- simulation(simulations = 1000,
                     sim_seg = "Destination Center",
                     sim_throttle_amount = -0.5,
-                    sim_month = 7,
-                    sim_year = 2018,
-                    sim_price_comm = TRUE,
-                    sim_air_pollution_comm = FALSE)
-#View(PDC1S$sim_result_summary)
-
-write_csv(PDC1S$sim_result_summary, "Results/Destination_Centers_PDC1S_Demand_Summary.csv")
-
-#run emissions and write to csv
-PDC1S_output_table <- emissions_fcn(PDC1S) 
-View(PDC1S_output_table$Emissions_Table)
-View(PDC1S_output_table$Emissions)
-write_csv(PDC1S_output_table$Emissions_Table, "Results/Destination_Centers_PDC1S_Output_Summary.csv") #write emissions to csv
-write_csv(PDC1S_output_table$Emissions, "Results/Destination_Centers_PDC1S_Output_All_Hours.csv")
-
-
-#PDC2S:  discount -0.05 (default) 12-15+ all comms + morning throttling
-PDC2S <- simulation(simulations = 1000,
-                    sim_seg = "Destination Center",
-                    sim_throttle_amount = -0.5,
-                    sim_month = 7,
+                    sim_month = 11,
                     sim_year = 2018,
                     sim_price_comm = TRUE,
                     sim_air_pollution_comm = TRUE)
                     
 
-write_csv(PDC2S$sim_result_summary, "Results/Destination_Centers_PDC2S_Demand_Summary.csv")
+write_csv(PDC1S$sim_result_summary, "Results/Destination_Centers_PDC1S_Demand_Summary.csv")
 #run emissions and write to csv
-PDC2S_output_table <- emissions_fcn(PDC2S) 
-View(PDC2S_output_table$Emissions_Table)
-View(PDC2S_output_table$Emissions)
+PDC1S_output_table <- emissions_fcn(PDC1S) 
+write_csv(PDC1S_output_table$Emissions_Table, "Results/Destination_Centers_PDC1S_Output_Summary.csv") #write emissions to csv
+write_csv(PDC1S_output_table$Emissions, "Results/Destination_Centers_PDC1S_Output_All_Hours.csv")
+
+#PDC2S: discount -0.05 (default) 12-15+ no comms + morning throttling
+PDC2S <- simulation(simulations = 1000,
+                    sim_seg = "Destination Center",
+                    sim_throttle_amount = -0.5,
+                    sim_month = 11,
+                    sim_year = 2018,
+                    sim_price_comm = FALSE,
+                    sim_air_pollution_comm = FALSE)
+
+write_csv(PDC2S$sim_result_summary, "Results/Destination_Centers_PDC2S_Demand_Summary.csv")
+
+PDC2S_output_table <- emissions_fcn(PDC2S)
 write_csv(PDC2S_output_table$Emissions_Table, "Results/Destination_Centers_PDC2S_Output_Summary.csv") #write emissions to csv
 write_csv(PDC2S_output_table$Emissions, "Results/Destination_Centers_PDC2S_Output_All_Hours.csv")
 
@@ -1046,32 +1078,31 @@ write_csv(PDC2S_output_table$Emissions, "Results/Destination_Centers_PDC2S_Outpu
 PDC3S <- simulation(simulations = 1000,
                     sim_seg = "Destination Center",
                     sim_throttle_amount = -0.5,
-                    sim_month = 7,
+                    sim_month = 11,
                     sim_year = 2018,
                     sim_price_comm = FALSE,
                     sim_air_pollution_comm = TRUE)
 
 write_csv(PDC3S$sim_result_summary, "Results/Destination_Centers_PDC3S_Demand_Summary.csv")
 PDC3S_output_table <- emissions_fcn(PDC3S)
-View(PDC3S_output_table$Emissions_Table)
-View(PDC3S_output_table$Emissions)
+#View(PDC3S_output_table$Emissions_Table)
+#View(PDC3S_output_table$Emissions)
 write_csv(PDC3S_output_table$Emissions_Table, "Results/Destination_Centers_PDC3S_Output_Summary.csv") #write emissions to csv
 write_csv(PDC3S_output_table$Emissions, "Results/Destination_Centers_PDC3S_Output_All_Hours.csv")
 
-
-#PDC4S: discount -0.05 (default) 12-15+ no comms + morning throttling
-PDC4S <- simulation(simulations = 1000,
+#PDC4S:  discount -0.05 (default) 12-15+ price comms only + morning throttling
+PDC4S <- simulation(simulation = 1000,
                     sim_seg = "Destination Center",
                     sim_throttle_amount = -0.5,
-                    sim_month = 7,
+                    sim_month = 11,
                     sim_year = 2018,
-                    sim_price_comm = FALSE,
+                    sim_price_comm = TRUE,
                     sim_air_pollution_comm = FALSE)
 
 write_csv(PDC4S$sim_result_summary, "Results/Destination_Centers_PDC4S_Demand_Summary.csv")
-PDC4S_output_table <- emissions_fcn(PDC4S)
-View(PDC4S_output_table$Emissions_Table)
-View(PDC4S_output_table$Emissions)
+
+#run emissions and write to csv
+PDC4S_output_table <- emissions_fcn(PDC4S) 
 write_csv(PDC4S_output_table$Emissions_Table, "Results/Destination_Centers_PDC4S_Output_Summary.csv") #write emissions to csv
 write_csv(PDC4S_output_table$Emissions, "Results/Destination_Centers_PDC4S_Output_All_Hours.csv")
 
@@ -1079,7 +1110,7 @@ write_csv(PDC4S_output_table$Emissions, "Results/Destination_Centers_PDC4S_Outpu
 #PDC5S: $0.10 Rebate (17:00 – 21:00) + no comms + morning throttling
 PDC5S <- simulation(simulations = 1000, 
                     sim_seg = "Destination Center",
-                    sim_month = 11,
+                    sim_month = 7,
                     sim_year = 2018,
                     sim_throttle_amount = -0.5,
                     sim_throttle_hours = c(17:21),
@@ -1090,8 +1121,8 @@ PDC5S <- simulation(simulations = 1000,
 
 write_csv(PDC5S$sim_result_summary, "Results/Destination_Centers_PDC5S_Demand_Summary.csv")
 PDC5S_output_table <- emissions_fcn(PDC5S)
-View(PDC5S_output_table$Emissions_Table)
-View(PDC5S_output_table$Emissions)
+#View(PDC5S_output_table$Emissions_Table)
+#View(PDC5S_output_table$Emissions)
 write_csv(PDC5S_output_table$Emissions_Table, "Results/Destination_Centers_PDC5S_Output_Summary.csv") #write emissions to csv
 write_csv(PDC5S_output_table$Emissions, "Results/Destination_Centers_PDC5S_Output_All_Hours.csv")
                     
@@ -1100,7 +1131,7 @@ write_csv(PDC5S_output_table$Emissions, "Results/Destination_Centers_PDC5S_Outpu
 #FDC1: $0.05 Discount (12:00-15:00) + all comms + morning throttling +TOU19 + 2030 chargers
 FDC1 <- simulation(simulations = 1000, 
                     sim_seg = "Destination Center",
-                    sim_month = 7,
+                    sim_month = 11,
                     sim_year = 2018,
                     sim_throttle_amount = -0.5,
                     sim_throttle_hours = c(7:11),
@@ -1115,8 +1146,8 @@ FDC1 <- simulation(simulations = 1000,
 
 write_csv(FDC1$sim_result_summary, "Results/Destination_Centers_FDC1_Demand_Summary.csv")
 FDC1_output_table <- emissions_fcn(FDC1)
-View(FDC1_output_table$Emissions_Table)
-View(FDC1_output_table$Emissions)
+#View(FDC1_output_table$Emissions_Table)
+#View(FDC1_output_table$Emissions)
 write_csv(FDC1_output_table$Emissions_Table, "Results/Destination_Centers_FDC1_Output_Summary.csv") #write emissions to csv
 write_csv(FDC1_output_table$Emissions, "Results/Destination_Centers_FDC1_Output_All_Hours.csv")
 
@@ -1124,7 +1155,7 @@ write_csv(FDC1_output_table$Emissions, "Results/Destination_Centers_FDC1_Output_
 ```
 
 ```{r destination_center_graphs}
-#PDC1S:  discount -0.05 (default) 12-15+ price comms only + morning throttling
+#PDC1S
 PDC1S_demand_summary <- read_csv("Results/Destination_Centers_PDC1S_Demand_Summary.csv") 
 
 graph_tablePDC1S <- PDC1S_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
@@ -1136,7 +1167,7 @@ Demand_GraphPDC1S <- ggplot(data = graph_tablePDC1S, aes(x = Hr)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
   panel.background = element_blank(), axis.line = element_line(colour = "black")) +
   labs(title="Destination Centers SC.1 (discount+price com+throttling 6-11) Hourly Demand Forecast",
-  subtitle="July 2018 (234 Chargers) Model Simulation",
+  subtitle="November 2018 (234 Chargers) Model Simulation",
   y="EV Charging Demand (kW)",
   x="Hour",
   color=NULL) +
@@ -1157,7 +1188,7 @@ ggsave("Results Graphs/Destination_Centers_PDC1S_Demand_Summary.png", Demand_Gra
 
 
 
-#PDC2S:  discount -0.05 (default) 12-15+ all comms + morning throttling
+#PDC2S
 PDC2S_demand_summary <- read_csv("Results/Destination_Centers_PDC2S_Demand_Summary.csv") 
 
 graph_tablePDC2S <- PDC2S_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
@@ -1169,7 +1200,7 @@ Demand_GraphPDC2S <- ggplot(data = graph_tablePDC2S, aes(x = Hr)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
   panel.background = element_blank(), axis.line = element_line(colour = "black")) +
   labs(title="Destination Centers SC.2 (discount+all comms+morning+throttling 6-11) Hourly Demand Forecast",
-  subtitle="Baseline July 2018 (234 Chargers) Model Simulation",
+  subtitle="Baseline November 2018 (234 Chargers) Model Simulation",
   y="EV Charging Demand (kW)",
   x="Hour",
   color=NULL) +
@@ -1189,7 +1220,7 @@ ggsave("Results Graphs/Destination_Centers_PDC2S_Demand_Summary.png", Demand_Gra
 
 
 
-#PDC3S: discount -0.05 (default) 12-15+ air poll comms + morning throttling
+#PDC3S
 PDC3S_demand_summary <- read_csv("Results/Destination_Centers_PDC3S_Demand_Summary.csv") 
 
 graph_tablePDC3S <- PDC3S_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
@@ -1201,7 +1232,7 @@ Demand_GraphPDC3S <- ggplot(data = graph_tablePDC3S, aes(x = Hr)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
   panel.background = element_blank(), axis.line = element_line(colour = "black")) +
   labs(title="Destination Centers SC.3 (discount+air poll comms+throttling 6-11) Hourly Demand Forecast",
-  subtitle="July 2018 (234 Chargers) Model Simulation",
+  subtitle="November 2018 (234 Chargers) Model Simulation",
   y="EV Charging Demand (kW)",
   x="Hour",
   color=NULL) +
@@ -1223,7 +1254,7 @@ ggsave("Results Graphs/Destination_Centers_PDC3S_Demand_Summary.png", Demand_Gra
 
 
 
-#PDC4S: discount -0.05 (default) 12-15+ no comms + morning throttling
+#PDC4S
 PDC4S_demand_summary <- read_csv("Results/Destination_Centers_PDC4S_Demand_Summary.csv") 
 
 graph_tablePDC4S <- PDC4S_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
@@ -1235,7 +1266,7 @@ Demand_GraphPDC4S <- ggplot(data = graph_tablePDC4S, aes(x = Hr)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
   panel.background = element_blank(), axis.line = element_line(colour = "black")) +
   labs(title="Destination Centers SC.4 (discount+no comms+throttling 6-11) Hourly Demand Forecast",
-  subtitle="July 2018 (234 Chargers) Model Simulation",
+  subtitle="November 2018 (234 Chargers) Model Simulation",
   y="EV Charging Demand (kW)",
   x="Hour",
   color=NULL) +
@@ -1256,7 +1287,7 @@ ggsave("Results Graphs/Destination_Centers_PDC4S_Demand_Summary.png", Demand_Gra
 
 
 
-#PDC5S: $0.10 Rebate (17:00 – 21:00) + no comms + morning throttling
+#PDC5S
 PDC5S_demand_summary <- read_csv("Results/Destination_Centers_PDC5S_Demand_Summary.csv") 
 
 graph_tablePDC5S <- PDC5S_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
@@ -1268,7 +1299,7 @@ Demand_GraphPDC5S <- ggplot(data = graph_tablePDC5S, aes(x = Hr)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
   panel.background = element_blank(), axis.line = element_line(colour = "black")) +
   labs(title="Destination Centers SC.5 (Rebate+no comms+throttling 17-21) Hourly Demand Forecast",
-  subtitle="November 2018 (234 Chargers) Model Simulation",
+  subtitle="July 2018 (234 Chargers) Model Simulation",
   y="EV Charging Demand (kW)",
   x="Hour",
   color=NULL) +
@@ -1287,7 +1318,7 @@ Demand_GraphPDC5S <- ggplot(data = graph_tablePDC5S, aes(x = Hr)) +
 ggsave("Results Graphs/Destination_Centers_PDC5S_Demand_Summary.png", Demand_GraphPDC5S, device = "png", width = 8, height = 4.5)
 
 
-#FDC1: $0.05 Discount (12:00-15:00) + all comms + morning throttling +TOU19 + 2030 chargers
+#FDC1
 FDC1_demand_summary <- read_csv("Results/Destination_Centers_FDC1_Demand_Summary.csv") 
 
 graph_tableFDC1 <- FDC1_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
@@ -1299,7 +1330,7 @@ Demand_GraphFDC1 <- ggplot(data = graph_tableFDC1, aes(x = Hr)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
   panel.background = element_blank(), axis.line = element_line(colour = "black")) +
   labs(title="Destination Centers SC.6 Hourly Demand Forecast\n (Discount+all comms+throttling 12-15) ",
-  subtitle="Summer 2030 2018 (4378 Chargers) Model Simulation",
+  subtitle="Winter 2030 2018 (4378 Chargers) Model Simulation",
   y="EV Charging Demand (kW)",
   x="Hour",
   color=NULL) +
@@ -1313,30 +1344,8 @@ Demand_GraphFDC1 <- ggplot(data = graph_tableFDC1, aes(x = Hr)) +
   scale_fill_manual('Interventions',values = c('green','yellow'),  guide = guide_legend(override.aes = list(alpha = 0.15)))
 
 #Demand_GraphFDC1
-ggsave("Results Graphs/Destination_Centers_FDC1_Demand_Summary.png", Demand_GraphPDC5S, device = "png", width = 8, height = 4.5)
+ggsave("Results Graphs/Destination_Centers_FDC1_Demand_Summary.png", Demand_GraphFDC1, device = "png", width = 8, height = 4.5)
 
-#PDC1S:  discount -0.05 (default) 12-15+ price comms only + morning throttling
-write_csv(PDC1S$sim_result_summary, "Results/Destination_Centers_PDC2S_Demand_Summary.csv")
-#run emissions and write to csv
-
-#PDC2S:  discount -0.05 (default) 12-15+ all comms + morning throttling
-write_csv(PDC2S$sim_result_summary, "Results/Destination_Centers_PDC2S_Demand_Summary.csv")
-#run emissions and write to csv
-
-
-#PDC3S: discount -0.05 (default) 12-15+ air poll comms + morning throttling
-write_csv(PDC3S$sim_result_summary, "Results/Destination_Centers_PDC3S_Demand_Summary.csv")
-
-
-#PDC4S: discount -0.05 (default) 12-15+ no comms + morning throttling
-write_csv(PDC4S$sim_result_summary, "Results/Destination_Centers_PDC4S_Demand_Summary.csv")
-
-
-#PDC5S: $0.10 Rebate (17:00 – 21:00) + no comms + morning throttling
-write_csv(PDC5S$sim_result_summary, "Results/Destination_Centers_PDC5S_Demand_Summary.csv")
-
-#FDC1: $0.05 Discount (12:00-15:00) + all comms + morning throttling +TOU19 + 2030 chargers
-write_csv(FDC1$sim_result_summary, "Results/Destination_Centers_FDC1_Demand_Summary.csv")
 ```
 
 
@@ -1352,7 +1361,7 @@ PF1 <- simulation(simulations = 1000,
                        sim_method = mthd,
                        sim_avg_elasticity = avg_elst,
                        sim_seg = "Fleet",
-                       sim_month = 11, 
+                       sim_month = 7, 
                        sim_year = 2018,
                        sim_include_wknds = FALSE,
                        sim_charger_power = pwr,
@@ -1377,12 +1386,11 @@ write_csv(PF1_output_table$Emissions, "Results/Fleets_PF1_Output_All_Hours.csv")
 # PF2: Present, Fleet, 2
 # $0.10 Rebate (17:00 – 21:00); New 2019 TOU Rate; 100% Price Communication
 
-
 PF2 <- simulation(simulations = 1000, 
                        sim_method = mthd,
                        sim_avg_elasticity = avg_elst,
                        sim_seg = "Fleet",
-                       sim_month = 11, 
+                       sim_month = 7, 
                        sim_year = 2018,
                        sim_include_wknds = FALSE,
                        sim_charger_power = pwr,
@@ -1414,7 +1422,7 @@ PF3S <- simulation(simulations = 1000,
                        sim_method = mthd,
                        sim_avg_elasticity = avg_elst,
                        sim_seg = "Fleet",
-                       sim_month = 7, 
+                       sim_month = 11, 
                        sim_year = 2018,
                        sim_include_wknds = FALSE,
                        sim_charger_power = pwr,
@@ -1444,7 +1452,7 @@ PF4S <- simulation(simulations = 1000,
                        sim_method = mthd,
                        sim_avg_elasticity = avg_elst,
                        sim_seg = "Fleet",
-                       sim_month = 7, 
+                       sim_month = 11, 
                        sim_year = 2018,
                        sim_include_wknds = FALSE,
                        sim_charger_power = pwr,
@@ -1475,7 +1483,7 @@ PF5S <- simulation(simulations = 1000,
                        sim_method = mthd,
                        sim_avg_elasticity = avg_elst,
                        sim_seg = "Fleet",
-                       sim_month = 7, 
+                       sim_month = 11, 
                        sim_year = 2018,
                        sim_include_wknds = FALSE,
                        sim_charger_power = pwr,
@@ -1507,7 +1515,7 @@ FF1 <- simulation(simulations = 1000,
                        sim_method = mthd,
                        sim_avg_elasticity = avg_elst,
                        sim_seg = "Fleet",
-                       sim_month = mth, 
+                       sim_month = 7, 
                        sim_year = yr,
                        sim_include_wknds = wknds,
                        sim_charger_power = pwr,
@@ -1536,7 +1544,7 @@ write_csv(FF1_output_table$Emissions, "Results/Fleets_FF1_Output_All_Hours.csv")
 
 ```{r fleet_graphs}
 
-# PF1: Present, Fleet, 1 (rebate, price comm, 83 chargers)
+# PF1
 PF1_demand_summary <- read_csv("Results/Fleets_PF1_Demand_Summary.csv") 
 
 graph_tablePF1 <- PF1_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
@@ -1548,7 +1556,7 @@ Demand_GraphPF1 <- ggplot(data = graph_tablePF1, aes(x = Hr)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
   panel.background = element_blank(), axis.line = element_line(colour = "black")) +
   labs(title="Fleets (PF1) (rebate, price comm) Hourly Demand Forecast",
-  subtitle="Baseline November 2018 (83 Chargers) \n Model Simulation",
+  subtitle="Baseline July 2018 (83 Chargers) \n Model Simulation",
   y="EV Charging Demand (kW)",
   x="Hour",
   color=NULL) +
@@ -1565,7 +1573,7 @@ Demand_GraphPF1 <- ggplot(data = graph_tablePF1, aes(x = Hr)) +
 ggsave("Results Graphs/Fleets_PF1_Demand_Summary.png", Demand_GraphPF1, device = "png", width = 8, height = 4.5)
 
 
-# PF2: Present, Fleet, 2 (rebate, price comm, new 2019 TOU rate, 83 chargers)
+# PF2
 PF2_demand_summary <- read_csv("Results/Fleets_PF2_Demand_Summary.csv") 
 
 graph_tablePF2 <- PF2_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
@@ -1577,7 +1585,7 @@ Demand_GraphPF2 <- ggplot(data = graph_tablePF2, aes(x = Hr)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
   panel.background = element_blank(), axis.line = element_line(colour = "black")) +
   labs(title="Fleets (PF2) (rebate, price comm, new 2019 TOU rate) Hourly Demand Forecast",
-  subtitle="Baseline November 2018 (83 Chargers) \n Model Simulation",
+  subtitle="Baseline July 2018 (83 Chargers) \n Model Simulation",
   y="EV Charging Demand (kW)",
   x="Hour",
   color=NULL) +
@@ -1595,7 +1603,7 @@ ggsave("Results Graphs/Fleets_PF2_Demand_Summary.png", Demand_GraphPF2, device =
 
 
 
-# PF3S: Present, Fleet, 3(discount, 100% price comm)
+# PF3S
 PF3S_demand_summary <- read_csv("Results/Fleets_PF3S_Demand_Summary.csv") 
 
 graph_tablePF3S <- PF3S_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
@@ -1607,7 +1615,7 @@ Demand_GraphPF3S <- ggplot(data = graph_tablePF3S, aes(x = Hr)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
   panel.background = element_blank(), axis.line = element_line(colour = "black")) +
   labs(title="Fleets (PF3) (discount, price comm) Hourly Demand Forecast",
-  subtitle="Baseline July 2018 (83 Chargers) \n Model Simulation",
+  subtitle="Baseline November 2018 (83 Chargers) \n Model Simulation",
   y="EV Charging Demand (kW)",
   x="Hour",
   color=NULL) +
@@ -1623,9 +1631,7 @@ Demand_GraphPF3S <- ggplot(data = graph_tablePF3S, aes(x = Hr)) +
 #Demand_GraphPF3S
 ggsave("Results Graphs/Fleets_PF3S_Demand_Summary.png", Demand_GraphPF3S, device = "png", width = 8, height = 4.5)
 
-# PF4S: Present, Fleet, 4, Summer
-# $0.05 Discount (12:00 – 15:00); 100% Price Communication; 50% Throttling (07:00-11:00 and 17:00-21:00)
-
+# PF4S
 PF4S_demand_summary <- read_csv("Results/Fleets_PF4S_Demand_Summary.csv") 
 
 graph_tablePF4S <- PF4S_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
@@ -1637,7 +1643,7 @@ Demand_GraphPF4S <- ggplot(data = graph_tablePF4S, aes(x = Hr)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
   panel.background = element_blank(), axis.line = element_line(colour = "black")) +
   labs(title="Fleets (PF4S) (discount (11:00-15:00), price comm, throttling(06:00 – 11:00 and 18:00-21:00)) Hourly Demand Forecast",
-  subtitle="Baseline July 2018 (83 Chargers) \n Model Simulation",
+  subtitle="Baseline November 2018 (83 Chargers) \n Model Simulation",
   y="EV Charging Demand (kW)",
   x="Hour",
   color=NULL) +
@@ -1655,9 +1661,7 @@ Demand_GraphPF4S <- ggplot(data = graph_tablePF4S, aes(x = Hr)) +
 ggsave("Results Graphs/Fleets_PF4S_Demand_Summary.png", Demand_GraphPF4S, device = "png", width = 8, height = 4.5)
 
 
-# PF5S: Present, Fleet, 5, Summer
-# $0.05 Discount (12:00 – 15:00); $0.10 Rebate (17:00 – 21:00); 2019 New Summer TOU rate; 100% Price Communication
-
+# PF5S
 PF5S_demand_summary <- read_csv("Results/Fleets_PF5S_Demand_Summary.csv") 
 
 graph_tablePF5S <- PF5S_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
@@ -1669,7 +1673,7 @@ Demand_GraphPF5S <- ggplot(data = graph_tablePF5S, aes(x = Hr)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
   panel.background = element_blank(), axis.line = element_line(colour = "black")) +
   labs(title="Fleets (PF5S) (discount (11:00-15:00), price comm, rebate (17:00-21:00), 2019 TOU Rate) Hourly Demand Forecast",
-  subtitle="Baseline July 2018 (83 Chargers) \n Model Simulation",
+  subtitle="Baseline November 2018 (83 Chargers) \n Model Simulation",
   y="EV Charging Demand (kW)",
   x="Hour",
   color=NULL) +
@@ -1687,7 +1691,7 @@ Demand_GraphPF5S <- ggplot(data = graph_tablePF5S, aes(x = Hr)) +
 ggsave("Results Graphs/Fleets_PF5S_Demand_Summary.png", Demand_GraphPF5S, device = "png", width = 8, height = 4.5)
 
 
-# FF1: Future, 2019 tou, rebate, price comm
+# FF1
 FF1_demand_summary <- read_csv("Results/Fleets_FF1_Demand_Summary.csv") 
 
 graph_tableFF1 <- FF1_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
@@ -1699,7 +1703,7 @@ Demand_GraphFF1 <- ggplot(data = graph_tableFF1, aes(x = Hr)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
   panel.background = element_blank(), axis.line = element_line(colour = "black")) +
   labs(title="Fleets (FF1) (2019 tou, price comm, 4378 chargers, rebate) Hourly Demand Forecast",
-  subtitle="Baseline Nov 2018 (83 Chargers) \n Model Simulation (2030 scenario)",
+  subtitle="Baseline July 2018 (83 Chargers) \n Model Simulation (2030 scenario)",
   y="EV Charging Demand (kW)",
   x="Hour",
   color=NULL) +
@@ -1727,7 +1731,7 @@ ggsave("Results Graphs/Fleets_FF1_Demand_Summary.png", Demand_GraphFF1, device =
 
 #PM1 = rebate + price communication
 PM1 <- simulation(simulation = 1000, sim_seg = "Multi Unit Dwelling",
-                       sim_month = 11,
+                       sim_month = 7,
                        sim_year = 2018,
                        sim_include_wknds = FALSE,
                        sim_price_change = 0.1, 
@@ -1752,10 +1756,27 @@ write_csv(PM1_output_table$Emissions, "Results/MUDs_PM1_Output_All_Hours.csv")
 #PM1_output_table <- emissions_fcn(EVDemand = PM1, peak_hours = c(17:21), emissions_year = 2019)
 #things to CSV: summary table from montecarlo (for graphing); sim_result_summary$summary; PM1_output_table (emissions$Emissions_Table); PM1_output_emissions_all (Emissions$Emissions); 
 
+#PM2 = new tou + rebate + price communication
+PM2 <- simulation (simulation = 1000, sim_seg = "Multi Unit Dwelling",
+                       sim_month = 7,
+                       sim_year = 2018,
+                       sim_include_wknds = FALSE,
+                       sim_price_change = 0.1, 
+                       sim_intervention_hours = c(17:21),
+                       sim_air_pollution_comm = FALSE,
+                       sim_price_comm = TRUE,
+                       sim_curt_year=2018,
+                       sim_new_tou = 2019)
+write_csv(PM2$sim_result_summary, "Results/MUDs_PM2_Demand_Summary.csv")
+PM2_demand_summary <- read_csv("Results/MUDs_PM2_Demand_Summary.csv") #read it back in for the graph
+
+PM2_output_table <- emissions_fcn(PM2) 
+write_csv(PM2_output_table$Emissions_Table, "Results/MUDs_PM2_Output_Summary.csv") #write emissions to csv
+write_csv(PM2_output_table$Emissions, "Results/MUDs_PM2_Output_All_Hours.csv")
 
 
-#PM2 = throttling + price comms (can't run throttling with no comms b/c comms is contingent on a price change). so this is a little weird. 
-PM2 <- simulation(simulation =1000, sim_seg = "Multi Unit Dwelling",
+#PM3 = throttling + price comms (can't run throttling with no comms b/c comms is contingent on a price change). so this is a little weird. 
+PM3 <- simulation(simulation =1000, sim_seg = "Multi Unit Dwelling",
                        sim_month = 11,
                        sim_year = 2018,
                        sim_include_wknds = FALSE,
@@ -1766,40 +1787,12 @@ PM2 <- simulation(simulation =1000, sim_seg = "Multi Unit Dwelling",
                        sim_air_pollution_comm = FALSE,
                        sim_price_comm = TRUE,
                        sim_curt_year=2018)
-#View(PM2$sim_result_summary)
 
 #write simulation summary results to csv to use for graph!
-write_csv(PM2$sim_result_summary, "Results/MUDs_PM2_Demand_Summary.csv")
-
-#run emissions and write to csv
-PM2_output_table <- emissions_fcn(PM2) 
-#View(PM2_output_table$Emissions_Table)
-#View(PM2_output_table$Emissions)
-write_csv(PM2_output_table$Emissions_Table, "Results/MUDs_PM2_Output_Summary.csv") #write emissions to csv
-write_csv(PM2_output_table$Emissions, "Results/MUDs_PM2_Output_All_Hours.csv")
-
-
-#PM3 = new tou + rebate + price communication
-PM3 <- simulation (simulation = 1000, sim_seg = "Multi Unit Dwelling",
-                       sim_month = 11,
-                       sim_year = 2018,
-                       sim_include_wknds = FALSE,
-                       sim_price_change = 0.1, 
-                       sim_intervention_hours = c(17:21),
-                       sim_air_pollution_comm = FALSE,
-                       sim_price_comm = TRUE,
-                       sim_curt_year=2018,
-                       sim_new_tou = 2019)
-
-#View(PM3$sim_result_summary)
-#write simulation summary results to csv to use for graph!
-write_csv(PM3$sim_result_summary, "Results/MUDs_PM3_Demand_Summary.csv")
-PM3_demand_summary <- read_csv("Results/MUDs_PM3_Demand_Summary.csv") #read it back in for the graph
+write_csv(PM3$sim_result_summary, "Results/MUDs_PM2_Demand_Summary.csv")
 
 #run emissions and write to csv
 PM3_output_table <- emissions_fcn(PM3) 
-#View(PM3_output_table$Emissions_Table)
-#View(PM3_output_table$Emissions)
 write_csv(PM3_output_table$Emissions_Table, "Results/MUDs_PM3_Output_Summary.csv") #write emissions to csv
 write_csv(PM3_output_table$Emissions, "Results/MUDs_PM3_Output_All_Hours.csv")
 
@@ -1854,7 +1847,7 @@ write_csv(PM5_output_table$Emissions, "Results/MUDs_PM5_Output_All_Hours.csv")
 
 #FM1 = 2030 + 2019 tou + rebate
 FM1 <- simulation (simulation = 1000, sim_seg = "Multi Unit Dwelling",
-                       sim_month = 11,
+                       sim_month = 7,
                        sim_year = 2018,
                        sim_include_wknds = FALSE,
                        sim_price_change = 0.1, 
@@ -1893,7 +1886,7 @@ Demand_GraphPM1 <- ggplot(data = graph_tablePM1, aes(x = Hr)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
   panel.background = element_blank(), axis.line = element_line(colour = "black")) +
   labs(title="MUDs (PM1) (rebate, price comm) Hourly Demand Forecast",
-  subtitle="Baseline November 2018 (X Chargers) \n Model Simulation",
+  subtitle="Baseline July 2018 (X Chargers) \n Model Simulation",
   y="EV Charging Demand (kW)",
   x="Hour",
   color=NULL) +
@@ -1913,7 +1906,7 @@ ggsave("Results Graphs/MUDs_PM1_Demand_Summary.png", Demand_GraphPM1, device = "
 
 
 
-#PM2 = throttling + price comms (can't run throttling with no comms b/c comms is contingent on a price change). so this is a little weird
+#PM2
 PM2_demand_summary <- read_csv("Results/MUDs_PM2_Demand_Summary.csv")
 
 graph_tablePM2 <- PM2_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
@@ -1925,7 +1918,7 @@ Demand_GraphPM2 <- ggplot(data = graph_tablePM2, aes(x = Hr)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
   panel.background = element_blank(), axis.line = element_line(colour = "black")) +
   labs(title="MUDs (PM2) (throttling, price comm) Hourly Demand Forecast",
-  subtitle="Baseline November 2018 (X Chargers) \n Model Simulation",
+  subtitle="Baseline July 2018 (X Chargers) \n Model Simulation",
   y="EV Charging Demand (kW)",
   x="Hour",
   color=NULL) +
@@ -1943,7 +1936,7 @@ ggsave("Results Graphs/MUDs_PM2_Demand_Summary.png", Demand_GraphPM2, device = "
 
 
 
-#PM3 = new tou + rebate + price communication
+#PM3
 PM3_demand_summary <- read_csv("Results/MUDs_PM3_Demand_Summary.csv") 
 
 graph_tablePM3 <- PM3_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
@@ -1974,7 +1967,7 @@ ggsave("Results Graphs/MUDs_PM3_Demand_Summary.png", Demand_GraphPM3, device = "
 
 
 
-#PM4 = new tou + all communication
+#PM4
 PM4_demand_summary <- read_csv("Results/MUDs_PM4_Demand_Summary.csv") 
 
 graph_tablePM4 <- PM4_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
@@ -2005,7 +1998,7 @@ ggsave("Results Graphs/MUDs_PM4_Demand_Summary.png", Demand_GraphPM4, device = "
 
 
 
-#PM 5 = new tou + air pollution communication
+#PM 5 
 PM5_demand_summary <- read_csv("Results/MUDs_PM5_Demand_Summary.csv") 
 
 graph_tablePM5 <- PM5_demand_summary[c("Hr","X0_mean","Xf_mean")] %>% 
@@ -2047,7 +2040,7 @@ Demand_GraphFM1 <- ggplot(data = graph_tableFM1, aes(x = Hr)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
   panel.background = element_blank(), axis.line = element_line(colour = "black")) +
   labs(title="MUDs (FM1) (2030 scaled, 2019 tou, rebate) Hourly Demand Forecast",
-  subtitle="Baseline November 2018 (X Chargers) \n Model Simulation Scaled 2030",
+  subtitle="Baseline July 2018 (X Chargers) \n Model Simulation Scaled 2030",
   y="EV Charging Demand (kW)",
   x="Hour",
   color=NULL) +
@@ -2087,8 +2080,7 @@ Method1_example_graph <- ggplot(Method1_test_for_graph) +
       ggtitle("Method 1") +
       xlab("Hour of the Day") +
       ylab("Electricity Demand (kilowatts)") +
-      
-      geom_rect(aes(xmin= 12,
+      geom_rect(aes(xmin= 11,
                     xmax=15,
                     ymin=-Inf,
                     ymax=Inf,
@@ -2101,6 +2093,7 @@ Method1_example_graph <- ggplot(Method1_test_for_graph) +
       #scale_fill_manual('Interventions', values = c("Disount" = 'cadetblue3',"Rebate" = 'thistle3', "Throttle" = 'darksalmon'),  guide = guide_legend(override.aes = list(alpha = 0.5))) +
       theme(legend.position = "bottom") +
       theme_classic()
+
 #Method 2
 Method2_test <- hourly_demand(method = 2, include_wknds = FALSE, price_comm = FALSE, elasticity_schedule = 7)
 Method2_test_for_graph <- Method2_test$EV_Demand
@@ -2118,7 +2111,7 @@ Method2_example_graph <- ggplot(Method2_test_for_graph) +
       xlab("Hour of the Day") +
       ylab("Electricity Demand (kilowatts)") +
       
-      geom_rect(aes(xmin= 12,
+      geom_rect(aes(xmin= 11,
                     xmax=15,
                     ymin=-Inf,
                     ymax=Inf,
@@ -2133,6 +2126,8 @@ Method2_example_graph <- ggplot(Method2_test_for_graph) +
       theme_classic()
 #Method 3 (default run - average elasticity = -0.4)
 Method3_test <- hourly_demand(method = 3, include_wknds = FALSE, price_comm = FALSE, elasticity_schedule = 7)
+write_csv(Method3_test$EV_Demand, "Results/Method3_test.csv")
+
 Method3_test_for_graph <- Method3_test$EV_Demand
 Method3_example_graph <- ggplot(Method3_test_for_graph) +
       geom_line(aes(x = Hr, y = Xf,color = "Intervention Demand"), 
@@ -2148,7 +2143,7 @@ Method3_example_graph <- ggplot(Method3_test_for_graph) +
       xlab("Hour of the Day") +
       ylab("Electricity Demand (kilowatts)") +
       
-      geom_rect(aes(xmin= 12,
+      geom_rect(aes(xmin= 11,
                     xmax=15,
                     ymin=-Inf,
                     ymax=Inf,
@@ -2161,8 +2156,9 @@ Method3_example_graph <- ggplot(Method3_test_for_graph) +
       #scale_fill_manual('Interventions', values = c("Disount" = 'cadetblue3',"Rebate" = 'thistle3', "Throttle" = 'darksalmon'),  guide = guide_legend(override.aes = list(alpha = 0.5))) +
       theme(legend.position = "bottom") +
       theme_classic()
-#Method4 -- run above
-Method4_test <- hourly_demand(method = 1, include_wknds = FALSE, price_comm = FALSE, elasticity_schedule = 7) #selecting winter weekday ev medium as example elasticity set this is the old method 1
+
+#Method4
+Method4_test <- hourly_demand(method = 4, include_wknds = FALSE, price_comm = FALSE, elasticity_schedule = 7) #selecting winter weekday ev medium as example elasticity set this is the old method 1
 Method4_test_for_graph <- Method4_test$EV_Demand
 Method4_example_graph <- ggplot(Method4_test_for_graph) +
       geom_line(aes(x = Hr, y = Xf,color = "Intervention Demand"), 
@@ -2178,7 +2174,7 @@ Method4_example_graph <- ggplot(Method4_test_for_graph) +
       xlab("Hour of the Day") +
       ylab("Electricity Demand (kilowatts)") +
       
-      geom_rect(aes(xmin= 12,
+      geom_rect(aes(xmin= 11,
                     xmax=15,
                     ymin=-Inf,
                     ymax=Inf,
@@ -2210,7 +2206,7 @@ sim_example_graph <- ggplot(Sim_test_report$sim_result_summary) +
       xlab("Hour of the Day") +
       ylab("Electricity Demand (kilowatts)") +
       
-      geom_rect(aes(xmin= 12,
+      geom_rect(aes(xmin= 11,
                     xmax=15,
                     ymin=-Inf,
                     ymax=Inf,
@@ -2218,16 +2214,27 @@ sim_example_graph <- ggplot(Sim_test_report$sim_result_summary) +
                 alpha=0.02) + #this is the discount rectangle REMOVE IF NO DISCOUNT
       scale_x_continuous(limits = c(1,24),breaks = c(1:24), expand = c(0,0)) +
       scale_y_continuous(expand = c(0,0)) +
-      scale_fill_brewer("Interventions",palette = "Set2" , guide = guide_legend(override.aes = list(alpha = 0.5))) +
+     scale_fill_brewer("Interventions",palette = "Set2" , guide = guide_legend(override.aes = list(alpha = 0.5))) +
       scale_color_brewer("Demand", palette = "Dark2", direction = -1) +
       #scale_fill_manual('Interventions', values = c("Disount" = 'cadetblue3',"Rebate" = 'thistle3', "Throttle" = 'darksalmon'),  guide = guide_legend(override.aes = list(alpha = 0.5))) +
       theme(legend.position = "bottom") +
       theme_classic()
+
 Method1_example_graph
+ggsave("Results Graphs/Method1_example_graph.png", Method1_example_graph, device = "png", width = 8, height = 4.5)
+
 Method2_example_graph
+ggsave("Results Graphs/Method2_example_graph.png", Method2_example_graph, device = "png", width = 8, height = 4.5)
+
 Method3_example_graph
+ggsave("Results Graphs/Method3_example_graph.png", Method3_example_graph, device = "png", width = 8, height = 4.5)
+
 Method4_example_graph
+ggsave("Results Graphs/Method4_example_graph.png", Method4_example_graph, device = "png", width = 8, height = 4.5)
+
 sim_example_graph
+ggsave("Results Graphs/sim_example_graph.png", sim_example_graph, device = "png", width = 8, height = 4.5)
+
 ```
 
 
@@ -2288,7 +2295,7 @@ Demand_Graph13 <- ggplot(data = graph_table13, aes(x = Hr)) +
   geom_rect(aes(xmin=6,xmax=11,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
   geom_rect(aes(xmin=11,xmax=15,ymin=-Inf,ymax=Inf, fill = "Discount"),alpha=0.0075) +
   scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
-  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("purple", "blue")) +
+  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("blue", "purple")) +
   theme(plot.title = element_text(hjust = 0.5)) +
   theme(plot.subtitle = element_text(hjust = 0.5))+
   theme(legend.position="bottom") +
@@ -2374,7 +2381,7 @@ Demand_Graph14 <- ggplot(data = graph_table14, aes(x = Hr)) +
   geom_rect(aes(xmin=6,xmax=11,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
   geom_rect(aes(xmin=11,xmax=15,ymin=-Inf,ymax=Inf, fill = "Discount"),alpha=0.0075) +
   scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
-  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("purple", "blue")) +
+  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("blue", "purple")) +
   theme(plot.title = element_text(hjust = 0.5)) +
   theme(plot.subtitle = element_text(hjust = 0.5))+
   theme(legend.position="bottom") +
@@ -2456,7 +2463,7 @@ Demand_Graph15 <- ggplot(data = graph_table15, aes(x = Hr)) +
   geom_rect(aes(xmin=6,xmax=11,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
   geom_rect(aes(xmin=11,xmax=15,ymin=-Inf,ymax=Inf, fill = "Discount"),alpha=0.0075) +
   scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
-  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("purple", "blue")) +
+  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("blue", "purple")) +
   theme(plot.title = element_text(hjust = 0.5)) +
   theme(plot.subtitle = element_text(hjust = 0.5))+
   theme(legend.position="bottom") +
@@ -2537,7 +2544,7 @@ Demand_Graph16 <- ggplot(data = graph_table16, aes(x = Hr)) +
   geom_rect(aes(xmin=6,xmax=11,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
   geom_rect(aes(xmin=11,xmax=15,ymin=-Inf,ymax=Inf, fill = "Discount"),alpha=0.0075) +
   scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
-  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("purple", "blue")) +
+  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("blue", "purple")) +
   theme(plot.title = element_text(hjust = 0.5)) +
   theme(plot.subtitle = element_text(hjust = 0.5))+
   theme(legend.position="bottom") +
@@ -2563,7 +2570,7 @@ Cost_Table16 <- Oct_16_18_WP_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_U
 #Emissions Results
 #View(Nov_28_18_WP_scaled_baseline$EV_Demand)
 write_csv(Oct_16_18_WP_scaled_baseline$EV_Demand, "Event Results/Workplace_Oct_16_18_Demand_Summary.csv")
-Oct_16_18_WP_output_table <- emissions_fcn_event(Oct_16_18_WP_scaled_baseline) 
+Oct_16_18_WP_output_table <- emissions_fcn_event(Oct_16_18_WP_scaled_baseline$EV_Demand, intervention_hours = c(12:15)) 
 write_csv(Oct_16_18_WP_output_table$Emissions_Table, "Event Results/Workplace_Oct_16_18_Output_Summary.csv") #write emissions to csv
 write_csv(Oct_16_18_WP_output_table$Emissions, "Event Results/Workplace_Oct_16_18_Output_All_Hours.csv")
 ```
@@ -2620,7 +2627,7 @@ Demand_Graph17 <- ggplot(data = graph_table17, aes(x = Hr)) +
   geom_rect(aes(xmin=16,xmax=21,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
   geom_rect(aes(xmin=16,xmax=21,ymin=-Inf,ymax=Inf, fill = "Rebate"),alpha=0.0075) +
   scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
-  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("purple", "blue")) +
+  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("blue", "purple")) +
   theme(plot.title = element_text(hjust = 0.5)) +
   theme(plot.subtitle = element_text(hjust = 0.5))+
   theme(legend.position="bottom") +
@@ -2645,7 +2652,7 @@ Cost_Table17 <- Sep_27_18_WP_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_U
 #Emissions Results
 #View(Sep_27_18_WP_scaled_baseline$EV_Demand)
 write_csv(Sep_27_18_WP_scaled_baseline$EV_Demand, "Event Results/Workplace_Sep_27_18_Demand_Summary.csv")
-Sep_27_18_WP_output_table <- emissions_fcn_event(Sep_27_18_WP_scaled_baseline) 
+Sep_27_18_WP_output_table <- emissions_fcn_event(Sep_27_18_WP_scaled_baseline$EV_Demand, intervention_hours = c(17:21)) 
 write_csv(Sep_27_18_WP_output_table$Emissions_Table, "Event Results/Workplace_Sep_27_18_Output_Summary.csv") #write emissions to csv
 write_csv(Sep_27_18_WP_output_table$Emissions, "Event Results/Workplace_Sep_27_18_Output_All_Hours.csv")
 
@@ -2701,7 +2708,7 @@ Demand_Graph18 <- ggplot(data = graph_table18, aes(x = Hr)) +
   geom_rect(aes(xmin=16,xmax=21,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
   geom_rect(aes(xmin=16,xmax=21,ymin=-Inf,ymax=Inf, fill = "Rebate"),alpha=0.0075) +
   scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
-  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("purple", "blue")) +
+  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("blue", "purple")) +
   theme(plot.title = element_text(hjust = 0.5)) +
   theme(plot.subtitle = element_text(hjust = 0.5))+
   theme(legend.position="bottom") +
@@ -2734,7 +2741,7 @@ Sum_Cost18 <-sum(Cost_Table18$Cost_diff)
 #Emissions Results
 #View(Sep_27_18_WP_scaled_baseline$EV_Demand)
 write_csv(Aug_30_18_WP_scaled_baseline$EV_Demand, "Event Results/Workplace_Aug_30_18_Demand_Summary.csv")
-Aug_30_18_WP_output_table <- emissions_fcn_event(Aug_30_18_WP_scaled_baseline) 
+Aug_30_18_WP_output_table <- emissions_fcn_event(Aug_30_18_WP_scaled_baseline$EV_Demand, intervention_hours = c(17:21)) 
 write_csv(Aug_30_18_WP_output_table$Emissions_Table, "Event Results/Workplace_Aug_30_18_Output_Summary.csv") #write emissions to csv
 write_csv(Aug_30_18_WP_output_table$Emissions, "Event Results/Workplace_Aug_30_18_Output_All_Hours.csv")
 ```
@@ -2791,7 +2798,7 @@ Demand_Graph19 <- ggplot(data = graph_table19, aes(x = Hr)) +
   geom_rect(aes(xmin=16,xmax=21,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
   geom_rect(aes(xmin=16,xmax=21,ymin=-Inf,ymax=Inf, fill = "Rebate"),alpha=0.0075) +
   scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
-  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("purple", "blue")) +
+  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("blue", "purple")) +
   theme(plot.title = element_text(hjust = 0.5)) +
   theme(plot.subtitle = element_text(hjust = 0.5))+
   theme(legend.position="bottom") +
@@ -2876,7 +2883,7 @@ Demand_Graph43 <- ggplot(data = graph_table43, aes(x = Hr)) +
   geom_rect(aes(xmin=16,xmax=21,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
   geom_rect(aes(xmin=16,xmax=21,ymin=-Inf,ymax=Inf, fill = "Rebate"),alpha=0.0075) +
   scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
-  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("purple", "blue")) +
+  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("blue", "purple")) +
   theme(plot.title = element_text(hjust = 0.5)) +
   theme(plot.subtitle = element_text(hjust = 0.5))+
   theme(legend.position="bottom") +
@@ -2962,7 +2969,7 @@ Demand_Graph20 <- ggplot(data = graph_table20, aes(x = Hr)) +
   geom_rect(aes(xmin=6,xmax=11,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
   geom_rect(aes(xmin=11,xmax=15,ymin=-Inf,ymax=Inf, fill = "Discount"),alpha=0.0075) +
   scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
-  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("purple", "blue")) +
+  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("blue", "purple")) +
   theme(plot.title = element_text(hjust = 0.5)) +
   theme(plot.subtitle = element_text(hjust = 0.5))+
   theme(legend.position="bottom") +
@@ -3044,7 +3051,7 @@ Demand_Graph21 <- ggplot(data = graph_table21, aes(x = Hr)) +
   geom_rect(aes(xmin=6,xmax=11,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
   geom_rect(aes(xmin=11,xmax=15,ymin=-Inf,ymax=Inf, fill = "Discount"),alpha=0.0075) +
   scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
-  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("purple", "blue")) +
+  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("blue", "purple")) +
   theme(plot.title = element_text(hjust = 0.5)) +
   theme(plot.subtitle = element_text(hjust = 0.5))+
   theme(legend.position="bottom") +
@@ -3125,7 +3132,7 @@ Demand_Graph22 <- ggplot(data = graph_table22, aes(x = Hr)) +
   geom_rect(aes(xmin=6,xmax=11,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
   geom_rect(aes(xmin=11,xmax=15,ymin=-Inf,ymax=Inf, fill = "Discount"),alpha=0.0075) +
   scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
-  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("purple", "blue")) +
+  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("blue", "purple")) +
   theme(plot.title = element_text(hjust = 0.5)) +
   theme(plot.subtitle = element_text(hjust = 0.5))+
   theme(legend.position="bottom") +
@@ -3150,7 +3157,7 @@ Cost_Table22 <- Oct_30_18_DC_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_U
 #Emissions Results
 #View(Nov_14_18_DC_scaled_baseline$EV_Demand)
 write_csv(Oct_30_18_DC_scaled_baseline$EV_Demand, "Event Results/DC_Oct_30_18_Demand_Summary.csv")
-Oct_30_18_DC_output_table <- emissions_fcn_event(Oct_30_18_DC_scaled_baseline) 
+Oct_30_18_DC_output_table <- emissions_fcn_event(Oct_30_18_DC_scaled_baseline$EV_Demand, intervention_hours = c(12:15)) 
 write_csv(Oct_30_18_DC_output_table$Emissions_Table, "Event Results/DC_Oct_30_18_Output_Summary.csv") #write emissions to csv
 write_csv(Oct_30_18_DC_output_table$Emissions, "Event Results/DC_Oct_30_18_Output_All_Hours.csv")
 ```
@@ -3206,7 +3213,7 @@ Demand_Graph23 <- ggplot(data = graph_table23, aes(x = Hr)) +
   geom_rect(aes(xmin=6,xmax=11,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
   geom_rect(aes(xmin=11,xmax=15,ymin=-Inf,ymax=Inf, fill = "Discount"),alpha=0.0075) +
   scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
-  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("purple", "blue")) +
+  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("blue", "purple")) +
   theme(plot.title = element_text(hjust = 0.5)) +
   theme(plot.subtitle = element_text(hjust = 0.5))+
   theme(legend.position="bottom") +
@@ -3232,7 +3239,7 @@ Cost_Table23 <- Oct_16_18_DC_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_U
 #Emissions Results
 #View(Oct_16_18_DC_scaled_baseline$EV_Demand)
 write_csv(Oct_16_18_DC_scaled_baseline$EV_Demand, "Event Results/DC_Oct_16_18_Demand_Summary.csv")
-Oct_16_18_DC_output_table <- emissions_fcn_event(Oct_16_18_DC_scaled_baseline) 
+Oct_16_18_DC_output_table <- emissions_fcn_event(Oct_16_18_DC_scaled_baseline$EV_Demand, intervention_hours = c(12:15)) 
 write_csv(Oct_16_18_DC_output_table$Emissions_Table, "Event Results/DC_Oct_16_18_Output_Summary.csv") #write emissions to csv
 write_csv(Oct_16_18_DC_output_table$Emissions, "Event Results/DC_Oct_16_18_Output_All_Hours.csv")
 ```
@@ -3288,7 +3295,7 @@ Demand_Graph24 <- ggplot(data = graph_table24, aes(x = Hr)) +
   geom_rect(aes(xmin=16,xmax=21,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
   geom_rect(aes(xmin=16,xmax=21,ymin=-Inf,ymax=Inf, fill = "Rebate"),alpha=0.0075) +
   scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
-  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("purple", "blue")) +
+  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("blue", "purple")) +
   theme(plot.title = element_text(hjust = 0.5)) +
   theme(plot.subtitle = element_text(hjust = 0.5))+
   theme(legend.position="bottom") +
@@ -3313,7 +3320,7 @@ Cost_Table24 <- Sep_27_18_DC_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_U
 #Emissions Results
 #View(Sep_27_18_DC_scaled_baseline$EV_Demand)
 write_csv(Sep_27_18_DC_scaled_baseline$EV_Demand, "Event Results/DC_Sep_27_18_Demand_Summary.csv")
-Sep_27_18_DC_output_table <- emissions_fcn_event(Sep_27_18_DC_scaled_baseline) 
+Sep_27_18_DC_output_table <- emissions_fcn_event(Sep_27_18_DC_scaled_baseline$EV_Demand, intervention_hours = c(17:21)) 
 write_csv(Sep_27_18_DC_output_table$Emissions_Table, "Event Results/DC_Sep_27_18_Output_Summary.csv") #write emissions to csv
 write_csv(Sep_27_18_DC_output_table$Emissions, "Event Results/DC_Sep_27_18_Output_All_Hours.csv")
 ```
@@ -3369,7 +3376,7 @@ Demand_Graph25 <- ggplot(data = graph_table25, aes(x = Hr)) +
   geom_rect(aes(xmin=16,xmax=21,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
   geom_rect(aes(xmin=16,xmax=21,ymin=-Inf,ymax=Inf, fill = "Rebate"),alpha=0.0075) +
   scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
-  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("purple", "blue")) +
+  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("blue", "purple")) +
   theme(plot.title = element_text(hjust = 0.5)) +
   theme(plot.subtitle = element_text(hjust = 0.5))+
   theme(legend.position="bottom") +
@@ -3394,7 +3401,7 @@ Cost_Table25 <- Aug_30_18_DC_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_U
 #Emissions Results
 #View(Aug_30_18_DC_scaled_baseline$EV_Demand)
 write_csv(Aug_30_18_DC_scaled_baseline$EV_Demand, "Event Results/DC_Aug_30_18_Demand_Summary.csv")
-Aug_30_18_DC_output_table <- emissions_fcn_event(Aug_30_18_DC_scaled_baseline) 
+Aug_30_18_DC_output_table <- emissions_fcn_event(Aug_30_18_DC_scaled_baseline$EV_Demand, intervention_hours = c(17:21)) 
 write_csv(Aug_30_18_DC_output_table$Emissions_Table, "Event Results/DC_Aug_30_18_Output_Summary.csv") #write emissions to csv
 write_csv(Aug_30_18_DC_output_table$Emissions, "Event Results/DC_Aug_30_18_Output_All_Hours.csv")
 ```
@@ -3451,7 +3458,7 @@ Demand_Graph26 <- ggplot(data = graph_table26, aes(x = Hr)) +
   geom_rect(aes(xmin=16,xmax=21,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
   geom_rect(aes(xmin=16,xmax=21,ymin=-Inf,ymax=Inf, fill = "Rebate"),alpha=0.0075) +
   scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
-  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("purple", "blue")) +
+  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("blue", "purple")) +
   theme(plot.title = element_text(hjust = 0.5)) +
   theme(plot.subtitle = element_text(hjust = 0.5))+
   theme(legend.position="bottom") +
@@ -3535,7 +3542,7 @@ Demand_Graph27 <- ggplot(data = graph_table27, aes(x = Hr)) +
   geom_rect(aes(xmin=16,xmax=21,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
   geom_rect(aes(xmin=16,xmax=21,ymin=-Inf,ymax=Inf, fill = "Rebate"),alpha=0.0075) +
   scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
-  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("purple", "blue")) +
+  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("blue", "purple")) +
   theme(plot.title = element_text(hjust = 0.5)) +
   theme(plot.subtitle = element_text(hjust = 0.5))+
   theme(legend.position="bottom") +
@@ -3561,7 +3568,7 @@ Cost_Table27 <- Jul_11_18_DC_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_U
 #View(Jul_11_18_DC_scaled_baseline$EV_Demand)
 write_csv(Jul_11_18_DC_scaled_baseline$EV_Demand, "Event Results/DC_Jul_11_18_Demand_Summary.csv")
 Jul_11_18_DC_output_table <- emissions_fcn_event(Jul_11_18_DC_scaled_baseline$EV_Demand, intervention_hours = c(17:21)) 
-write_csv(Jul_11_18_DC_output_table$Emissions_Table, "Event Results/DC_Jul_3=11_18_Output_Summary.csv") #write emissions to csv
+write_csv(Jul_11_18_DC_output_table$Emissions_Table, "Event Results/DC_Jul_11_18_Output_Summary.csv") #write emissions to csv
 write_csv(Jul_11_18_DC_output_table$Emissions, "Event Results/DC_Jul_11_18_Output_All_Hours.csv")
 
 ```
@@ -3620,7 +3627,7 @@ Demand_Graph44 <- ggplot(data = graph_table44, aes(x = Hr)) +
   geom_rect(aes(xmin=6,xmax=11,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
   geom_rect(aes(xmin=11,xmax=15,ymin=-Inf,ymax=Inf, fill = "Discount"),alpha=0.0075) +
   scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
-  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("purple", "blue")) +
+  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("blue", "purple")) +
   theme(plot.title = element_text(hjust = 0.5)) +
   theme(plot.subtitle = element_text(hjust = 0.5))+
   theme(legend.position="bottom") +
@@ -3646,7 +3653,7 @@ Cost_Table44 <- Nov_28_18_Fleet_scaled_baseline$EV_Demand[c("Hr","X0","P0","Even
 #Emissions Results
 #View(Jul_11_18_DC_scaled_baseline$EV_Demand)
 write_csv(Nov_28_18_Fleet_scaled_baseline$EV_Demand, "Event Results/Fleet_Nov_28_18_Demand_Summary.csv")
-Nov_28_18_Fleet_output_table <- emissions_fcn_event(Nov_28_18_Fleet_scaled_baseline$EV_Demand, intervention_hours = c(11:15)) 
+Nov_28_18_Fleet_output_table <- emissions_fcn_event(Nov_28_18_Fleet_scaled_baseline$EV_Demand, intervention_hours = c(12:15)) 
 write_csv(Nov_28_18_Fleet_output_table$Emissions_Table, "Event Results/Fleet_Nov_28_18_Output_Summary.csv") #write emissions to csv
 write_csv(Nov_28_18_Fleet_output_table$Emissions, "Event Results/Fleet_Nov_28_18_Output_All_Hours.csv")
 ```
@@ -3702,7 +3709,7 @@ Demand_Graph28 <- ggplot(data = graph_table28, aes(x = Hr)) +
   geom_rect(aes(xmin=6,xmax=11,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
   geom_rect(aes(xmin=11,xmax=15,ymin=-Inf,ymax=Inf, fill = "Discount"),alpha=0.0075) +
   scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
-  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("purple", "blue")) +
+  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("blue", "purple")) +
   theme(plot.title = element_text(hjust = 0.5)) +
   theme(plot.subtitle = element_text(hjust = 0.5))+
   theme(legend.position="bottom") +
@@ -3785,7 +3792,7 @@ Demand_Graph29 <- ggplot(data = graph_table29, aes(x = Hr)) +
   geom_rect(aes(xmin=6,xmax=11,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
   geom_rect(aes(xmin=11,xmax=15,ymin=-Inf,ymax=Inf, fill = "Discount"),alpha=0.0075) +
   scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
-  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("purple", "blue")) +
+  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("blue", "purple")) +
   theme(plot.title = element_text(hjust = 0.5)) +
   theme(plot.subtitle = element_text(hjust = 0.5))+
   theme(legend.position="bottom") +
@@ -3811,7 +3818,7 @@ Cost_Table29 <- Oct_30_18_Fleet_scaled_baseline$EV_Demand[c("Hr","X0","P0","Even
 #Emissions Results
 #View(Oct_30_18_Fleet_scaled_baseline$EV_Demand)
 write_csv(Oct_30_18_Fleet_scaled_baseline$EV_Demand, "Event Results/Fleet_Oct_30_18_Demand_Summary.csv")
-Oct_30_18_Fleet_output_table <- emissions_fcn_event(Oct_30_18_Fleet_scaled_baseline) 
+Oct_30_18_Fleet_output_table <- emissions_fcn_event(Oct_30_18_Fleet_scaled_baseline$EV_Demand, intervention_hours = c(12:15)) 
 write_csv(Oct_30_18_Fleet_output_table$Emissions_Table, "Event Results/Fleet_Oct_30_18_Output_Summary.csv") #write emissions to csv
 write_csv(Oct_30_18_Fleet_output_table$Emissions, "Event Results/Fleet_Oct_30_18_Output_All_Hours.csv")
 ```
@@ -3867,7 +3874,7 @@ Demand_Graph30 <- ggplot(data = graph_table30, aes(x = Hr)) +
   geom_rect(aes(xmin=6,xmax=11,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
   geom_rect(aes(xmin=11,xmax=15,ymin=-Inf,ymax=Inf, fill = "Discount"),alpha=0.0075) +
   scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
-  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("purple", "blue")) +
+  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("blue", "purple")) +
   theme(plot.title = element_text(hjust = 0.5)) +
   theme(plot.subtitle = element_text(hjust = 0.5))+
   theme(legend.position="bottom") +
@@ -3893,7 +3900,7 @@ Cost_Table30 <- Oct_16_18_Fleet_scaled_baseline$EV_Demand[c("Hr","X0","P0","Even
 #Emissions Results
 #View(Oct_16_18_Fleet_scaled_baseline$EV_Demand)
 write_csv(Oct_16_18_Fleet_scaled_baseline$EV_Demand, "Event Results/Fleet_Oct_16_18_Demand_Summary.csv")
-Oct_16_18_Fleet_output_table <- emissions_fcn_event(Oct_16_18_Fleet_scaled_baseline) 
+Oct_16_18_Fleet_output_table <- emissions_fcn_event(Oct_16_18_Fleet_scaled_baseline$EV_Demand, intervention_hours = c(12:15)) 
 write_csv(Oct_16_18_Fleet_output_table$Emissions_Table, "Event Results/Fleet_Oct_16_18_Output_Summary.csv") #write emissions to csv
 write_csv(Oct_16_18_Fleet_output_table$Emissions, "Event Results/Fleet_Oct_16_18_Output_All_Hours.csv")
 ```
@@ -3949,7 +3956,7 @@ Demand_Graph31 <- ggplot(data = graph_table31, aes(x = Hr)) +
   geom_rect(aes(xmin=16,xmax=21,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
   geom_rect(aes(xmin=16,xmax=21,ymin=-Inf,ymax=Inf, fill = "Rebate"),alpha=0.0075) +
   scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
-  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("purple", "blue")) +
+  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("blue", "purple")) +
   theme(plot.title = element_text(hjust = 0.5)) +
   theme(plot.subtitle = element_text(hjust = 0.5))+
   theme(legend.position="bottom") +
@@ -3975,7 +3982,7 @@ Cost_Table31 <- Sep_27_18_Fleet_scaled_baseline$EV_Demand[c("Hr","X0","P0","Even
 #Emissions Results
 #View(Sep_27_18_Fleet_scaled_baseline$EV_Demand)
 write_csv(Sep_27_18_Fleet_scaled_baseline$EV_Demand, "Event Results/Fleet_Sep_27_18_Demand_Summary.csv")
-Sep_27_18_Fleet_output_table <- emissions_fcn_event(Sep_27_18_Fleet_scaled_baseline) 
+Sep_27_18_Fleet_output_table <- emissions_fcn_event(Sep_27_18_Fleet_scaled_baseline$EV_Demand, intervention_hours = c(17:21)) 
 write_csv(Sep_27_18_Fleet_output_table$Emissions_Table, "Event Results/Fleet_Sep_27_18_Output_Summary.csv") #write emissions to csv
 write_csv(Sep_27_18_Fleet_output_table$Emissions, "Event Results/Fleet_Sep_27_18_Output_All_Hours.csv")
 ```
@@ -4030,7 +4037,7 @@ Demand_Graph32 <- ggplot(data = graph_table32, aes(x = Hr)) +
   geom_rect(aes(xmin=16,xmax=21,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
   geom_rect(aes(xmin=16,xmax=21,ymin=-Inf,ymax=Inf, fill = "Rebate"),alpha=0.0075) +
   scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
-  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("purple", "blue")) +
+  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("blue", "purple")) +
   theme(plot.title = element_text(hjust = 0.5)) +
   theme(plot.subtitle = element_text(hjust = 0.5))+
   theme(legend.position="bottom") +
@@ -4055,7 +4062,7 @@ Cost_Table32 <- Aug_30_18_Fleet_scaled_baseline$EV_Demand[c("Hr","X0","P0","Even
 #Emissions Results
 #View(Aug_30_18_Fleet_scaled_baseline$EV_Demand)
 write_csv(Aug_30_18_Fleet_scaled_baseline$EV_Demand, "Event Results/Fleet_Aug_30_18_Demand_Summary.csv")
-Aug_30_18_Fleet_output_table <- emissions_fcn_event(Aug_30_18_Fleet_scaled_baseline) 
+Aug_30_18_Fleet_output_table <- emissions_fcn_event(Aug_30_18_Fleet_scaled_baseline$EV_Demand, intervention_hours = c(17:21)) 
 write_csv(Aug_30_18_Fleet_output_table$Emissions_Table, "Event Results/Fleet_Aug_30_18_Output_Summary.csv") #write emissions to csv
 write_csv(Aug_30_18_Fleet_output_table$Emissions, "Event Results/Fleet_Aug_30_18_Output_All_Hours.csv")
 
@@ -4112,7 +4119,7 @@ Demand_Graph33 <- ggplot(data = graph_table33, aes(x = Hr)) +
   geom_rect(aes(xmin=16,xmax=21,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
   geom_rect(aes(xmin=16,xmax=21,ymin=-Inf,ymax=Inf, fill = "Rebate"),alpha=0.0075) +
   scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
-  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("purple", "blue")) +
+  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("blue", "purple")) +
   theme(plot.title = element_text(hjust = 0.5)) +
   theme(plot.subtitle = element_text(hjust = 0.5))+
   theme(legend.position="bottom") +
@@ -4195,7 +4202,7 @@ Demand_Graph34 <- ggplot(data = graph_table34, aes(x = Hr)) +
   geom_rect(aes(xmin=16,xmax=21,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
   geom_rect(aes(xmin=16,xmax=21,ymin=-Inf,ymax=Inf, fill = "Rebate"),alpha=0.0075) +
   scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
-  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("purple", "blue")) +
+  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("blue", "purple")) +
   theme(plot.title = element_text(hjust = 0.5)) +
   theme(plot.subtitle = element_text(hjust = 0.5))+
   theme(legend.position="bottom") +
@@ -4282,7 +4289,7 @@ Demand_Graph35 <- ggplot(data = graph_table35, aes(x = Hr)) +
   geom_rect(aes(xmin=6,xmax=11,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
   geom_rect(aes(xmin=11,xmax=15,ymin=-Inf,ymax=Inf, fill = "Discount"),alpha=0.0075) +
   scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
-  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("purple", "blue")) +
+  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("blue", "purple")) +
   theme(plot.title = element_text(hjust = 0.5)) +
   theme(plot.subtitle = element_text(hjust = 0.5))+
   theme(legend.position="bottom") +
@@ -4363,7 +4370,7 @@ Demand_Graph36 <- ggplot(data = graph_table36, aes(x = Hr)) +
   geom_rect(aes(xmin=6,xmax=11,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
   geom_rect(aes(xmin=11,xmax=15,ymin=-Inf,ymax=Inf, fill = "Discount"),alpha=0.0075) +
   scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
-  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("purple", "blue")) +
+  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("blue", "purple")) +
   theme(plot.title = element_text(hjust = 0.5)) +
   theme(plot.subtitle = element_text(hjust = 0.5))+
   theme(legend.position="bottom") +
@@ -4446,7 +4453,7 @@ Demand_Graph37 <- ggplot(data = graph_table37, aes(x = Hr)) +
   geom_rect(aes(xmin=6,xmax=11,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
   geom_rect(aes(xmin=11,xmax=15,ymin=-Inf,ymax=Inf, fill = "Discount"),alpha=0.0075) +
   scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
-  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("purple", "blue")) +
+  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("blue", "purple")) +
   theme(plot.title = element_text(hjust = 0.5)) +
   theme(plot.subtitle = element_text(hjust = 0.5))+
   theme(legend.position="bottom") +
@@ -4471,7 +4478,7 @@ Cost_Table37 <- Oct_30_18_MUD_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_
 #Emissions Results
 #View(Oct_30_18_MUD_scaled_baseline$EV_Demand)
 write_csv(Oct_30_18_MUD_scaled_baseline$EV_Demand, "Event Results/MUD_Oct_30_18_Demand_Summary.csv")
-Oct_30_18_MUD_output_table <- emissions_fcn_event(Oct_30_18_MUD_scaled_baseline) 
+Oct_30_18_MUD_output_table <- emissions_fcn_event(Oct_30_18_MUD_scaled_baseline$EV_Demand, intervention_hours = c(12:15)) 
 write_csv(Oct_30_18_MUD_output_table$Emissions_Table, "Event Results/MUD_Oct_30_18_Output_Summary.csv") #write emissions to csv
 write_csv(Oct_30_18_MUD_output_table$Emissions, "Event Results/MUD_Oct_30_18_Output_All_Hours.csv")
 ```
@@ -4528,7 +4535,7 @@ Demand_Graph38 <- ggplot(data = graph_table37, aes(x = Hr)) +
   geom_rect(aes(xmin=6,xmax=11,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
   geom_rect(aes(xmin=11,xmax=15,ymin=-Inf,ymax=Inf, fill = "Discount"),alpha=0.0075) +
   scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
-  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("purple", "blue")) +
+  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("blue", "purple")) +
   theme(plot.title = element_text(hjust = 0.5)) +
   theme(plot.subtitle = element_text(hjust = 0.5))+
   theme(legend.position="bottom") +
@@ -4553,7 +4560,7 @@ Cost_Table38 <- Oct_16_18_MUD_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_
 #Emissions Results
 #View(Oct_16_18_MUD_scaled_baseline$EV_Demand)
 write_csv(Oct_16_18_MUD_scaled_baseline$EV_Demand, "Event Results/MUD_Oct_16_18_Demand_Summary.csv")
-Oct_16_18_MUD_output_table <- emissions_fcn_event(Oct_16_18_MUD_scaled_baseline) 
+Oct_16_18_MUD_output_table <- emissions_fcn_event(Oct_16_18_MUD_scaled_baseline$EV_Demand, intervention_hours = c(12:15)) 
 write_csv(Oct_16_18_MUD_output_table$Emissions_Table, "Event Results/MUD_Oct_16_18_Output_Summary.csv") #write emissions to csv
 write_csv(Oct_16_18_MUD_output_table$Emissions, "Event Results/MUD_Oct_16_18_Output_All_Hours.csv")
 ```
@@ -4609,7 +4616,7 @@ Demand_Graph39 <- ggplot(data = graph_table39, aes(x = Hr)) +
   geom_rect(aes(xmin=16,xmax=21,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
   geom_rect(aes(xmin=16,xmax=21,ymin=-Inf,ymax=Inf, fill = "Rebate"),alpha=0.0075) +
   scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
-  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("purple", "blue")) +
+  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("blue", "purple")) +
   theme(plot.title = element_text(hjust = 0.5)) +
   theme(plot.subtitle = element_text(hjust = 0.5))+
   theme(legend.position="bottom") +
@@ -4635,7 +4642,7 @@ Cost_Table39 <- Sep_27_18_MUD_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_
 #Emissions Results
 #View(Sep_27_18_MUD_scaled_baseline$EV_Demand)
 write_csv(Sep_27_18_MUD_scaled_baseline$EV_Demand, "Event Results/MUD_Sep_27_18_Demand_Summary.csv")
-Sep_27_18_MUD_output_table <- emissions_fcn_event(Sep_27_18_MUD_scaled_baseline) 
+Sep_27_18_MUD_output_table <- emissions_fcn_event(Sep_27_18_MUD_scaled_baseline$EV_Demand, intervention_hours = c(17:21)) 
 write_csv(Sep_27_18_MUD_output_table$Emissions_Table, "Event Results/MUD_Sep_27_18_Output_Summary.csv") #write emissions to csv
 write_csv(Sep_27_18_MUD_output_table$Emissions, "Event Results/MUD_Sep_27_18_Output_All_Hours.csv")
 ```
@@ -4691,7 +4698,7 @@ Demand_Graph40 <- ggplot(data = graph_table40, aes(x = Hr)) +
   geom_rect(aes(xmin=16,xmax=21,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
   geom_rect(aes(xmin=16,xmax=21,ymin=-Inf,ymax=Inf, fill = "Rebate"),alpha=0.0075) +
   scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
-  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("purple", "blue")) +
+  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("blue", "purple")) +
   theme(plot.title = element_text(hjust = 0.5)) +
   theme(plot.subtitle = element_text(hjust = 0.5))+
   theme(legend.position="bottom") +
@@ -4716,7 +4723,7 @@ Cost_Table40 <- Aug_30_18_MUD_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_
 #Emissions Results
 #View(Aug_30_18_MUD_scaled_baseline$EV_Demand)
 write_csv(Aug_30_18_MUD_scaled_baseline$EV_Demand, "Event Results/MUD_Aug_30_18_Demand_Summary.csv")
-Aug_30_18_MUD_output_table <- emissions_fcn_event(Aug_30_18_MUD_scaled_baseline) 
+Aug_30_18_MUD_output_table <- emissions_fcn_event(Aug_30_18_MUD_scaled_baseline$EV_Demand, intervention_hours = c(17:21)) 
 write_csv(Aug_30_18_MUD_output_table$Emissions_Table, "Event Results/MUD_Aug_30_18_Output_Summary.csv") #write emissions to csv
 write_csv(Aug_30_18_MUD_output_table$Emissions, "Event Results/MUD_Aug_30_18_Output_All_Hours.csv")
 ```
@@ -4770,7 +4777,7 @@ Demand_Graph41 <- ggplot(data = graph_table41, aes(x = Hr)) +
   geom_rect(aes(xmin=16,xmax=21,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
   geom_rect(aes(xmin=16,xmax=21,ymin=-Inf,ymax=Inf, fill = "Rebate"),alpha=0.0075) +
   scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
-  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("purple", "blue")) +
+  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("blue", "purple")) +
   theme(plot.title = element_text(hjust = 0.5)) +
   theme(plot.subtitle = element_text(hjust = 0.5))+
   theme(legend.position="bottom") +
@@ -4852,7 +4859,7 @@ Demand_Graph42 <- ggplot(data = graph_table42, aes(x = Hr)) +
   geom_rect(aes(xmin=16,xmax=21,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
   geom_rect(aes(xmin=16,xmax=21,ymin=-Inf,ymax=Inf, fill = "Rebate"),alpha=0.0075) +
   scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
-  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("purple", "blue")) +
+  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("blue", "purple")) +
   theme(plot.title = element_text(hjust = 0.5)) +
   theme(plot.subtitle = element_text(hjust = 0.5))+
   theme(legend.position="bottom") +
@@ -4938,6 +4945,66 @@ Max_theory_table <- Chargers %>%
   mutate(Theoretical_Max = pwr*Nov_18)
 
 Max_theory_table #This shows the theoretical max per market segment (and total) for the SCE Charge Ready Pilot for ONE hour.
+
+```
+
+
+
+```{r new_Graph_design}
+# library(wesanderson)
+#library(extrafont)
+Method1_test <- hourly_demand(method = 1, include_wknds = FALSE, price_comm = FALSE, elasticity_schedule = 7)
+Method1_test_for_graph <- Method1_test$EV_Demand
+Test_example_graph <- ggplot(Method1_test_for_graph) +
+      geom_line(aes(x = Hr, y = Xf,color = "Intervention Demand"), 
+                size = 0.9, 
+                alpha = 0.75) + #This is the Xf line
+      geom_line(aes(x = Hr,
+                    y = X0,
+                    color = "Baseline Demand"), #linetype = "dashed",
+               size = 0.9, 
+                alpha = 0.75) + #This is the X0 line
+      ggtitle("Method 1") +
+      xlab("Hour of the Day") +
+      ylab("Electricity Demand (kW)") +
+      geom_rect(aes(xmin= 11,
+                    xmax=15,
+                    ymin=-Inf,
+                    ymax=Inf,
+                    fill = "Discount"),
+                alpha=0.005) + #this is the discount rectangle REMOVE IF NO DISCOUNT
+geom_rect(aes(xmin= 16,
+                   xmax=21,
+                   ymin=-Inf,
+                   ymax=Inf,
+                    fill = "Rebate"),
+                alpha=0.005) + 
+  geom_rect(aes(xmin= 6,
+                   xmax=11,
+                    ymin=-Inf,
+                    ymax=Inf,
+                    fill = "Throttle"),
+                alpha=0.005) + 
+  geom_rect(aes(xmin= 22,
+                    xmax=24,
+                   ymin=-Inf,
+                    ymax=Inf,
+                    fill = "Throttle and Rebate"),
+                alpha=0.01) +
+      scale_x_continuous(limits = c(1,24),breaks = c(1:24), expand = c(0,0)) +
+      scale_y_continuous(expand = c(0,0)) +
+    #  scale_fill_brewer("Interventions",palette = "Set2" , guide = guide_legend(override.aes = list(alpha = 0.5))) +
+    # scale_color_brewer("Demand", palette = "Dark2", direction = -1) +
+  #scale_fill_manual('Interventions', values = wes_palette("Darjeeling1")) +
+     scale_fill_manual('Interventions', values = c("Discount" = 'green',"Throttle" = 'red1', "Rebate" = 'yellow1', "Throttle and Rebate" = "#C7B19C"),  guide = guide_legend(override.aes = list(alpha = 0.1))) +
+   scale_color_manual('Demand', values = c("Baseline Demand" = "red3", "Intervention Demand" ="dodgerblue2")) +
+  # scale_color_manual(labels=c("Baseline Demand","Intervention Demand"), values = c("green", "orange")) +
+      theme(legend.position = "bottom") +
+      theme_classic(base_family = "Helvetica")
+
+Test_example_graph
+ggsave("Results Graphs/test_graph.png", Test_example_graph, device = "png", width = 8, height = 4.5)
+
 
 ```
 
