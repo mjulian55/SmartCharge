@@ -2570,7 +2570,7 @@ Cost_Table16 <- Oct_16_18_WP_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_U
 #Emissions Results
 #View(Nov_28_18_WP_scaled_baseline$EV_Demand)
 write_csv(Oct_16_18_WP_scaled_baseline$EV_Demand, "Event Results/Workplace_Oct_16_18_Demand_Summary.csv")
-Oct_16_18_WP_output_table <- emissions_fcn_event(Oct_16_18_WP_scaled_baseline) 
+Oct_16_18_WP_output_table <- emissions_fcn_event(Oct_16_18_WP_scaled_baseline$EV_Demand, intervention_hours = c(12:15)) 
 write_csv(Oct_16_18_WP_output_table$Emissions_Table, "Event Results/Workplace_Oct_16_18_Output_Summary.csv") #write emissions to csv
 write_csv(Oct_16_18_WP_output_table$Emissions, "Event Results/Workplace_Oct_16_18_Output_All_Hours.csv")
 ```
@@ -2652,7 +2652,7 @@ Cost_Table17 <- Sep_27_18_WP_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_U
 #Emissions Results
 #View(Sep_27_18_WP_scaled_baseline$EV_Demand)
 write_csv(Sep_27_18_WP_scaled_baseline$EV_Demand, "Event Results/Workplace_Sep_27_18_Demand_Summary.csv")
-Sep_27_18_WP_output_table <- emissions_fcn_event(Sep_27_18_WP_scaled_baseline) 
+Sep_27_18_WP_output_table <- emissions_fcn_event(Sep_27_18_WP_scaled_baseline$EV_Demand, intervention_hours = c(17:21)) 
 write_csv(Sep_27_18_WP_output_table$Emissions_Table, "Event Results/Workplace_Sep_27_18_Output_Summary.csv") #write emissions to csv
 write_csv(Sep_27_18_WP_output_table$Emissions, "Event Results/Workplace_Sep_27_18_Output_All_Hours.csv")
 
@@ -2741,7 +2741,7 @@ Sum_Cost18 <-sum(Cost_Table18$Cost_diff)
 #Emissions Results
 #View(Sep_27_18_WP_scaled_baseline$EV_Demand)
 write_csv(Aug_30_18_WP_scaled_baseline$EV_Demand, "Event Results/Workplace_Aug_30_18_Demand_Summary.csv")
-Aug_30_18_WP_output_table <- emissions_fcn_event(Aug_30_18_WP_scaled_baseline) 
+Aug_30_18_WP_output_table <- emissions_fcn_event(Aug_30_18_WP_scaled_baseline$EV_Demand, intervention_hours = c(17:21)) 
 write_csv(Aug_30_18_WP_output_table$Emissions_Table, "Event Results/Workplace_Aug_30_18_Output_Summary.csv") #write emissions to csv
 write_csv(Aug_30_18_WP_output_table$Emissions, "Event Results/Workplace_Aug_30_18_Output_All_Hours.csv")
 ```
@@ -3157,7 +3157,7 @@ Cost_Table22 <- Oct_30_18_DC_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_U
 #Emissions Results
 #View(Nov_14_18_DC_scaled_baseline$EV_Demand)
 write_csv(Oct_30_18_DC_scaled_baseline$EV_Demand, "Event Results/DC_Oct_30_18_Demand_Summary.csv")
-Oct_30_18_DC_output_table <- emissions_fcn_event(Oct_30_18_DC_scaled_baseline) 
+Oct_30_18_DC_output_table <- emissions_fcn_event(Oct_30_18_DC_scaled_baseline$EV_Demand, intervention_hours = c(12:15)) 
 write_csv(Oct_30_18_DC_output_table$Emissions_Table, "Event Results/DC_Oct_30_18_Output_Summary.csv") #write emissions to csv
 write_csv(Oct_30_18_DC_output_table$Emissions, "Event Results/DC_Oct_30_18_Output_All_Hours.csv")
 ```
@@ -3239,7 +3239,7 @@ Cost_Table23 <- Oct_16_18_DC_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_U
 #Emissions Results
 #View(Oct_16_18_DC_scaled_baseline$EV_Demand)
 write_csv(Oct_16_18_DC_scaled_baseline$EV_Demand, "Event Results/DC_Oct_16_18_Demand_Summary.csv")
-Oct_16_18_DC_output_table <- emissions_fcn_event(Oct_16_18_DC_scaled_baseline) 
+Oct_16_18_DC_output_table <- emissions_fcn_event(Oct_16_18_DC_scaled_baseline$EV_Demand, intervention_hours = c(12:15)) 
 write_csv(Oct_16_18_DC_output_table$Emissions_Table, "Event Results/DC_Oct_16_18_Output_Summary.csv") #write emissions to csv
 write_csv(Oct_16_18_DC_output_table$Emissions, "Event Results/DC_Oct_16_18_Output_All_Hours.csv")
 ```
@@ -3320,7 +3320,7 @@ Cost_Table24 <- Sep_27_18_DC_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_U
 #Emissions Results
 #View(Sep_27_18_DC_scaled_baseline$EV_Demand)
 write_csv(Sep_27_18_DC_scaled_baseline$EV_Demand, "Event Results/DC_Sep_27_18_Demand_Summary.csv")
-Sep_27_18_DC_output_table <- emissions_fcn_event(Sep_27_18_DC_scaled_baseline) 
+Sep_27_18_DC_output_table <- emissions_fcn_event(Sep_27_18_DC_scaled_baseline$EV_Demand, intervention_hours = c(17:21)) 
 write_csv(Sep_27_18_DC_output_table$Emissions_Table, "Event Results/DC_Sep_27_18_Output_Summary.csv") #write emissions to csv
 write_csv(Sep_27_18_DC_output_table$Emissions, "Event Results/DC_Sep_27_18_Output_All_Hours.csv")
 ```
@@ -3401,7 +3401,7 @@ Cost_Table25 <- Aug_30_18_DC_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_U
 #Emissions Results
 #View(Aug_30_18_DC_scaled_baseline$EV_Demand)
 write_csv(Aug_30_18_DC_scaled_baseline$EV_Demand, "Event Results/DC_Aug_30_18_Demand_Summary.csv")
-Aug_30_18_DC_output_table <- emissions_fcn_event(Aug_30_18_DC_scaled_baseline) 
+Aug_30_18_DC_output_table <- emissions_fcn_event(Aug_30_18_DC_scaled_baseline$EV_Demand, intervention_hours = c(17:21)) 
 write_csv(Aug_30_18_DC_output_table$Emissions_Table, "Event Results/DC_Aug_30_18_Output_Summary.csv") #write emissions to csv
 write_csv(Aug_30_18_DC_output_table$Emissions, "Event Results/DC_Aug_30_18_Output_All_Hours.csv")
 ```
@@ -3818,7 +3818,7 @@ Cost_Table29 <- Oct_30_18_Fleet_scaled_baseline$EV_Demand[c("Hr","X0","P0","Even
 #Emissions Results
 #View(Oct_30_18_Fleet_scaled_baseline$EV_Demand)
 write_csv(Oct_30_18_Fleet_scaled_baseline$EV_Demand, "Event Results/Fleet_Oct_30_18_Demand_Summary.csv")
-Oct_30_18_Fleet_output_table <- emissions_fcn_event(Oct_30_18_Fleet_scaled_baseline) 
+Oct_30_18_Fleet_output_table <- emissions_fcn_event(Oct_30_18_Fleet_scaled_baseline$EV_Demand, intervention_hours = c(12:15)) 
 write_csv(Oct_30_18_Fleet_output_table$Emissions_Table, "Event Results/Fleet_Oct_30_18_Output_Summary.csv") #write emissions to csv
 write_csv(Oct_30_18_Fleet_output_table$Emissions, "Event Results/Fleet_Oct_30_18_Output_All_Hours.csv")
 ```
@@ -3900,7 +3900,7 @@ Cost_Table30 <- Oct_16_18_Fleet_scaled_baseline$EV_Demand[c("Hr","X0","P0","Even
 #Emissions Results
 #View(Oct_16_18_Fleet_scaled_baseline$EV_Demand)
 write_csv(Oct_16_18_Fleet_scaled_baseline$EV_Demand, "Event Results/Fleet_Oct_16_18_Demand_Summary.csv")
-Oct_16_18_Fleet_output_table <- emissions_fcn_event(Oct_16_18_Fleet_scaled_baseline) 
+Oct_16_18_Fleet_output_table <- emissions_fcn_event(Oct_16_18_Fleet_scaled_baseline$EV_Demand, intervention_hours = c(12:15)) 
 write_csv(Oct_16_18_Fleet_output_table$Emissions_Table, "Event Results/Fleet_Oct_16_18_Output_Summary.csv") #write emissions to csv
 write_csv(Oct_16_18_Fleet_output_table$Emissions, "Event Results/Fleet_Oct_16_18_Output_All_Hours.csv")
 ```
@@ -3982,7 +3982,7 @@ Cost_Table31 <- Sep_27_18_Fleet_scaled_baseline$EV_Demand[c("Hr","X0","P0","Even
 #Emissions Results
 #View(Sep_27_18_Fleet_scaled_baseline$EV_Demand)
 write_csv(Sep_27_18_Fleet_scaled_baseline$EV_Demand, "Event Results/Fleet_Sep_27_18_Demand_Summary.csv")
-Sep_27_18_Fleet_output_table <- emissions_fcn_event(Sep_27_18_Fleet_scaled_baseline) 
+Sep_27_18_Fleet_output_table <- emissions_fcn_event(Sep_27_18_Fleet_scaled_baseline$EV_Demand, intervention_hours = c(17:21)) 
 write_csv(Sep_27_18_Fleet_output_table$Emissions_Table, "Event Results/Fleet_Sep_27_18_Output_Summary.csv") #write emissions to csv
 write_csv(Sep_27_18_Fleet_output_table$Emissions, "Event Results/Fleet_Sep_27_18_Output_All_Hours.csv")
 ```
@@ -4062,7 +4062,7 @@ Cost_Table32 <- Aug_30_18_Fleet_scaled_baseline$EV_Demand[c("Hr","X0","P0","Even
 #Emissions Results
 #View(Aug_30_18_Fleet_scaled_baseline$EV_Demand)
 write_csv(Aug_30_18_Fleet_scaled_baseline$EV_Demand, "Event Results/Fleet_Aug_30_18_Demand_Summary.csv")
-Aug_30_18_Fleet_output_table <- emissions_fcn_event(Aug_30_18_Fleet_scaled_baseline) 
+Aug_30_18_Fleet_output_table <- emissions_fcn_event(Aug_30_18_Fleet_scaled_baseline$EV_Demand, intervention_hours = c(17:21)) 
 write_csv(Aug_30_18_Fleet_output_table$Emissions_Table, "Event Results/Fleet_Aug_30_18_Output_Summary.csv") #write emissions to csv
 write_csv(Aug_30_18_Fleet_output_table$Emissions, "Event Results/Fleet_Aug_30_18_Output_All_Hours.csv")
 
@@ -4478,7 +4478,7 @@ Cost_Table37 <- Oct_30_18_MUD_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_
 #Emissions Results
 #View(Oct_30_18_MUD_scaled_baseline$EV_Demand)
 write_csv(Oct_30_18_MUD_scaled_baseline$EV_Demand, "Event Results/MUD_Oct_30_18_Demand_Summary.csv")
-Oct_30_18_MUD_output_table <- emissions_fcn_event(Oct_30_18_MUD_scaled_baseline) 
+Oct_30_18_MUD_output_table <- emissions_fcn_event(Oct_30_18_MUD_scaled_baseline$EV_Demand, intervention_hours = c(12:15)) 
 write_csv(Oct_30_18_MUD_output_table$Emissions_Table, "Event Results/MUD_Oct_30_18_Output_Summary.csv") #write emissions to csv
 write_csv(Oct_30_18_MUD_output_table$Emissions, "Event Results/MUD_Oct_30_18_Output_All_Hours.csv")
 ```
@@ -4560,7 +4560,7 @@ Cost_Table38 <- Oct_16_18_MUD_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_
 #Emissions Results
 #View(Oct_16_18_MUD_scaled_baseline$EV_Demand)
 write_csv(Oct_16_18_MUD_scaled_baseline$EV_Demand, "Event Results/MUD_Oct_16_18_Demand_Summary.csv")
-Oct_16_18_MUD_output_table <- emissions_fcn_event(Oct_16_18_MUD_scaled_baseline) 
+Oct_16_18_MUD_output_table <- emissions_fcn_event(Oct_16_18_MUD_scaled_baseline$EV_Demand, intervention_hours = c(12:15)) 
 write_csv(Oct_16_18_MUD_output_table$Emissions_Table, "Event Results/MUD_Oct_16_18_Output_Summary.csv") #write emissions to csv
 write_csv(Oct_16_18_MUD_output_table$Emissions, "Event Results/MUD_Oct_16_18_Output_All_Hours.csv")
 ```
@@ -4642,7 +4642,7 @@ Cost_Table39 <- Sep_27_18_MUD_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_
 #Emissions Results
 #View(Sep_27_18_MUD_scaled_baseline$EV_Demand)
 write_csv(Sep_27_18_MUD_scaled_baseline$EV_Demand, "Event Results/MUD_Sep_27_18_Demand_Summary.csv")
-Sep_27_18_MUD_output_table <- emissions_fcn_event(Sep_27_18_MUD_scaled_baseline) 
+Sep_27_18_MUD_output_table <- emissions_fcn_event(Sep_27_18_MUD_scaled_baseline$EV_Demand, intervention_hours = c(17:21)) 
 write_csv(Sep_27_18_MUD_output_table$Emissions_Table, "Event Results/MUD_Sep_27_18_Output_Summary.csv") #write emissions to csv
 write_csv(Sep_27_18_MUD_output_table$Emissions, "Event Results/MUD_Sep_27_18_Output_All_Hours.csv")
 ```
@@ -4723,7 +4723,7 @@ Cost_Table40 <- Aug_30_18_MUD_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_
 #Emissions Results
 #View(Aug_30_18_MUD_scaled_baseline$EV_Demand)
 write_csv(Aug_30_18_MUD_scaled_baseline$EV_Demand, "Event Results/MUD_Aug_30_18_Demand_Summary.csv")
-Aug_30_18_MUD_output_table <- emissions_fcn_event(Aug_30_18_MUD_scaled_baseline) 
+Aug_30_18_MUD_output_table <- emissions_fcn_event(Aug_30_18_MUD_scaled_baseline$EV_Demand, intervention_hours = c(17:21)) 
 write_csv(Aug_30_18_MUD_output_table$Emissions_Table, "Event Results/MUD_Aug_30_18_Output_Summary.csv") #write emissions to csv
 write_csv(Aug_30_18_MUD_output_table$Emissions, "Event Results/MUD_Aug_30_18_Output_All_Hours.csv")
 ```
