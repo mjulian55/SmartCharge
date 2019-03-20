@@ -2647,37 +2647,49 @@ unlist()
 Oct_30_18_WP_scaled_baseline$EV_Demand <- Oct_30_18_WP_scaled_baseline$EV_Demand %>%
   mutate(Event_Usage = Oct_30_18_WP_Event_Usage) 
 
+graph_table15 <- Oct_30_18_WP_scaled_baseline$EV_Demand[c("Hr","X0","Event_Usage")] #%>%
+  #gather(condition,value,c("X0","Event_Usage")) %>%
+  #mutate(Theoretical_Max=Oct_30_18_WP_scaled_baseline$EV_Demand$MT[1])
 
-
-graph_table15 <- Oct_30_18_WP_scaled_baseline$EV_Demand[c("Hr","X0","Event_Usage")] %>%
-  gather(condition,value,c("X0","Event_Usage")) %>%
-  mutate(Theoretical_Max=Oct_30_18_WP_scaled_baseline$EV_Demand$MT[1])
-
+hr_24<- graph_table15[24,]
+hr_24[1,1] <- 0
+graph_table15 <- rbind(hr_24,graph_table15)
 
 Demand_Graph15 <- ggplot(data = graph_table15, aes(x = Hr)) +
-  geom_line(aes(y = value, color=condition)) +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-  panel.background = element_blank(), axis.line = element_line(colour = "black")) +
-  labs(title="Workplace Hourly Demand Forecast",
-  subtitle="October 2018 Baseline Scaled for October 30th, 2018 Event (377 Chargers) \n Event Usage October 30th, 2018 Event",
-  y="EV Charging Demand (kW)",
-  x="Hour",
-  color=NULL) +
-  geom_rect(aes(xmin=6,xmax=11,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
-  geom_rect(aes(xmin=11,xmax=15,ymin=-Inf,ymax=Inf, fill = "Discount"),alpha=0.0075) +
-  scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
-  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("blue", "purple")) +
-  theme(plot.title = element_text(hjust = 0.5)) +
-  theme(plot.subtitle = element_text(hjust = 0.5))+
-  theme(legend.position="bottom") +
-  scale_fill_manual('Interventions',values = c('green','yellow'),  guide = guide_legend(override.aes = list(alpha = 0.15)))
+  geom_line(aes(x = Hr, 
+                  y = Event_Usage, 
+                  color = "Event Demand"), 
+                  size = 0.9, 
+                  alpha = 0.75) + #This is the Xf line
+    geom_line(aes(x = Hr,
+                  y = X0,
+                  color = "Scaled Baseline Demand"),
+                  size = 0.9, 
+                  alpha = 0.75) + #This is the X0 line
+      theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+      panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+      xlab("Hour of the Day") +
+      ylab("Electricity Demand (kW)") +
+    geom_rect(aes(xmin = 11,
+                  xmax = 15,
+                  ymin = -Inf,
+                  ymax = Inf,
+                  fill = "Discount"),alpha = 0.005) + #this is the discount rectangle REMOVE IF NO DISCOUNT
+    geom_rect(aes(xmin = 6,
+                  xmax = 11,
+                  ymin = -Inf,
+                  ymax = Inf,
+                  fill = "Throttle"),alpha = 0.005) +
+   scale_x_continuous(limits = c(0,24),breaks = c(0:24), expand = c(0,0)) +
+      scale_fill_manual('Interventions', values = c("Discount" = 'green',"Throttle" = 'red1', "Rebate" = 'yellow1', "Throttle and Rebate" = "#C7B19C"),  guide = guide_legend(override.aes = list(alpha = 0.1))) +
+      theme(legend.position = "bottom") +
+      scale_color_manual('Demand', values = c("Scaled Baseline Demand" = "red3", "Event Demand" ="dodgerblue2"))
   
 
-Potential_Graph15 <- Demand_Graph15 +
-geom_line(aes(y=Theoretical_Max))
+#Potential_Graph15 <- Demand_Graph15 +
+#geom_line(aes(y=Theoretical_Max))
 
 Demand_Graph15
-
 ggsave("Event Graphs/Oct_30_WP_Event_Usage.png", Demand_Graph15, device = "png", width = 8, height = 4.5)
 
 #COST
@@ -2730,35 +2742,50 @@ Oct_16_18_WP_scaled_baseline$EV_Demand <- Oct_16_18_WP_scaled_baseline$EV_Demand
   mutate(Event_Usage = Oct_16_18_WP_Event_Usage)
 
 
-graph_table16 <- Oct_16_18_WP_scaled_baseline$EV_Demand[c("Hr","X0","Event_Usage")] %>%
-  gather(condition,value,c("X0","Event_Usage")) %>%
-  mutate(Theoretical_Max=Oct_16_18_WP_scaled_baseline$EV_Demand$MT[1])
+graph_table16 <- Oct_16_18_WP_scaled_baseline$EV_Demand[c("Hr","X0","Event_Usage")] #%>%
+  #gather(condition,value,c("X0","Event_Usage")) %>%
+  #mutate(Theoretical_Max=Oct_16_18_WP_scaled_baseline$EV_Demand$MT[1])
 
+hr_24<- graph_table16[24,]
+hr_24[1,1] <- 0
+graph_table16 <- rbind(hr_24,graph_table16)
 
 Demand_Graph16 <- ggplot(data = graph_table16, aes(x = Hr)) +
-  geom_line(aes(y = value, color=condition)) +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-  panel.background = element_blank(), axis.line = element_line(colour = "black")) +
-  labs(title="Workplace Hourly Demand Forecast",
-  subtitle="October 2018 Baseline Scaled for October 16th, 2018 Event (494 Chargers) \n Event Usage October 16th, 2018 Event",
-  y="EV Charging Demand (kW)",
-  x="Hour",
-  color=NULL) +
-  geom_rect(aes(xmin=6,xmax=11,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
-  geom_rect(aes(xmin=11,xmax=15,ymin=-Inf,ymax=Inf, fill = "Discount"),alpha=0.0075) +
-  scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
-  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("blue", "purple")) +
-  theme(plot.title = element_text(hjust = 0.5)) +
-  theme(plot.subtitle = element_text(hjust = 0.5))+
-  theme(legend.position="bottom") +
-  scale_fill_manual('Interventions',values = c('green','yellow'),  guide = guide_legend(override.aes = list(alpha = 0.15)))
+  geom_line(aes(x = Hr, 
+                  y = Event_Usage, 
+                  color = "Event Demand"), 
+                  size = 0.9, 
+                  alpha = 0.75) + #This is the Xf line
+  geom_line(aes(x = Hr,
+                  y = X0,
+                  color = "Scaled Baseline Demand"),
+                  size = 0.9, 
+                  alpha = 0.75) + #This is the X0 line
+      theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+      panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+      xlab("Hour of the Day") +
+      ylab("Electricity Demand (kW)") +
+  geom_rect(aes(xmin = 11,
+                  xmax = 15,
+                  ymin = -Inf,
+                  ymax = Inf,
+                  fill = "Discount"),alpha = 0.005) + #this is the discount rectangle REMOVE IF NO DISCOUNT
+  geom_rect(aes(xmin = 6,
+                  xmax = 11,
+                  ymin = -Inf,
+                  ymax = Inf,
+                  fill = "Throttle"),alpha = 0.005) +
+    scale_x_continuous(limits = c(0,24),breaks = c(0:24), expand = c(0,0)) +
+      scale_fill_manual('Interventions', values = c("Discount" = 'green',"Throttle" = 'red1', "Rebate" = 'yellow1', "Throttle and Rebate" = "#C7B19C"),  guide = guide_legend(override.aes = list(alpha = 0.1))) +
+      theme(legend.position = "bottom") +
+      scale_color_manual('Demand', values = c("Scaled Baseline Demand" = "red3", "Event Demand" ="dodgerblue2"))
+  
   
 
-Potential_Graph16 <- Demand_Graph16 +
-geom_line(aes(y=Theoretical_Max))
+#Potential_Graph16 <- Demand_Graph16 +
+#geom_line(aes(y=Theoretical_Max))
 
 Demand_Graph16
-
 ggsave("Event Graphs/Oct_16_WP_Event_Usage.png", Demand_Graph16, device = "png", width = 8, height = 4.5)
 
 
@@ -2808,41 +2835,49 @@ Sep_27_18_Event_Usage <- filter(event_data, Date == "2018-9-27" & segment == "Wo
 select(Demand) %>%
 unlist()
 
-
 Sep_27_18_WP_scaled_baseline$EV_Demand <- Sep_27_18_WP_scaled_baseline$EV_Demand %>%
   mutate(Event_Usage = Sep_27_18_Event_Usage)
 
+graph_table17 <- Sep_27_18_WP_scaled_baseline$EV_Demand[c("Hr","X0","Event_Usage")] #%>%
+  #gather(condition,value,c("X0","Event_Usage")) %>%
+  #mutate(Theoretical_Max=Sep_27_18_WP_scaled_baseline$EV_Demand$MT[1])
 
-graph_table17 <- Sep_27_18_WP_scaled_baseline$EV_Demand[c("Hr","X0","Event_Usage")] %>%
-  gather(condition,value,c("X0","Event_Usage")) %>%
-  mutate(Theoretical_Max=Sep_27_18_WP_scaled_baseline$EV_Demand$MT[1])
-
+hr_24<- graph_table17[24,]
+hr_24[1,1] <- 0
+graph_table17 <- rbind(hr_24,graph_table17)
 
 Demand_Graph17 <- ggplot(data = graph_table17, aes(x = Hr)) +
-  geom_line(aes(y = value, color=condition)) +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-  panel.background = element_blank(), axis.line = element_line(colour = "black")) +
-  labs(title="Workplace Hourly Demand Forecast",
-  subtitle="Baseline September 2018 Scaled for September 27th, 2018 LR Event (414 Chargers) \n Event Usage October 16th, 2018 Event",
-  y="EV Charging Demand (kW)",
-  x="Hour",
-  color=NULL) +
-  geom_rect(aes(xmin=16,xmax=21,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
-  geom_rect(aes(xmin=16,xmax=21,ymin=-Inf,ymax=Inf, fill = "Rebate"),alpha=0.0075) +
-  scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
-  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("blue", "purple")) +
-  theme(plot.title = element_text(hjust = 0.5)) +
-  theme(plot.subtitle = element_text(hjust = 0.5))+
-  theme(legend.position="bottom") +
-  scale_fill_manual('Interventions',values = c('green','yellow'),  guide = guide_legend(override.aes = list(alpha = 0.15)))
+  geom_line(aes(x = Hr, 
+                  y = Event_Usage, 
+                  color = "Event Demand"), 
+                  size = 0.9, 
+                  alpha = 0.75) + #This is the Xf line
+  geom_line(aes(x = Hr,
+                  y = X0,
+                  color = "Scaled Baseline Demand"),
+                  size = 0.9, 
+                  alpha = 0.75) + #This is the X0 line
+      theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+      panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+      xlab("Hour of the Day") +
+      ylab("Electricity Demand (kW)") +
+  geom_rect(aes(xmin = 16,
+                  xmax = 21,
+                  ymin = -Inf,
+                  ymax = Inf,
+                  fill = "Throttle and Rebate"),alpha = 0.01) +
+  scale_x_continuous(limits = c(0,24),breaks = c(0:24), expand = c(0,0)) +
+      scale_fill_manual('Interventions', values = c("Discount" = 'green',"Throttle" = 'red1', "Rebate" = 'yellow1', "Throttle and Rebate" = "#C7B19C"),  guide = guide_legend(override.aes = list(alpha = 0.1))) +
+      theme(legend.position = "bottom") +
+      scale_color_manual('Demand', values = c("Scaled Baseline Demand" = "red3", "Event Demand" ="dodgerblue2"))
   
 
-Potential_Graph17 <- Demand_Graph17 +
-geom_line(aes(y=Theoretical_Max))
+#Potential_Graph17 <- Demand_Graph17 +
+#geom_line(aes(y=Theoretical_Max))
 
 Demand_Graph17
-
 ggsave("Event Graphs/Sep_27_WP_Event_Usage.png", Demand_Graph17, device = "png", width = 8, height = 4.5)
+
 
 #Cost
 Cost_Table17 <- Sep_27_18_WP_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_Usage","P1")] %>% 
@@ -2864,7 +2899,7 @@ write_csv(Sep_27_18_WP_output_table$Emissions, "Event Results/Workplace_Sep_27_1
 
 #Scenario 18: August 30, 2018 LR Event + Baseline (scaled for 442 chargers) 
 
-Event: Workplace, August 30, 2018, TOU EV-4, $0.10 Rebate (4PM-9PM)
+Event: Workplace, August 30, 2018, TOU EV-4, $0.10 Rebate (4PM-9PM), 50% Throttling (4-9PM)
 
 ```{r Scenario 18}
 
@@ -2894,38 +2929,47 @@ Aug_30_18_WP_scaled_baseline$EV_Demand <- Aug_30_18_WP_scaled_baseline$EV_Demand
   mutate(Event_Usage = Aug_30_18_Event_Usage)
 
 
-graph_table18 <- Aug_30_18_WP_scaled_baseline$EV_Demand[c("Hr","X0","Event_Usage")] %>%
-  gather(condition,value,c("X0","Event_Usage")) %>%
-  mutate(Theoretical_Max=Aug_30_18_WP_scaled_baseline$EV_Demand$MT[1])
+graph_table18 <- Aug_30_18_WP_scaled_baseline$EV_Demand[c("Hr","X0","Event_Usage")] #%>%
+  #gather(condition,value,c("X0","Event_Usage")) %>%
+  #mutate(Theoretical_Max=Aug_30_18_WP_scaled_baseline$EV_Demand$MT[1])
 
+hr_24<- graph_table18[24,]
+hr_24[1,1] <- 0
+graph_table18 <- rbind(hr_24,graph_table18)
 
 Demand_Graph18 <- ggplot(data = graph_table18, aes(x = Hr)) +
-  geom_line(aes(y = value, color=condition)) +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-  panel.background = element_blank(), axis.line = element_line(colour = "black")) +
-  labs(title="Workplace Hourly Demand Forecast",
-  subtitle="August 2018 Baseline Scaled for August 30, 2018 Event (442 Chargers) \n Event Usage August 30, 2018 Event (Load Reduction)",
-  y="EV Charging Demand (kW)",
-  x="Hour",
-  color=NULL) +
-  geom_rect(aes(xmin=16,xmax=21,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
-  geom_rect(aes(xmin=16,xmax=21,ymin=-Inf,ymax=Inf, fill = "Rebate"),alpha=0.0075) +
-  scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
-  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("blue", "purple")) +
-  theme(plot.title = element_text(hjust = 0.5)) +
-  theme(plot.subtitle = element_text(hjust = 0.5))+
-  theme(legend.position="bottom") +
-  scale_fill_manual('Interventions',values = c('green','yellow'),  guide = guide_legend(override.aes = list(alpha = 0.15)))
+  
+  geom_line(aes(x = Hr, 
+                  y = Event_Usage, 
+                  color = "Event Demand"), 
+                  size = 0.9, 
+                  alpha = 0.75) + #This is the Xf line
+  geom_line(aes(x = Hr,
+                  y = X0,
+                  color = "Scaled Baseline Demand"),
+                  size = 0.9, 
+                  alpha = 0.75) + #This is the X0 line
+      theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+      panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+      xlab("Hour of the Day") +
+      ylab("Electricity Demand (kW)") +
+  geom_rect(aes(xmin = 16,
+                xmax = 21,
+                ymin = -Inf,
+                ymax = Inf,
+                fill = "Throttle and Rebate"),alpha = 0.01) +
+      scale_x_continuous(limits = c(0,24),breaks = c(0:24), expand = c(0,0)) +
+      scale_fill_manual('Interventions', values = c("Discount" = 'green',"Throttle" = 'red1', "Rebate" = 'yellow1', "Throttle and Rebate" = "#C7B19C"),  guide = guide_legend(override.aes = list(alpha = 0.1))) +
+      theme(legend.position = "bottom") +
+      scale_color_manual('Demand', values = c("Scaled Baseline Demand" = "red3", "Event Demand" ="dodgerblue2"))
+  
   
 
-Potential_Graph18 <- Demand_Graph18 +
-geom_line(aes(y=Theoretical_Max))
+#Potential_Graph18 <- Demand_Graph18 +
+#geom_line(aes(y=Theoretical_Max))
 
 Demand_Graph18
-
 ggsave("Event Graphs/Aug_30_WP_Event_Usage.png", Demand_Graph18, device = "png", width = 8, height = 4.5)
-
-
 
 
 #Cost
@@ -4407,36 +4451,92 @@ Jul_31_18_Fleet_scaled_baseline$EV_Demand <- Jul_31_18_Fleet_scaled_baseline$EV_
   mutate(Event_Usage = Jul_31_18_Fleet_Event_Usage)
 
 
-graph_table33 <- Jul_31_18_Fleet_scaled_baseline$EV_Demand[c("Hr","X0","Event_Usage")] %>%
-  gather(condition,value,c("X0","Event_Usage")) %>%
-  mutate(Theoretical_Max=Jul_31_18_Fleet_scaled_baseline$EV_Demand$MT[1])
+graph_table33 <- Jul_31_18_Fleet_scaled_baseline$EV_Demand[c("Hr","X0","Event_Usage")] #%>%
+  #gather(condition,value,c("X0","Event_Usage")) %>%
+  #mutate(Theoretical_Max=Jul_31_18_Fleet_scaled_baseline$EV_Demand$MT[1])
 
+hr_24<- graph_table33[24,]
+hr_24[1,1] <- 0
+graph_table33 <- rbind(hr_24,graph_table33)
 
 Demand_Graph33 <- ggplot(data = graph_table33, aes(x = Hr)) +
-  geom_line(aes(y = value, color=condition)) +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-  panel.background = element_blank(), axis.line = element_line(colour = "black")) +
-  labs(title="Fleet Hourly Demand Forecast",
-  subtitle="July Baseline Scaled for July 31, 2018 Event (52 chargers) \n July 31, 2018 Event Usage (Load Reduction)",
-  y="EV Charging Demand (kW)",
-  x="Hour",
-  color=NULL) +
-  geom_rect(aes(xmin=16,xmax=21,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
-  geom_rect(aes(xmin=16,xmax=21,ymin=-Inf,ymax=Inf, fill = "Rebate"),alpha=0.0075) +
-  scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
-  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("blue", "purple")) +
-  theme(plot.title = element_text(hjust = 0.5)) +
-  theme(plot.subtitle = element_text(hjust = 0.5))+
-  theme(legend.position="bottom") +
-  scale_fill_manual('Interventions',values = c('green','yellow'),  guide = guide_legend(override.aes = list(alpha = 0.15)))
+  geom_line(aes(x = Hr, 
+                  y = Event_Usage, 
+                  color = "Event Demand"), 
+                  size = 0.9, 
+                  alpha = 0.75) + #This is the Xf line
+    geom_line(aes(x = Hr,
+                  y = X0,
+                  color = "Scaled Baseline Demand"),
+                  size = 0.9, 
+                  alpha = 0.75) + #This is the X0 line
+      theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+      panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+      xlab("Hour of the Day") +
+      ylab("Electricity Demand (kW)") +
+  geom_rect(aes(xmin = 16,
+                  xmax = 21,
+                  ymin = -Inf,
+                  ymax = Inf,
+                  fill = "Throttle and Rebate"),alpha = 0.01) + #this is the throttle + rebate rectangle REMOVE IF NO THROTTLING + REBATE
+      scale_x_continuous(limits = c(0,24),breaks = c(0:24), expand = c(0,0)) +
+      scale_fill_manual('Interventions', values = c("Discount" = 'green',"Throttle" = 'red1', "Rebate" = 'yellow1', "Throttle and Rebate" = "#C7B19C"),  guide = guide_legend(override.aes = list(alpha = 0.1))) +
+      theme(legend.position = "bottom") +
+      scale_color_manual('Demand', values = c("Scaled Baseline Demand" = "red3", "Event Demand" ="dodgerblue2"))
   
 
-Potential_Graph33 <- Demand_Graph33 +
-geom_line(aes(y=Theoretical_Max))
+#Potential_Graph33 <- Demand_Graph33 +
+#geom_line(aes(y=Theoretical_Max))
 
 Demand_Graph33
-
 ggsave("Event Graphs/Jul_31_18_Fleet_Event_Usage.png", Demand_Graph33, device = "png", width = 8, height = 4.5)
+
+# COPIED TEMPLATE BEGINNING
+hr_24<- graph_tablePW1S[24,]
+hr_24[1,1] <- 0
+graph_tablePW1S <- rbind(hr_24,graph_tablePW1S)
+
+
+Demand_GraphPW1S <- ggplot(data = graph_tablePW1S, aes(x = Hr)) +
+    geom_line(aes(x = Hr, 
+                  y = Event_Usage, 
+                  color = "Event Demand"), 
+                  size = 0.9, 
+                  alpha = 0.75) + #This is the Xf line
+    geom_line(aes(x = Hr,
+                  y = X0,
+                  color = "Scaled Baseline Demand"),
+                  size = 0.9, 
+                  alpha = 0.75) + #This is the X0 line
+      theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+      panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+      xlab("Hour of the Day") +
+      ylab("Electricity Demand (kW)") +
+    geom_rect(aes(xmin = 11,
+                  xmax = 15,
+                  ymin = -Inf,
+                  ymax = Inf,
+                  fill = "Discount"),alpha = 0.005) + #this is the discount rectangle REMOVE IF NO DISCOUNT
+    geom_rect(aes(xmin = 6,
+                  xmax = 11,
+                  ymin = -Inf,
+                  ymax = Inf,
+                  fill = "Throttle"),alpha = 0.005) + #this is the throttle rectangle REMOVE IF NO THROTTLING
+    geom_rect(aes(xmin = 16,
+                  xmax = 21,
+                  ymin = -Inf,
+                  ymax = Inf,
+                  fill = "Rebate"),alpha = 0.005) + #this is the rebate rectangle REMOVE IF NO REBATE
+    geom_rect(aes(xmin = 16,
+                  xmax = 21,
+                  ymin = -Inf,
+                  ymax = Inf,
+                  fill = "Throttle and Rebate"),alpha = 0.01) + #this is the throttle + rebate rectangle REMOVE IF NO THROTTLING + REBATE
+      scale_x_continuous(limits = c(0,24),breaks = c(0:24), expand = c(0,0)) +
+      scale_fill_manual('Interventions', values = c("Discount" = 'green',"Throttle" = 'red1', "Rebate" = 'yellow1', "Throttle and Rebate" = "#C7B19C"),  guide = guide_legend(override.aes = list(alpha = 0.1))) +
+      theme(legend.position = "bottom") +
+      scale_color_manual('Demand', values = c("Scaled Baseline Demand" = "red3", "Event Demand" ="dodgerblue2"))
+# COPIED TEMPLATE END
 
 #COST
 Cost_Table33 <- Jul_31_18_Fleet_scaled_baseline$EV_Demand[c("Hr","X0","P0","Event_Usage","P1")] %>% 
@@ -4490,35 +4590,43 @@ Jul_11_18_Fleet_scaled_baseline$EV_Demand <- Jul_11_18_Fleet_scaled_baseline$EV_
   mutate(Event_Usage = Jul_11_18_Fleet_Event_Usage)
 
 
-graph_table34 <- Jul_11_18_Fleet_scaled_baseline$EV_Demand[c("Hr","X0","Event_Usage")] %>%
-  gather(condition,value,c("X0","Event_Usage")) %>%
-  mutate(Theoretical_Max=Jul_31_18_Fleet_scaled_baseline$EV_Demand$MT[1])
+graph_table34 <- Jul_11_18_Fleet_scaled_baseline$EV_Demand[c("Hr","X0","Event_Usage")] #%>%
+  #gather(condition,value,c("X0","Event_Usage")) %>%
+  #mutate(Theoretical_Max=Jul_31_18_Fleet_scaled_baseline$EV_Demand$MT[1])
 
+hr_24<- graph_table34[24,]
+hr_24[1,1] <- 0
+graph_table34 <- rbind(hr_24,graph_table34)
 
 Demand_Graph34 <- ggplot(data = graph_table34, aes(x = Hr)) +
-  geom_line(aes(y = value, color=condition)) +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-  panel.background = element_blank(), axis.line = element_line(colour = "black")) +
-  labs(title="Fleet Hourly Demand Forecast",
-  subtitle="July Baseline Scaled for July 11, 2018 Event (32 chargers) \n July 11, 2018 Event Usage (Load Reduction)",
-  y="EV Charging Demand (kW)",
-  x="Hour",
-  color=NULL) +
-  geom_rect(aes(xmin=16,xmax=21,ymin=-Inf,ymax=Inf,fill="Throttle"),alpha=0.0075) +
-  geom_rect(aes(xmin=16,xmax=21,ymin=-Inf,ymax=Inf, fill = "Rebate"),alpha=0.0075) +
-  scale_x_continuous(breaks = 1:24, limits = c(1,24), expand = c(0, 0)) +
-  scale_color_manual(labels=c("Event Demand","Scaled Baseline Demand"), values = c("blue", "purple")) +
-  theme(plot.title = element_text(hjust = 0.5)) +
-  theme(plot.subtitle = element_text(hjust = 0.5))+
-  theme(legend.position="bottom") +
-  scale_fill_manual('Interventions',values = c('green','yellow'),  guide = guide_legend(override.aes = list(alpha = 0.15)))
-  
+  geom_line(aes(x = Hr, 
+                  y = Event_Usage, 
+                  color = "Event Demand"), 
+                  size = 0.9, 
+                  alpha = 0.75) + #This is the Xf line
+    geom_line(aes(x = Hr,
+                  y = X0,
+                  color = "Scaled Baseline Demand"),
+                  size = 0.9, 
+                  alpha = 0.75) + #This is the X0 line
+      theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+      panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+      xlab("Hour of the Day") +
+      ylab("Electricity Demand (kW)") +
+  geom_rect(aes(xmin = 16,
+                  xmax = 21,
+                  ymin = -Inf,
+                  ymax = Inf,
+                  fill = "Throttle and Rebate"),alpha = 0.01) + #this is the throttle + rebate rectangle REMOVE IF NO THROTTLING + REBATE
+      scale_x_continuous(limits = c(0,24),breaks = c(0:24), expand = c(0,0)) +
+      scale_fill_manual('Interventions', values = c("Discount" = 'green',"Throttle" = 'red1', "Rebate" = 'yellow1', "Throttle and Rebate" = "#C7B19C"),  guide = guide_legend(override.aes = list(alpha = 0.1))) +
+      theme(legend.position = "bottom") +
+      scale_color_manual('Demand', values = c("Scaled Baseline Demand" = "red3", "Event Demand" ="dodgerblue2"))
 
-Potential_Graph34 <- Demand_Graph34 +
-geom_line(aes(y=Theoretical_Max))
+#Potential_Graph34 <- Demand_Graph34 +
+#geom_line(aes(y=Theoretical_Max))
 
 Demand_Graph34
-
 ggsave("Event Graphs/Jul_11_18_Fleet_Event_Usage.png", Demand_Graph34, device = "png", width = 8, height = 4.5)
 
 #COST
