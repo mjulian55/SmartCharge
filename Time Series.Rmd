@@ -1,0 +1,65 @@
+---
+title: "Time Series"
+author: "Danny Ettelson"
+date: "2/11/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(dplyr)
+library(RColorBrewer)
+library(lubridate)
+library(tseries)
+library(forecast)
+library(zoo)
+library(xts)
+
+
+Workplace_Daily_Usage <- read_csv("Workplace_Daily_Usage.csv")
+
+W_P_D <- Workplace_Daily_Usage %>% 
+  select('1':'24')
+
+W_P_D <- c(t(W_P_D))
+
+W_P_D_ts <- msts(W_P_D, seasonal.periods=c(24,168,8766), start = c(2017,6))
+
+plot(W_P_D_ts)
+
+#plot(W_P_D_ts)
+
+#dc_W_P_D_ts <- decompose(W_P_D_ts)
+#plot(dc_W_P_D_ts)
+
+```
+
+```{r}
+
+require(forecast)
+set.seed(1)
+time_index <- seq(from = as.POSIXct("2017-06-01 01:00"),
+               to = as.POSIXct("2018-12-31 23:00"), by="hour")
+usage_data <- data.frame(time = time_index, usage = W_P_D)
+eventdata1 <- msts(W_P_D, order.by = time_index,seasonal.periods = c(24))
+plot(eventdata1)
+
+
+
+
+hourly_ts <- xts(
+  x         = usage_data$usage,
+  order.by  = usage_data$time,
+  frequency = 24
+)
+
+plot(hourly_ts)
+
+decompose(as.ts(hourly_ts))
+
+```
+
