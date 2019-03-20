@@ -1,0 +1,99 @@
+---
+title: "Instructions_App"
+author: "Tom Paschos"
+date: "3/6/2019"
+output: html_document
+---
+
+# **How do I use this application?**
+
+That's a great question!  Follow this flow chart to understand how the widgets work, what some of the inputs are, and how you can change them in order to create some outputs. The widgets are on the left in the **sidebar.**
+
+&nbsp;
+
+### **Choose your inputs in the sidebar**
+
+&nbsp;
+
+#### **First, choose how many simulations you want to run**
+
+This will how many times the model is run to create your charging demand simulation.  The more times the model is run, the more robust the simulation.  However, since each model run is randomized, the variance in outcomes would be greater.  
+
+The top graph is the **mean** of the amount of simulations.  The bottom graph displays all of the model simulations so you can see the **range** between the 4 methods used to create the simulation.
+
+Choose from the dropdown how many times you want the model to run (1, 10, 100 or 1000 times).  Note: the higher the number, the longer the loading time.
+
+&nbsp;
+&nbsp;
+
+#### **Next, choose how many chargers you want in your simulation**
+
+The amount of chargers will affect the amount of charging demand that you're trying to simulate.  You might want to see how much charging demand your place of employment might have with something low like 20 chargers.  Or you might want to simulate an entire metropolitan area with a value closer to 1,500 chargers.  Type in the number you want in to the top box labeled "Number of Chargers" or use the up/down arrows to increase/decrease.
+
+&nbsp;
+&nbsp;
+
+#### **Now, choose your market segment**
+
+A market segment refers to a non-residential place of electric vehicle charging.  The four market segments we evaluated for our project were:
+
+- Workplaces (places of employment)
+- Destination Centers (such as shopping malls, hotels or other public, commercial spaces)
+- Fleets (groups of electric vehicles operated by a business, government, or any other organization)
+- Multi-Unit Dwellings (dwellings that are not considered private, single-family or low density homes such as condominiums or apartment buildings)
+
+Choose your market segment by selecting 1 of the 4 from the drop down menu labeled "Market Segment"
+
+&nbsp;
+&nbsp;
+
+#### **Choose the date that you want to represent**
+
+The baseline data (the original demand line that's displayed) is based on data that we have integrated into our model.  Select the date (month and year) you would want to set your baseline at.  If nothing is selected it will default to November of 2018, the final month of data we received for this project.
+
+&nbsp;
+&nbsp;
+
+#### **Choose what type of price intervention you might want to offer**
+
+A pricing intervention is an incentive that is offered to EV drivers in order to induce a demand response.  A **discount** is a cheaper price of electricity to encourage consumers to use more electricity during periods of lower demand.  A **rebate** is a bill credit given to consumers in order to use less electricity during periods of high demand.  
+
+These financial incentives can be applied in 4 ways:
+
+1) Not at all, where no pricing intervention is selected.  
+
+2) Only a discount.  
+To do this, check the discount box.  Then, **choose the amount** on the slider bar.Next, specify the **amount of time** you want the discount to be applied
+
+3) Only a rebate.
+Repeat the same process as described in step 2.
+
+4) A discount and a rebate.
+Repeat the same process as described in step 2 for both pricing interventions.
+
+&nbsp;
+&nbsp;
+
+#### **Apply a throttling rate to the chargers**
+
+Throttling is when the power draw of the electric vehicle charger is manually reduced.  For example, if a 6.6 kilowatt (kW) rated EV charger charges an EV for an hour, that EV would have used 6.6 kilowatt *hours* (kWh).  But if 50% throttling was applied to that charger, only 3.3 kWh of electricity would have been used.
+
+Throttling defaults to zero percent.  To apply throttling, use the two sliders to *choose your percentage* and *time period* in which you want the throttling to occur.
+
+&nbsp;
+&nbsp;
+
+#### **What next?**
+
+The graphs and tables are reactive, so you don't need to push any buttons.  The more simulations your run, the longer the app will take to load.
+
+&nbsp;
+&nbsp;
+
+
+
+<img src="RStudio_Shiny.png" width="150">
+
+This application was developed using the Shiny package in R Studio, an open-source software program.
+
+

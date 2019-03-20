@@ -1,0 +1,59 @@
+---
+title: "About_App"
+author: "Tom Paschos"
+date: "2/20/2019"
+output: html_document
+---
+
+## Application Overview
+
+This application is meant to simulate the change in electric vehicle (EV) charging demand based on changing various inputs that affect charging behavior.  Those inputs could be technological, such as reducing power draw to an EV charger, or economic, such as pricing discounts and rebates on the price of electricity.  Any combination of these things will have an affect for electricity demanded by consumers for EV charging.
+
+Choose your own combination of inputs to see how you might be able to change demand!
+
+
+&nbsp;
+&nbsp;
+
+
+
+
+<img src="EV_Charging.jpeg" width="35%" align="right">
+
+
+
+### Electric Vehicle Charging and Why It's Important
+
+Electric Vehicles are increasing in popularity and projections indicate that they're only going to become more popular.  California currently has the largest electric vehicle market in the U.S. and has an aim to put 5,000,000 zero emission vehicles on its roads by 2030.  With this massive increase, all of these vehicles need to charge from the grid.  
+
+Grid operators and energy providers aren't just curious about *how much* electricity EVs will require for charging but *when* they'll charge. Why?  Because in the state of California, there's an oversupply of solar energy in the middle of the day that can often be wasted.  So, rather than have all these new EVs charge at times when the grid receives power mostly from fossil fuel sources, energy providers want to see if it's possible to have EVs charge using all of that extra solar energy.  Charging with renewable power can lessen the demand for fossil fuel based power in the evening, and decrease the excess supply of solar in the middle of the day.  This helps smooth out balance of supply and demand and creates a more predictable and reliable electricity grid.
+
+&nbsp;
+
+### Not Sure Where to Start?  
+Check out our **instructions tab** for a walkthrough of the app.
+
+&nbsp;
+&nbsp;
+
+### Why Was This App Built?
+
+This Application was developed as part of the "Smart Charge" group Master's Project at the UC Santa Barbara's Bren School of Environmental Science & Management. Information on the Bren School's master's projects can be found [here](https://www.bren.ucsb.edu/research/masters_projects_landing.htm).
+
+Information on the Smart Charge group project can be found [here](https://www.bren.ucsb.edu/research/masters_projects_landing.htm).
+
+
+
+<center>
+
+<img src="bren_school.jpeg" width="200">
+
+
+
+
+
+
+
+
+
+
