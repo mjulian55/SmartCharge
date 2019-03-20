@@ -443,7 +443,7 @@ i_h_e <- c(12:15)
 
 #Insert costs ($/kg)
 NOXcost <- 21.93 #$/kg
-Curtailmentcost <- 0.15 #$/MWH
+Curtailmentcost <- 0.15 #$/kWh
 CO2cost <-0.05 #$/kg
 
 
