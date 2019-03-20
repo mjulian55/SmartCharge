@@ -2420,7 +2420,6 @@ ggsave("Results Graphs/sim_example_graph.png", sim_example_graph, device = "png"
 
 
 
-
 ~~~~~~~PILOT EVENTS~~~~~~~~~~~
 
 
