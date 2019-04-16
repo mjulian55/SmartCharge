@@ -5582,8 +5582,7 @@ Demand_Graph_WP_Public_Baseline <- ggplot(data = graph_tableFW1, aes(x = Hr)) +
       ylab("Electricity Demand (kW)") +
   scale_x_continuous(limits = c(0,24),breaks = c(0:24), expand = c(0,0)) +
     scale_y_continuous(expand = c(0,0), labels = scales::unit_format(unit = "k", scale =1e-3))+ #NEW
-    #  scale_fill_manual('Interventions', values = c("Discount" = 'green',"Throttle" = 'red1', "Rebate" = 'yellow1', "Throttle and Rebate" = "#C7B19C"),  guide = guide_legend(override.aes = list(alpha = 0.1))) +
-      theme(legend.position = "none") + #NEW
+     theme(legend.position = "none") + #NEW
       scale_color_manual('Demand', values = c("Baseline Demand" = "#DE7808", "Intervention Demand" ="#2B4A6D"))
 
 Demand_Graph_WP_Public_Baseline
@@ -5619,10 +5618,10 @@ Demand_Graph_WP_Public <- ggplot(data = graph_tableFW1, aes(x = Hr)) +
   scale_x_continuous(limits = c(0,24),breaks = c(0:24), expand = c(0,0)) +
   scale_y_continuous(expand = c(0,0), labels = scales::unit_format(unit = "k", scale =1e-3))+
       scale_fill_manual('Interventions', values = c("Discount" = "#88A550","Throttle" = 'gray57', "Rebate" = "#88A550"),  guide = guide_legend(override.aes = list(alpha = 0.1))) +
-      theme(legend.position = "none") +
+     theme(legend.position = "none") +
       scale_color_manual('Demand', values = c("Baseline Demand" = "#DE7808", "Intervention Demand" ="#2B4A6D"))
 
-Demand_Graph_WP_Public
+Demand_Graph_WP_Public 
 ggsave("Results Graphs Publics/Workplace_Publics.png", Demand_Graph_WP_Public, device = "png", width = 8, height = 4.5)
 
 
@@ -5653,7 +5652,7 @@ Demand_Graph_Fleet_Public_Baseline <- ggplot(data = graph_tableFF1, aes(x = Hr))
       ylab("Electricity Demand (kW)") +
   scale_x_continuous(limits = c(0,24),breaks = c(0:24), expand = c(0,0)) +
     scale_y_continuous(expand = c(0,0), labels = scales::unit_format(unit = "k", scale =1e-3))+ #NEW
-      theme(legend.position = "none") + #NEW
+  #    theme(legend.position = "none") + #NEW
       scale_color_manual('Demand', values = c("Baseline Demand" = "#DE7808", "Intervention Demand" ="#2B4A6D"))
 
 Demand_Graph_Fleet_Public_Baseline
@@ -5685,7 +5684,7 @@ Demand_Graph_Fleet_Public <- ggplot(data = graph_tableFF1, aes(x = Hr)) +
   scale_x_continuous(limits = c(0,24),breaks = c(0:24), expand = c(0,0)) +
    scale_y_continuous(expand = c(0,0), labels = scales::unit_format(unit = "k", scale =1e-3))+
       scale_fill_manual('Interventions', values = c("Discount" = "#88A550","Throttle" = 'gray57', "Rebate" = "#88A550"),  guide = guide_legend(override.aes = list(alpha = 0.1))) +
-      theme(legend.position = "none") +
+   #   theme(legend.position = "none") +
       scale_color_manual('Demand', values = c("Baseline Demand" = "#DE7808", "Intervention Demand" ="#2B4A6D"))
 
 Demand_Graph_Fleet_Public
