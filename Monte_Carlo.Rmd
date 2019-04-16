@@ -5657,7 +5657,7 @@ Demand_Graph_Fleet_Public_Baseline <- ggplot(data = graph_tableFF1, aes(x = Hr))
       scale_color_manual('Demand', values = c("Baseline Demand" = "#DE7808", "Intervention Demand" ="#2B4A6D"))
 
 Demand_Graph_Fleet_Public_Baseline
-ggsave("Results Graphs/Fleets_Publics_Baseline.png", Demand_Graph_Fleet_Public_Baseline, device = "png", width = 8, height = 4.5)
+ggsave("Results Graphs Publics/Fleets_Publics_Baseline.png", Demand_Graph_Fleet_Public_Baseline, device = "png", width = 8, height = 4.5)
 
 
 ## Fleets All Items
@@ -5683,13 +5683,13 @@ Demand_Graph_Fleet_Public <- ggplot(data = graph_tableFF1, aes(x = Hr)) +
                 fill = "Rebate"),
                 alpha=0.005) +
   scale_x_continuous(limits = c(0,24),breaks = c(0:24), expand = c(0,0)) +
-      scale_fill_manual('Interventions', values = c("Discount" = 'green',"Throttle" = 'red1', "Rebate" = 'yellow1', "Throttle and Rebate" = "#C7B19C"),  guide = guide_legend(override.aes = list(alpha = 0.1))) +
-      theme(legend.position = "bottom") +
+   scale_y_continuous(expand = c(0,0), labels = scales::unit_format(unit = "k", scale =1e-3))+
+      scale_fill_manual('Interventions', values = c("Discount" = "#88A550","Throttle" = 'gray57', "Rebate" = "#88A550"),  guide = guide_legend(override.aes = list(alpha = 0.1))) +
+      theme(legend.position = "none") +
       scale_color_manual('Demand', values = c("Baseline Demand" = "#DE7808", "Intervention Demand" ="#2B4A6D"))
 
-
 Demand_Graph_Fleet_Public
-ggsave("Results Graphs/Fleets_Publics.png", Demand_Graph_Fleet_Public, device = "png", width = 8, height = 4.5)
+ggsave("Results Graphs Publics/Fleets_Publics.png", Demand_Graph_Fleet_Public, device = "png", width = 8, height = 4.5)
 
 
 
@@ -5711,59 +5711,55 @@ graph_tableFDC1 <- rbind(hr_24,graph_tableFDC1)
 
 ## Destination Centers Baseline Only
 Demand_Graph_DC_Public_Baseline <- ggplot(data = graph_tableFDC1, aes(x = Hr)) +
-    geom_line(aes(x = Hr,
-                    y = X0_mean,
-                    color = "Baseline Demand"),
-               size = 0.9, 
+      geom_line(aes(x = Hr,
+                y = X0_mean,
+                color = "Baseline Demand"),
+                size = 1.1, 
                 alpha = 0.75) + #This is the X0 line
       theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
       panel.background = element_blank(), axis.line = element_line(colour = "black")) +
       xlab("Hour of the Day") +
       ylab("Electricity Demand (kW)") +
-      scale_x_continuous(limits = c(0,24),breaks = c(0:24), expand = c(0,0)) +
-      scale_fill_manual('Interventions', values = c("Discount" = 'green',"Throttle" = 'red1', "Rebate" = 'yellow1', "Throttle and Rebate" = "#C7B19C"),  guide = guide_legend(override.aes = list(alpha = 0.1))) +
-      theme(legend.position = "bottom") +
+  scale_x_continuous(limits = c(0,24),breaks = c(0:24), expand = c(0,0)) +
+    scale_y_continuous(expand = c(0,0), labels = scales::unit_format(unit = "k", scale =1e-3))+ #NEW
+      theme(legend.position = "none") + #NEW
       scale_color_manual('Demand', values = c("Baseline Demand" = "#DE7808", "Intervention Demand" ="#2B4A6D"))
 
-
 Demand_Graph_DC_Public_Baseline
-ggsave("Results Graphs/Destination_Centers_Publics_Baseline.png", Demand_Graph_DC_Public_Baseline, device = "png", width = 8, height = 4.5)
+ggsave("Results Graphs Publics/Destination_Centers_Publics_Baseline.png", Demand_Graph_DC_Public_Baseline, device = "png", width = 8, height = 4.5)
 
 
 ## Destination Centers All Items
 Demand_Graph_DC_Public <- ggplot(data = graph_tableFDC1, aes(x = Hr)) +
-   geom_line(aes(x = Hr, y = Xf_mean, color = "Intervention Demand"), 
+    geom_line(aes(x = Hr, 
+                y = Xf_mean, 
+                color = "Intervention Demand"), 
                 size = 0.9, 
                 alpha = 0.75) + #This is the Xf line
-    geom_line(aes(x = Hr,
-                    y = X0_mean,
-                    color = "Baseline Demand"),
-               size = 0.9, 
+  geom_line(aes(x = Hr,
+                y = X0_mean,
+                color = "Baseline Demand"),
+                size = 0.9, 
                 alpha = 0.75) + #This is the X0 line
       theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
       panel.background = element_blank(), axis.line = element_line(colour = "black")) +
       xlab("Hour of the Day") +
       ylab("Electricity Demand (kW)") +
-    geom_rect(aes(xmin= 11,
-                  xmax=15,
-                  ymin=-Inf,
-                  ymax=Inf,
-                  fill = "Discount"),
-                alpha=0.005) + #this is the discount rectangle REMOVE IF NO DISCOUNT
-  geom_rect(aes(xmin= 6,
-                xmax=11,
+  geom_rect(aes(xmin= 16,
+                xmax=21,
                 ymin=-Inf,
                 ymax=Inf,
-                fill = "Throttle"),
+                fill = "Rebate"),
                 alpha=0.005) +
-      scale_x_continuous(limits = c(0,24),breaks = c(0:24), expand = c(0,0)) +
-      scale_fill_manual('Interventions', values = c("Discount" = 'green',"Throttle" = 'red1', "Rebate" = 'yellow1', "Throttle and Rebate" = "#C7B19C"),  guide = guide_legend(override.aes = list(alpha = 0.1))) +
-      theme(legend.position = "bottom") +
+  scale_x_continuous(limits = c(0,24),breaks = c(0:24), expand = c(0,0)) +
+   scale_y_continuous(expand = c(0,0), labels = scales::unit_format(unit = "k", scale =1e-3))+
+      scale_fill_manual('Interventions', values = c("Discount" = "#88A550","Throttle" = 'gray57', "Rebate" = "#88A550"),  guide = guide_legend(override.aes = list(alpha = 0.1))) +
+      theme(legend.position = "none") +
       scale_color_manual('Demand', values = c("Baseline Demand" = "#DE7808", "Intervention Demand" ="#2B4A6D"))
 
 
 Demand_Graph_DC_Public
-ggsave("Results Graphs/Destination_Centers_Publics.png", Demand_Graph_DC_Public, device = "png", width = 8, height = 4.5)
+ggsave("Results Graphs Publics/Destination_Centers_Publics.png", Demand_Graph_DC_Public, device = "png", width = 8, height = 4.5)
 
 
 
@@ -5790,32 +5786,33 @@ graph_tableFM1 <- rbind(hr_24,graph_tableFM1)
 
 #MUDS Baseline Only
 Demand_Graph_MUDs_Publics_Baseline <- ggplot(data = graph_tableFM1, aes(x = Hr)) +
-  geom_line(aes(x = Hr,
+      geom_line(aes(x = Hr,
                 y = X0_mean,
                 color = "Baseline Demand"),
-                size = 0.9, 
+                size = 1.1, 
                 alpha = 0.75) + #This is the X0 line
       theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
       panel.background = element_blank(), axis.line = element_line(colour = "black")) +
       xlab("Hour of the Day") +
       ylab("Electricity Demand (kW)") +
   scale_x_continuous(limits = c(0,24),breaks = c(0:24), expand = c(0,0)) +
-      scale_fill_manual('Interventions', values = c("Discount" = 'green',"Throttle" = 'red1', "Rebate" = 'yellow1', "Throttle and Rebate" = "#C7B19C"),  guide = guide_legend(override.aes = list(alpha = 0.1))) +
-      theme(legend.position = "bottom") +
+    scale_y_continuous(expand = c(0,0)) + #, labels = scales::unit_format(unit = "k", scale =1e-3))+ #NEW
+      theme(legend.position = "none") + #NEW
       scale_color_manual('Demand', values = c("Baseline Demand" = "#DE7808", "Intervention Demand" ="#2B4A6D"))
   
 
 Demand_Graph_MUDs_Publics_Baseline
-ggsave("Results Graphs/MUDs_Publics_Baseline.png", Demand_Graph_MUDs_Publics_Baseline, device = "png", width = 8, height = 4.5)
+ggsave("Results Graphs Publics/MUDs_Publics_Baseline.png", Demand_Graph_MUDs_Publics_Baseline, device = "png", width = 8, height = 4.5)
 
 
 #MUDs All Items
 Demand_Graph_MUDs_Publics <- ggplot(data = graph_tableFM1, aes(x = Hr)) +
-  geom_line(aes(x = Hr, 
-                  y = Xf_mean, 
-                  color = "Intervention Demand"), 
-                  size = 0.9, 
-                  alpha = 0.75) + #This is the Xf line
+  
+     geom_line(aes(x = Hr, 
+                y = Xf_mean, 
+                color = "Intervention Demand"), 
+                size = 0.9, 
+                alpha = 0.75) + #This is the Xf line
   geom_line(aes(x = Hr,
                 y = X0_mean,
                 color = "Baseline Demand"),
@@ -5825,19 +5822,20 @@ Demand_Graph_MUDs_Publics <- ggplot(data = graph_tableFM1, aes(x = Hr)) +
       panel.background = element_blank(), axis.line = element_line(colour = "black")) +
       xlab("Hour of the Day") +
       ylab("Electricity Demand (kW)") +
-  geom_rect(aes(xmin = 16,
-                xmax = 21,
-                ymin = -Inf,
-                ymax = Inf,
-                fill = "Rebate"),alpha = 0.005) +
+  geom_rect(aes(xmin= 16,
+                xmax=21,
+                ymin=-Inf,
+                ymax=Inf,
+                fill = "Rebate"),
+                alpha=0.005) +
   scale_x_continuous(limits = c(0,24),breaks = c(0:24), expand = c(0,0)) +
-      scale_fill_manual('Interventions', values = c("Discount" = 'green',"Throttle" = 'red1', "Rebate" = 'yellow1', "Throttle and Rebate" = "#C7B19C"),  guide = guide_legend(override.aes = list(alpha = 0.1))) +
-      theme(legend.position = "bottom") +
+   scale_y_continuous(expand = c(0,0)) + #, labels = scales::unit_format(unit = "k", scale =1e-3))+
+      scale_fill_manual('Interventions', values = c("Discount" = "#88A550","Throttle" = 'gray57', "Rebate" = "#88A550"),  guide = guide_legend(override.aes = list(alpha = 0.1))) +
+      theme(legend.position = "none") +
       scale_color_manual('Demand', values = c("Baseline Demand" = "#DE7808", "Intervention Demand" ="#2B4A6D"))
-  
 
 Demand_Graph_MUDs_Publics
-ggsave("Results Graphs/MUDs_Publics.png", Demand_Graph_MUDs_Publics, device = "png", width = 8, height = 4.5)
+ggsave("Results Graphs Publics/MUDs_Publics.png", Demand_Graph_MUDs_Publics, device = "png", width = 8, height = 4.5)
 
 
 ```
