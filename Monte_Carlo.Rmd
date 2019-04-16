@@ -5730,28 +5730,31 @@ ggsave("Results Graphs Publics/Destination_Centers_Publics_Baseline.png", Demand
 
 ## Destination Centers All Items
 Demand_Graph_DC_Public <- ggplot(data = graph_tableFDC1, aes(x = Hr)) +
-    geom_line(aes(x = Hr, 
-                y = Xf_mean, 
-                color = "Intervention Demand"), 
-                size = 0.9, 
+  geom_line(aes(x = Hr, y = Xf_mean, color = "Intervention Demand"), 
+                size = 1.1, 
                 alpha = 0.75) + #This is the Xf line
   geom_line(aes(x = Hr,
                 y = X0_mean,
                 color = "Baseline Demand"),
-                size = 0.9, 
+                size = 1.1, 
                 alpha = 0.75) + #This is the X0 line
       theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
       panel.background = element_blank(), axis.line = element_line(colour = "black")) +
       xlab("Hour of the Day") +
       ylab("Electricity Demand (kW)") +
-  geom_rect(aes(xmin= 16,
-                xmax=21,
+  geom_rect(aes(xmin= 11,
+                xmax=15,
                 ymin=-Inf,
                 ymax=Inf,
-                fill = "Rebate"),
+                fill = "Discount"),
                 alpha=0.005) +
-  scale_x_continuous(limits = c(0,24),breaks = c(0:24), expand = c(0,0)) +
-   scale_y_continuous(expand = c(0,0), limits = c(0,3000), labels = scales::unit_format(unit = "k", accuracy = 1, scale =1e-3)) +
+  geom_rect(aes(xmin= 6,
+                  xmax=11,
+                  ymin=-Inf,
+                  ymax=Inf,
+                  fill = "Throttle"),
+                alpha=0.005) +
+  scale_x_continuous(limits = c(0,24),breaks = c(0:24), expand = c(0,0)) +   scale_y_continuous(expand = c(0,0), limits = c(0,3000), labels = scales::unit_format(unit = "k", accuracy = 1, scale =1e-3)) +
       scale_fill_manual('Interventions', values = c("Discount" = "#88A550","Throttle" = 'gray57', "Rebate" = "#88A550"),  guide = guide_legend(override.aes = list(alpha = 0.1))) +
       theme(legend.position = "none") +
       scale_color_manual('Demand', values = c("Baseline Demand" = "#DE7808", "Intervention Demand" ="#2B4A6D"))
