@@ -5883,6 +5883,32 @@ Demand_Graph_WP_Public_Baseline <- ggplot(data = graph_tableFW1, aes(x = Hr)) +
 Demand_Graph_WP_Public_Baseline
 ggsave("Results Graphs Publics/Workplace_Publics_Baseline_Presentation.png", Demand_Graph_WP_Public_Baseline, device = "png", width = 8, height = 4.5)
 
+#Workplace baseline only + load shift window identified
+Demand_Graph_WP_Public_Baseline_Loadshift_Window <- ggplot(data = graph_tableFW1, aes(x = Hr)) +
+  geom_line(aes(x = Hr,
+                y = X0_mean,
+                color = "Baseline Demand"),
+                size = 1.1, 
+                alpha = 0.75) + #This is the X0 line
+      theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+      panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+      xlab("Hour") +
+      ylab("Electricity Demand (kW)") +
+  geom_rect(aes(xmin= 11,
+                xmax=15,
+                ymin=-Inf,
+                ymax=Inf,
+                fill = "Load Shift Window"),
+                alpha=0.005) +
+   scale_x_continuous(limits = c(0,24),breaks = c(0:24), expand = c(0,0), labels = c("12 a.m.", "1 a.m.", "2 a.m.", "3 a.m.", "4 a.m.", "5 a.m.", "6 a.m.", "7 a.m.", "8 a.m.", "9 a.m.", "10 a.m.", "11 a.m.", "12 p.m.", "1 p.m.", "2 p.m.", "3 p.m.", "4 p.m.", "5 p.m.", "6 p.m.", "7 p.m.", "8 p.m.", "9 p.m.", "10 p.m.", "11 p.m.", "12 a.m.")) +
+    scale_y_continuous(expand = c(0,0), labels = scales::unit_format(unit = "k", scale =1e-3, accuracy = 1), limits = c(0, 50000))+ #NEW
+  scale_fill_manual('Interventions', values = c("Load Shift Window" = "#7f92a7"),  guide = guide_legend(override.aes = list(alpha = 0.1))) +
+     theme(legend.position = "none",  axis.text.x = element_text(angle = -85, hjust = 0, vjust = 0.2)) + # + #,vjust = -0.01)) + #NEW
+      scale_color_manual('Demand', values = c("Baseline Demand" = "#DE7808", "Intervention Demand" ="#2B4A6D"))
+
+Demand_Graph_WP_Public_Baseline_Loadshift_Window
+ggsave("Results Graphs Publics/Workplace_Publics_Baseline_Loadshift_Window_Presentation.png", Demand_Graph_WP_Public_Baseline, device = "png", width = 8, height = 4.5)
+
 
 ##Workplace_all items
 Demand_Graph_WP_Public <- ggplot(data = graph_tableFW1, aes(x = Hr)) +
