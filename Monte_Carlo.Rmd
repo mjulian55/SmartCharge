@@ -5907,7 +5907,7 @@ Demand_Graph_WP_Public_Baseline_Loadshift_Window <- ggplot(data = graph_tableFW1
       scale_color_manual('Demand', values = c("Baseline Demand" = "#DE7808", "Intervention Demand" ="#2B4A6D"))
 
 Demand_Graph_WP_Public_Baseline_Loadshift_Window
-ggsave("Results Graphs Publics/Workplace_Publics_Baseline_Loadshift_Window_Presentation.png", Demand_Graph_WP_Public_Baseline, device = "png", width = 8, height = 4.5)
+ggsave("Results Graphs Publics/Workplace_Publics_Baseline_Loadshift_Window_Presentation.png", Demand_Graph_WP_Public_Baseline_Loadshift_Window, device = "png", width = 8, height = 4.5)
 
 
 ##Workplace_all items
