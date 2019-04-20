@@ -8,7 +8,6 @@ library(tidyverse)
 library(markdown)
 library(shinycssloaders)
 library(gganimate)
-library(wesanderson)
 library(lattice)
 
 
@@ -239,7 +238,7 @@ server <- function(input, output) {
       These types of interventions have an affect on how responsive consumers might be and that responsiveness is measured by the change in electricity that's demanded.  
   That demand is represented by a line that shows energy (in Kilowatts or kW) over the 24 hours of the day.  That responsiveness is modelled in this application using price elasticities - the change in quantity demanded given a change in price.  
   These elasticity values, along with other values, are built into our model to show how demand might change at any given hour.
-  For more information on how we built this model, visit our [website](https://smartchargeproject.weebly.com/) and look for a copy of our Master's Project report."})
+  For more information on how we built this model, visit https://smartchargeproject.weebly.com/ and look for a copy of our Master's Project report."})
     
     
     output$MethodsDescription <- renderText({
@@ -410,7 +409,7 @@ server <- function(input, output) {
                 size = 2, 
                 alpha = 0.75,
                 linetype = "dashed") + #This is the X0 line
-      xlab("Hour of the Day") +
+      xlab("Hour") +
       ylab("Electricity Demand (kilowatts)") +
       
       
@@ -444,9 +443,9 @@ server <- function(input, output) {
       
       scale_x_continuous(limits = c(1,24),breaks = c(1:24), expand = c(0,0)) +
       scale_y_continuous(expand = c(0,0)) +
-      scale_fill_brewer("Interventions",palette = "Set2" , guide = guide_legend(override.aes = list(alpha = 0.5))) +
+     # scale_fill_brewer("Interventions",palette = "Set2" , guide = guide_legend(override.aes = list(alpha = 0.5))) +
       scale_color_brewer("Methods", palette = "Dark2", direction = -1) +
-      #scale_fill_manual('Interventions', values = c("Disount" = 'cadetblue3',"Rebate" = 'thistle3', "Throttle" = 'darksalmon'),  guide = guide_legend(override.aes = list(alpha = 0.5))) +
+      scale_fill_manual('Interventions', values = c("Discount" = '#88A550',"Rebate" = '#6d50a5', "Throttle" = 'gray57'),  guide = guide_legend(override.aes = list(alpha = 0.4))) +
       theme(legend.position = "bottom") +
       theme_classic()
     
@@ -463,17 +462,13 @@ server <- function(input, output) {
     
     output$DemandGraphDescription <- renderText({
       "This graph displays the simulated electricity demand of EV charging based on the inputs that you choose on the sidebar.  
-The simulated demand (the green line) is compared to the baseline demand that you start with (the red line).  
+The simulated demand (the blue line) is compared to the baseline demand that you start with (the orange line).  
     Shaded areas will appear for the time periods of any intervention you choose."})
     
     
 
     
     #Color information
-
-    discount_color <- "cadetblue4"
-    rebate_color <- "thistle2"
-    throttle_color <- "darksalmon"
     
     month <- month(as.Date(input$date, "%Y/%m/%d"))
     year <- year(as.Date(input$date, "%Y/%m/%d"))
@@ -561,7 +556,7 @@ The simulated demand (the green line) is compared to the baseline demand that yo
         
         ggtitle("Monte Carlo Simulation Displaying EV Charging Demand \nWith the Simulation Run a Selected Amount of Times") +
         theme(plot.title = element_text(size = 40, face = "bold")) +
-        xlab("Hour of the Day") +
+        xlab("Hour") +
         ylab("Electricity Demand (kilowatts)") +
 
         geom_rect(aes(xmin= input$discount_period[1],
@@ -569,7 +564,7 @@ The simulated demand (the green line) is compared to the baseline demand that yo
                       ymin=-Inf,
                       ymax=Inf,
                       fill = "Discount"),
-                  alpha=ifelse("Discount" %in% input$price_intervention & input$discount >0, 0.02*as.numeric(input$sim),0)) + #this is the discount rectangle
+                  alpha=ifelse("Discount" %in% input$price_intervention & input$discount >0, 0.03*as.numeric(input$sim),0)) + #this is the discount rectangle
 
         geom_rect(aes(xmin=input$rebate_period[1],
                       xmax=input$rebate_period[2],
@@ -584,11 +579,12 @@ The simulated demand (the green line) is compared to the baseline demand that yo
                       ymin=-Inf,
                       ymax=Inf,
                       fill = "Throttle"),
-                  alpha=ifelse(input$throttling >0, 0.02*as.numeric(input$sim),0)) + #this is the discount rectangle
+                  alpha=ifelse(input$throttling >0, 0.03*as.numeric(input$sim),0)) + #this is the discount rectangle
         
         scale_x_continuous(limits = c(1,24),breaks = c(1:24), expand = c(0,0)) +
         scale_y_continuous(expand = c(0,0)) +
-       scale_fill_brewer("Interventions",palette = "Set2" , guide = guide_legend(override.aes = list(alpha = 0.5))) +
+        scale_fill_manual('Interventions', values = c("Discount" = '#88A550',"Rebate" = '#6d50a5', "Throttle" = 'gray57'),  guide = guide_legend(override.aes = list(alpha = 0.4))) +
+      # scale_fill_brewer("Interventions",palette = "Set2" , guide = guide_legend(override.aes = list(alpha = 0.5))) +
        scale_color_brewer("Simulation Method", palette = "Dark2", direction = -1, guide = guide_legend(override.aes = list(alpha = 0.5,size = 2))) +
         theme(legend.position = "bottom") +
         theme_classic()
@@ -665,7 +661,7 @@ The simulated demand (the green line) is compared to the baseline demand that yo
                     color = "Baseline Demand"), 
                 size = 2.5, 
                 alpha = 0.75) + #This is the X0 line
-      xlab("Hour of the Day") +
+      xlab("Hour") +
       ylab("Electricity Demand (kilowatts)") +
       
       geom_rect(aes(xmin= input$discount_period[1],
@@ -673,7 +669,7 @@ The simulated demand (the green line) is compared to the baseline demand that yo
                     ymin=-Inf,
                     ymax=Inf,
                     fill = "Discount"),
-                alpha=ifelse("Discount" %in% input$price_intervention & input$discount >0, 0.02,0)) + #this is the discount rectangle
+                alpha=ifelse("Discount" %in% input$price_intervention & input$discount >0, 0.01,0)) + #this is the discount rectangle
       
 
       geom_rect(aes(xmin=input$rebate_period[1],
@@ -688,13 +684,14 @@ The simulated demand (the green line) is compared to the baseline demand that yo
                     ymin=-Inf,
                     ymax=Inf,
                     fill = "Throttle"),
-                alpha=ifelse(input$throttling >0, 0.02,0)) + #this is the discount rectangle
+                alpha=ifelse(input$throttling >0, 0.01,0)) + #this is the discount rectangle
       
       scale_x_continuous(limits = c(1,24),breaks = c(1:24), expand = c(0,0)) +
       scale_y_continuous(expand = c(0,0)) +
-      scale_fill_brewer("Interventions",palette = "Set2" , guide = guide_legend(override.aes = list(alpha = 0.5))) +
-      scale_color_brewer("Demand", palette = "Dark2", direction = -1) +
-      #scale_fill_manual('Interventions', values = c("Disount" = 'cadetblue3',"Rebate" = 'thistle3', "Throttle" = 'darksalmon'),  guide = guide_legend(override.aes = list(alpha = 0.5))) +
+      #scale_fill_brewer("Interventions",palette = "Set2" , guide = guide_legend(override.aes = list(alpha = 0.5))) +
+     # scale_color_brewer("Demand", palette = "Dark2", direction = -1) +
+      scale_color_manual('Demand', values = c("Baseline Demand" = "#DE7808", "Intervention Demand" ="#2B4A6D")) +
+      scale_fill_manual('Interventions', values = c("Discount" = '#88A550',"Rebate" = '#6d50a5', "Throttle" = 'gray57'),  guide = guide_legend(override.aes = list(alpha = 0.4))) +
       theme(legend.position = "bottom") +
       theme_classic()
     
