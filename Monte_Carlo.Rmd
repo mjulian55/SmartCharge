@@ -5924,7 +5924,7 @@ Demand_Graph_WP_Public <- ggplot(data = graph_tableFW1, aes(x = Hr)) +
                 ymin=-Inf,
                 ymax=Inf,
                 fill = "Discount"),
-                alpha=0.01) +
+                alpha=0.013) +
   geom_rect(aes(xmin= 6,
                   xmax=11,
                   ymin=-Inf,
