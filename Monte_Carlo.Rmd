@@ -6024,7 +6024,7 @@ Demand_Graph_Fleet_Public <- ggplot(data = graph_tableFF1, aes(x = Hr)) +
                 ymin=-Inf,
                 ymax=Inf,
                 fill = "Rebate"),
-                alpha=0.01) +
+                alpha=0.013) +
      scale_x_continuous(limits = c(0,24),breaks = c(0:24), expand = c(0,0), labels = c("12 a.m.", "1 a.m.", "2 a.m.", "3 a.m.", "4 a.m.", "5 a.m.", "6 a.m.", "7 a.m.", "8 a.m.", "9 a.m.", "10 a.m.", "11 a.m.", "12 p.m.", "1 p.m.", "2 p.m.", "3 p.m.", "4 p.m.", "5 p.m.", "6 p.m.", "7 p.m.", "8 p.m.", "9 p.m.", "10 p.m.", "11 p.m.", "12 a.m.")) +
    scale_y_continuous(expand = c(0,0), labels = scales::unit_format(unit = "k", scale =1e-3, accuracy = 1), limits = c(0, 3500))+
       scale_fill_manual('Interventions', values = c("Discount" = "#88A550","Throttle" = 'gray57', "Rebate" = "#88A550"),  guide = guide_legend(override.aes = list(alpha = 0.1))) +
