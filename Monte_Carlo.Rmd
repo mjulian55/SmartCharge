@@ -5966,13 +5966,41 @@ Demand_Graph_Fleet_Public_Baseline <- ggplot(data = graph_tableFF1, aes(x = Hr))
       panel.background = element_blank(), axis.line = element_line(colour = "black")) +
       xlab("Hour") +
       ylab("Electricity Demand (kW)") +
-  scale_x_continuous(limits = c(0,24),breaks = c(0:24), expand = c(0,0)) +
+  scale_x_continuous(limits = c(0,24),breaks = c(0:24), expand = c(0,0), labels = c("12 a.m.", "1 a.m.", "2 a.m.", "3 a.m.", "4 a.m.", "5 a.m.", "6 a.m.", "7 a.m.", "8 a.m.", "9 a.m.", "10 a.m.", "11 a.m.", "12 p.m.", "1 p.m.", "2 p.m.", "3 p.m.", "4 p.m.", "5 p.m.", "6 p.m.", "7 p.m.", "8 p.m.", "9 p.m.", "10 p.m.", "11 p.m.", "12 a.m.")) +
     scale_y_continuous(expand = c(0,0), labels = scales::unit_format(unit = "k", scale =1e-3, accuracy = 1), limits = c(0, 3500))+ #NEW
-     theme(legend.position = "none") + #NEW
+     theme(legend.position = "none", axis.text.x = element_text(angle = -85, hjust = 0, vjust = 0.2)) + #NEW
       scale_color_manual('Demand', values = c("Baseline Demand" = "#DE7808", "Intervention Demand" ="#2B4A6D"))
 
 Demand_Graph_Fleet_Public_Baseline
 ggsave("Results Graphs Publics/Fleets_Publics_Baseline_Presentation.png", Demand_Graph_Fleet_Public_Baseline, device = "png", width = 8, height = 4.5)
+
+
+## Fleets_Baseline + Load Shift Window Identified Only
+Demand_Graph_Fleet_Public_Baseline_Loadshift_Window <- ggplot(data = graph_tableFF1, aes(x = Hr)) +
+    geom_line(aes(x = Hr,
+                y = X0_mean,
+                color = "Baseline Demand"),
+                size = 1.1, 
+                alpha = 0.75) + #This is the X0 line
+      theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+      panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+      xlab("Hour") +
+      ylab("Electricity Demand (kW)") +
+      geom_rect(aes(xmin= 11,
+                xmax=15,
+                ymin=-Inf,
+                ymax=Inf,
+                fill = "Load Shift Window"),
+                alpha=0.005) +
+  scale_x_continuous(limits = c(0,24),breaks = c(0:24), expand = c(0,0), labels = c("12 a.m.", "1 a.m.", "2 a.m.", "3 a.m.", "4 a.m.", "5 a.m.", "6 a.m.", "7 a.m.", "8 a.m.", "9 a.m.", "10 a.m.", "11 a.m.", "12 p.m.", "1 p.m.", "2 p.m.", "3 p.m.", "4 p.m.", "5 p.m.", "6 p.m.", "7 p.m.", "8 p.m.", "9 p.m.", "10 p.m.", "11 p.m.", "12 a.m.")) +
+    scale_y_continuous(expand = c(0,0), labels = scales::unit_format(unit = "k", scale =1e-3, accuracy = 1), limits = c(0, 3500))+ #NEW
+    scale_fill_manual('Interventions', values = c("Load Shift Window" = "#7f92a7"),  guide = guide_legend(override.aes = list(alpha = 0.1))) +
+     theme(legend.position = "none", axis.text.x = element_text(angle = -85, hjust = 0, vjust = 0.2)) + #NEW
+      scale_color_manual('Demand', values = c("Baseline Demand" = "#DE7808", "Intervention Demand" ="#2B4A6D"))
+
+Demand_Graph_Fleet_Public_Baseline_Loadshift_Window
+ggsave("Results Graphs Publics/Fleets_Publics_Baseline_Loadshift_Window_Presentation.png", Demand_Graph_Fleet_Public_Baseline_Loadshift_Window, device = "png", width = 8, height = 4.5)
+
 
 
 ## Fleets All Items
@@ -5980,27 +6008,27 @@ Demand_Graph_Fleet_Public <- ggplot(data = graph_tableFF1, aes(x = Hr)) +
   geom_line(aes(x = Hr, 
                 y = Xf_mean, 
                 color = "Intervention Demand"), 
-                size = 0.9, 
+                size = 1.1, 
                 alpha = 0.75) + #This is the Xf line
   geom_line(aes(x = Hr,
                 y = X0_mean,
                 color = "Baseline Demand"),
-                size = 0.9, 
+                size = 1.1, 
                 alpha = 0.75) + #This is the X0 line
       theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
       panel.background = element_blank(), axis.line = element_line(colour = "black")) +
       xlab("Hour") +
       ylab("Electricity Demand (kW)") +
-  geom_rect(aes(xmin= 16,
+      geom_rect(aes(xmin= 16,
                 xmax=21,
                 ymin=-Inf,
                 ymax=Inf,
                 fill = "Rebate"),
                 alpha=0.005) +
-  scale_x_continuous(limits = c(0,24),breaks = c(0:24), expand = c(0,0)) +
+     scale_x_continuous(limits = c(0,24),breaks = c(0:24), expand = c(0,0), labels = c("12 a.m.", "1 a.m.", "2 a.m.", "3 a.m.", "4 a.m.", "5 a.m.", "6 a.m.", "7 a.m.", "8 a.m.", "9 a.m.", "10 a.m.", "11 a.m.", "12 p.m.", "1 p.m.", "2 p.m.", "3 p.m.", "4 p.m.", "5 p.m.", "6 p.m.", "7 p.m.", "8 p.m.", "9 p.m.", "10 p.m.", "11 p.m.", "12 a.m.")) +
    scale_y_continuous(expand = c(0,0), labels = scales::unit_format(unit = "k", scale =1e-3, accuracy = 1), limits = c(0, 3500))+
       scale_fill_manual('Interventions', values = c("Discount" = "#88A550","Throttle" = 'gray57', "Rebate" = "#88A550"),  guide = guide_legend(override.aes = list(alpha = 0.1))) +
-      theme(legend.position = "none") +
+      theme(legend.position = "none",  axis.text.x = element_text(angle = -85, hjust = 0, vjust = 0.2)) +
       scale_color_manual('Demand', values = c("Baseline Demand" = "#DE7808", "Intervention Demand" ="#2B4A6D"))
 
 Demand_Graph_Fleet_Public
