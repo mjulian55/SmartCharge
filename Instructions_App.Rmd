@@ -21,7 +21,7 @@ On the first tab, you can run our model with any set of interventions. To do so,
 
 &nbsp;
 
-#### **1. Choose how many simulations you want to run**
+#### 1. Choose how many simulations you want to run
 
 This will decide how many times the model is run to create your charging demand simulation. The more times the model is run, the more robust the simulated result. However, since each model run is randomized, the variance in outcomes will be greater.
 
