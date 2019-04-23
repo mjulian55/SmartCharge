@@ -9,7 +9,7 @@ output: html_document
 
 That's a great question! This application is broken into three parts, as indicated on the tabs above. The first tab, **simulation graphs**, allows you to run a selection of interventions and model the projected change in demand. On the second tab, **modeling methods**, you can explore the four underlying methods that feed into our model. The third tab, "custom elasticities", allows you to upload your own set of price elasticities to run one of the model methods. 
 
-Each tab follows a similar format: Inputs can be selected in the sidebar, while the modeled outputs are displayed in the center of the page. Below are instructions and details on each tab.  
+Each tab follows a similar format: Inputs can be selected in the sidebar, while the modeled outputs are displayed in the center of the page. Below are instructions for how to select a set of interventions on each tab. 
 
 CUT: Below are details on how the widgets work, what some of the inputs are, and how you can change them in order to create some outputs. The widgets are on the left in the **sidebar.**
 
@@ -17,59 +17,59 @@ CUT: Below are details on how the widgets work, what some of the inputs are, and
 
 ## Tab 1. Simulation Graphs
 
-### Choose your inputs in the sidebar 
+On the first tab, you can run our model with any set of interventions. To do so, **hoose your inputs in the sidebar** as described below. 
 
 &nbsp;
 
 #### **1. Choose how many simulations you want to run**
 
-This will decide how many times the model is run to create your charging demand simulation.  The more times the model is run, the more robust the simulation.  However, since each model run is randomized, the variance in outcomes would be greater.  
+This will decide how many times the model is run to create your charging demand simulation. The more times the model is run, the more robust the simulated result. However, since each model run is randomized, the variance in outcomes will be greater.
 
-The top graph is the **mean** of the amount of simulations.  The bottom graph displays all of the model simulations so you can see the **range** between the 4 methods used to create the simulation.
+The top graph that you'll see on the right is the **mean** of the amount of simulations. The bottom graph displays all of the model simulations so you can see the **range** between the 4 methods used to create the simulation.
 
-Choose from the dropdown how many times you want the model to run (1, 10, 100 or 1000 times).  Note: the higher the number, the longer the loading time.
+Choose from the dropdown how many times you want the model to run (1, 10, 100 or 1000 times). Note: the higher the number, the longer the loading time.
 
 &nbsp;
 &nbsp;
 
 #### **2. Choose how many chargers you want in your simulation**
 
-The amount of chargers will affect the amount of charging demand that you're trying to simulate.  You might want to see how much charging demand your place of employment might have with something low like 20 chargers.  Or you might want to simulate an entire metropolitan area with a value closer to 1,500 chargers.  Type in the number you want in to the top box labeled "Number of Chargers" or use the up/down arrows to increase/decrease.
+The amount of chargers will affect the amount of charging demand that you're trying to simulate. You might want to see how much charging demand your place of employment might have with something low like 20 chargers. Or you might want to simulate an entire metropolitan area with a value closer to 1,500 chargers. Type in the number you want in the top box labeled "Number of Chargers" or use the up/down arrows to increase/decrease the value.
 
 &nbsp;
 &nbsp;
 
 #### **3. Choose your market segment**
 
-A market segment refers to a non-residential place of electric vehicle charging.  The four market segments we evaluated for our project were:
+A market segment refers to the place where EVs charge. The four market segments evaluated for our project and thus available in this application are:
 
 - Workplaces (places of employment)
-- Destination Centers (such as shopping malls, hotels or other public, commercial spaces)
-- Fleets (groups of electric vehicles operated by a business, government, or any other organization)
+- Destination Centers (shopping malls, hotels or other public, commercial spaces)
+- Fleets (groups of EVs operated by a business, government, or any other organization)
 - Multi-Unit Dwellings (dwellings that are not considered private, single-family or low density homes such as condominiums or apartment buildings)
 
-Choose your market segment by selecting 1 of the 4 from the drop down menu labeled "Market Segment"
+Choose your market segment by selecting 1 of the 4 from the drop down menu labeled "Market Segment."
 
 &nbsp;
 &nbsp;
 
 #### **4. Choose the date that you want to represent**
 
-The baseline data (the original demand line that's displayed) is based on data that we have integrated into our model.  Select the date (month and year) you would want to set your baseline at.  If nothing is selected it will default to November of 2018, the final month of data we received for this project.
+To determine how demand changes, we need to know what our baseline daily demand looks like. This application has baseline data from some chargers in Southern California from 2017 and 2018. Select the date (month and year) you would want to set your baseline at. If nothing is selected, the model will default to November of 2018, the final month of data we received for this project, and thus the most recent data available to us. 
 
 &nbsp;
 &nbsp;
 
 #### **5. Choose what type of price intervention you might want to offer**
 
-A pricing intervention is an incentive that is offered to EV drivers in order to induce a demand response.  A **discount** is a cheaper price of electricity to encourage consumers to use more electricity during periods of lower demand.  A **rebate** is a bill credit given to consumers in order to use less electricity during periods of high demand.  
+A pricing intervention is one type of incentive that is offered to EV drivers in order to induce a change in behavior.  A **discount** is a cheaper price of electricity to encourage consumers to use more electricity. This is typically applied in the middle of the day to encourage the use of electricity that is powered with solar energy.  A **rebate** is a bill credit given to consumers in order to use less electricity. This is typically offered in the evenings when demand is high.
 
 These financial incentives can be applied in 4 ways:
 
 1) Not at all, where no pricing intervention is selected.  
 
 2) Only a discount.  
-To do this, check the discount box.  Then, **choose the amount** on the slider bar.Next, specify the **amount of time** you want the discount to be applied
+To do this, check the discount box. Then, **choose the amount** on the slider bar. Next, specify the **amount of time** you want the discount to be applied
 
 3) Only a rebate.
 Repeat the same process as described in step 2.
@@ -82,21 +82,32 @@ Repeat the same process as described in step 2 for both pricing interventions.
 
 #### **6. Apply a throttling rate to the chargers**
 
-Throttling is when the power draw of the electric vehicle charger is manually reduced.  For example, if a 6.6 kilowatt (kW) rated EV charger charges an EV for an hour, that EV would have used 6.6 kilowatt *hours* (kWh).  But if 50% throttling was applied to that charger, only 3.3 kWh of electricity would have been used.
+Throttling is when the power draw of the EV charger is manually reduced. For example, if a 6.6 kilowatt (kW) rated EV charger charges an EV for an hour, that EV would have used 6.6 kilowatt *hours* (kWh). But if 50% throttling was applied to that charger, only 3.3 kWh of electricity would have been used. In essence, this increases the amount of time it takes for an EV to fully charge.
 
-Throttling defaults to zero percent.  To apply throttling, use the two sliders to *choose your percentage* and *time period* in which you want the throttling to occur.
+In the model, the default for throttling is set at zero. To apply throttling, use the two sliders to *choose your percentage* and *time period* during which you want throttling to occur.
 
 &nbsp;
 &nbsp;
 
 #### **What next?**
 
-The graphs and tables are reactive, so you don't need to push any buttons. The more simulations your run, the longer the app will take to load.
+The graphs and tables are reactive, so you don't need to push any buttons. The more simulations you run, the longer the app will take to load.
 
 &nbsp;
 &nbsp;
 
+## Tab 2. Modeling Methods
+On the second tab, **modeling methods**, you can explore the four underlying methods that feed into our model. Select inputs on the sidebar as you would on Tab 1. Simulation Graphs. But, on the right, instead of seeing one new demand line, representing an average of the 4 methods used here, you see one run of the model with each method. This allows you to explore the 4 methods for determining how demand changes. 
 
+&nbsp;
+&nbsp;
+
+## Tab 3. Custom Elasticities
+
+FILL IN. 
+
+&nbsp;
+&nbsp;
 
 <img src="RStudio_Shiny.png" width="150">
 
