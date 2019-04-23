@@ -15,9 +15,9 @@ CUT: Below are details on how the widgets work, what some of the inputs are, and
 
 &nbsp;
 
-## **Simulation Graphs**
+## Tab 1. Simulation Graphs
 
-### **Choose your inputs in the sidebar**
+### Choose your inputs in the sidebar 
 
 &nbsp;
 
