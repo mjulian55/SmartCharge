@@ -157,6 +157,8 @@ tabPanel("Modeling Methods",
                            "October 2018" = "2018/10/01",
                            "November 2018" = "2018/11/01"),
                          selected = "2018/11/01"),
+              
+             
              
              checkboxGroupInput("price_interventionmethod", h4("Choose a Price Intevention"),
                                 choices = c("Discount", "Rebate"),
@@ -215,6 +217,101 @@ tabPanel("Modeling Methods",
          )
 ),
 
+
+tabPanel("Custom Elasticities",
+         
+         sidebarLayout(
+           sidebarPanel(
+             
+             # Number of chargers widget
+             numericInput("intervention_chargerscustom", label = h4("Number of Chargers"), value = 900),
+             # Market Segment dropdown widget
+             selectInput("segcustom", label = h4("Market Segment"), 
+                         c("Workplace" = "Workplace",
+                           "Destination Center" = "Destination Center",
+                           "Fleet" = "Fleet",
+                           "Multi Unit Dwelling" = "Multi Unit Dwelling")),
+             
+             # Date Selection of Invervention (Month and Year)
+             selectInput("datecustom", 
+                         label = h4("Month and Year"), 
+                         c("June 2017" = "2017/06/01",
+                           "July 2017" = "2017/07/01",
+                           "August 2017" = "2017/08/01",
+                           "September 2017" = "2017/09/01",
+                           "October 2017" = "2017/10/01",
+                           "November 2017" = "2017/11/01",
+                           "December 2017" = "2017/12/01",
+                           "January 2018" = "2018/01/01",
+                           "February 2018" = "2018/02/01",
+                           "March 2018" = "2018/03/01",
+                           "April 2018" = "2018/04/01",
+                           "May 2018" = "2018/05/01",
+                           "June 2018" = "2018/06/01",
+                           "July 2018" = "2018/07/01",
+                           "August 2018" = "2018/08/01",
+                           "September 2018" = "2018/09/01",
+                           "October 2018" = "2018/10/01",
+                           "November 2018" = "2018/11/01"),
+                         selected = "2018/11/01"),
+             
+             
+             checkboxGroupInput("custom_elasticities", 
+                                label = 
+                                  h4("Use Custom Elasticity Matrix?"),
+                                choices = "Yes"),
+             conditionalPanel(condition = "input.custom_elasticities.includes('Yes')",
+                              fileInput("file", label = h4("Upload 24X24 Elasticity Matrix")),
+                              
+                              downloadButton("downloadData", "Download Template")),
+             
+             checkboxGroupInput("price_interventioncustom", h4("Choose a Price Intevention"),
+                                choices = c("Discount", "Rebate"),
+                                selected = "Discount"),
+             conditionalPanel(condition = "input.price_interventioncustom.includes('Discount')",
+                              sliderInput("discountcustom", label = h4("Discount Price (in cents/kWh)"),
+                                          min = 0, max = 20, value = 5),
+                              
+                              sliderInput("discount_periodcustom", label = h4("Discount Period (Hour Ending)"), 
+                                          min = 0, max = 24, value = c(12, 15))),
+             
+             conditionalPanel(condition = "input.price_interventioncustom.includes('Rebate')",
+                              sliderInput("rebatecustom", label = h4("Rebate Price (in cents/kWh)"), 
+                                          min = 0, max = 20, value = 0),
+                              
+                              sliderInput("rebate_periodcustom", label = h4("Rebate Period (Hour Ending)"),
+                                          min = 0, max = 24, value = c(17, 21))),
+             
+             sliderInput("throttlingcustom", label = h4("Throttling Amount (%)"), min = 0, max = 100, value = 0.0),
+             #Throttling hours
+             sliderInput("throttle_periodcustom", label = h4("Throttling Period"),
+                         min = 0, max = 24, value = c(6, 11))
+             
+           ),
+           mainPanel(
+             
+             textOutput("DemandGraphDescriptioncustom", container = span),
+             
+             br(),  br(),
+             
+             withSpinner(plotOutput("custom_graph"), type = 6),
+             
+             br(),  br(), br(),  br(),
+             
+             textOutput("OutputTableDescriptioncustom", container = span),
+             
+             br(), br(),
+             
+             
+             withSpinner(tableOutput("Emissions_Tablecustom"), type = 6)
+             
+             
+           )
+         )
+),
+
+
+
                         tabPanel("Instructions",
                           includeMarkdown("Instructions_App.Rmd"))
                                  
@@ -227,7 +324,12 @@ tabPanel("Modeling Methods",
 server <- function(input, output) {
   source("simulation_function.R")
   source("emissions_function.R")
+  elasticity_matrix_template <- read_csv("elasticity_matrix_template.csv")
   
+  
+  output$downloadData <- downloadHandler(filename = "elasticity_matrix_template.csv", content = function(file) {
+    write.csv(elasticity_matrix_template, file, row.names = FALSE)
+  })
 
   output$method_graph <- renderPlot({
     
@@ -539,9 +641,7 @@ The simulated demand (the blue line) is compared to the baseline demand that you
     # gganimate
     
     
-    
-    
-    
+
     
     
     output$Monte_Carlo <- renderPlot({
@@ -697,6 +797,200 @@ The simulated demand (the blue line) is compared to the baseline demand that you
     
 
     })
+  
+  
+  output$custom_graph <- renderPlot({
+    
+    output$GraphDescriptioncustom <- renderText({
+      "FILL IN LATER"})
+    
+    
+    
+    
+    month <- month(as.Date(input$datecustom, "%Y/%m/%d"))
+    year <- year(as.Date(input$datecustom, "%Y/%m/%d"))
+    shiny_seg <- as.character(input$segcustom)
+    
+    if(is.null(input$price_interventioncustom)){
+      price_change_conditional <- 0
+      
+      intervention_hrs_conditional <- seq(input$discount_periodcustom[1],input$discount_periodcustom[2],1)
+      
+      price_change_2_conditional <- 0
+      
+      intervention_hrs_conditional_2 <- seq(input$rebate_periodcustom[1],input$rebate_periodcustom[2],1)
+    } else if(length(input$price_interventioncustom) > 1) {
+      price_change_conditional <- -input$discountcustom/100
+      
+      intervention_hrs_conditional <- seq(input$discount_periodcustom[1],input$discount_periodcustom[2],1)
+      
+      price_change_2_conditional <- input$rebatecustom/100
+      
+      intervention_hrs_conditional_2 <- seq(input$rebate_periodcustom[1],input$rebate_periodcustom[2],1)
+    } else if(input$price_interventioncustom == "Discount") {
+      price_change_conditional <- -input$discountcustom/100
+      
+      intervention_hrs_conditional <- seq(input$discount_periodcustom[1],input$discount_periodcustom[2],1)
+      
+      price_change_2_conditional <- 0
+      
+      intervention_hrs_conditional_2 <- seq(input$rebate_periodcustom[1],input$rebate_periodcustom[2],1)
+      
+    } else if (input$price_interventioncustom == "Rebate") {
+      price_change_conditional <- input$rebatecustom/100
+      
+      intervention_hrs_conditional <- seq(input$rebate_periodcustom[1],input$rebate_periodcustom[2],1)
+      
+      price_change_2_conditional <- 0
+      
+      intervention_hrs_conditional_2 <- seq(input$discount_periodcustom[1],input$discount_periodcustom[2],1)
+    } else {
+      price_change_conditional <- -input$discountcustom/100
+      
+      intervention_hrs_conditional <- seq(input$discount_periodcustom[1],input$discount_periodcustom[2],1)
+      
+      price_change_2_conditional <- input$rebatecustom/100
+      
+      intervention_hrs_conditional_2 <- seq(input$rebate_periodcustom[1],input$rebate_periodcustom[2],1)
+    }
+    
+    
+    throttling_period <- seq(input$throttle_periodcustom[1],input$throttle_periodcustom[2],1)
+    
+    sim_custom_matrix <- input$file
+    
+    custom_or_not <- ifelse(length(input$custom_elasticities) >0, TRUE, FALSE)
+    
+    # generate graph and change the things that are reactive from the sliders
+    app_model_run_custom <- simulation(simulations = 1,
+                                sim_method = 4,
+                                sim_custom_or_not = custom_or_not,
+                                sim_matrix = sim_custom_matrix,
+                                sim_price_change = price_change_conditional,
+                                sim_intervention_hours = intervention_hrs_conditional,
+                                sim_price_change_2 = price_change_2_conditional,
+                                sim_intervention_hours_2 = intervention_hrs_conditional_2,
+                                sim_int_equals_baseline = FALSE,
+                                sim_intervention_chargers = input$intervention_chargerscustom,
+                                sim_month = month, 
+                                sim_year = year, 
+                                sim_seg = shiny_seg,
+                                sim_throttle_amount = -input$throttlingcustom/100,
+                                sim_throttle_hours = throttling_period)
+    
+    # graph of all the sim results grouped by their run number, color by the method
+    # ggplot
+    # gganimate
+    
+
+    
+    
+    
+    #    discount_text <- ifelse("Discount" %in% input$price_intervention &input$discount >0, c("Hours",input$discount_period[1],"-", input$discount_period[2]),"") %>% 
+    #      paste(collapse = " ")
+    
+    
+    #    rebate_text <- ifelse("Rebate" %in% input$price_intervention &input$rebate >0, c("Hours",input$rebate_period[1],"-", input$rebate_period[2]),"") %>% 
+    #      paste(collapse = " ")
+    
+    discount_text <-c(input$discount_periodcustom[1],"-", input$discount_periodcustom[2]) %>% 
+      paste(collapse = " ")
+    
+    rebate_text <- c(input$rebate_periodcustom[1],"-", input$rebate_periodcustom[2]) %>% 
+      paste(collapse = " ")
+    
+    
+    intervention_hours <- paste("Hours",
+                                ifelse(input$discountcustom > 0 & "Discount" %in% input$price_interventioncustom,
+                                       discount_text,
+                                       ""),
+                                ifelse(length(input$price_interventioncustom) >1 &input$discountcustom > 0 & input$rebatecustom > 0,
+                                       "and",
+                                       ""),
+                                ifelse(input$rebatecustom > 0 & "Rebate" %in% input$price_interventioncustom,
+                                       rebate_text,
+                                       ""),
+                                collapse = " ")
+    
+    time_periods <- c(intervention_hours,"4 PM - 9 PM", "All Hours")
+    periods <- c("Price Intervention","Peak Demand", "Total")
+    
+    
+    output$OutputTableDescriptioncustom <- renderText({
+      "This table displays various economic and greenhouse gas emission changes that occur that result from your simulation."})
+    
+    
+    output$Emissions_Tablecustom <- renderTable({
+      app_emissions_run_custom <- emissions_fcn(app_model_run_custom)
+      app_emissions_table_custom <- app_emissions_run_custom$Emissions_Table %>%
+        filter(Time != "other") %>% 
+        select("Time Periods" = Xinitial,"Hours" = Time,"Change in Demand (kWh)" = Xchange, "Change in Cost ($)" = CustCostChange, "Change in CO2 Emissions (kg)" = CO2Change, "Change in NOX Emissions (kg)" = NOXChange, "Social Costs of NOX Emission Change ($)" = NOXChangeCost, "Social Costs of CO2 Emission Change ($)" = CO2ChangeCost)
+      
+      
+      app_emissions_table_custom$'Hours' <- time_periods
+      app_emissions_table_custom$'Time Periods' <- periods
+      app_emissions_table_custom
+      
+    },
+    striped = TRUE, bordered = TRUE,  
+    spacing = 'm',
+    align = 'c'
+    )
+    
+    
+    
+    ggplot(app_model_run_custom$sim_result_summary) +
+      geom_line(aes(x = Hr, y = Xf_mean,color = "Intervention Demand"), 
+                size = 2.5, 
+                alpha = 0.75) + #This is the Xf line
+      
+      geom_line(aes(x = Hr,
+                    y = X0_mean,
+                    color = "Baseline Demand"), 
+                size = 2.5, 
+                alpha = 0.75) + #This is the X0 line
+      xlab("Hour") +
+      ylab("Electricity Demand (kilowatts)") +
+      
+      geom_rect(aes(xmin= input$discount_periodcustom[1],
+                    xmax=input$discount_periodcustom[2],
+                    ymin=-Inf,
+                    ymax=Inf,
+                    fill = "Discount"),
+                alpha=ifelse("Discount" %in% input$price_interventioncustom & input$discountcustom >0, 0.01,0)) + #this is the discount rectangle
+      
+      
+      geom_rect(aes(xmin=input$rebate_periodcustom[1],
+                    xmax=input$rebate_periodcustom[2],
+                    ymin=-Inf,
+                    ymax=Inf,
+                    fill="Rebate"),
+                alpha=ifelse("Rebate" %in% input$price_interventioncustom & input$rebatecustom >0, 0.02,0)) + #This is the rebate rectangle
+      
+      geom_rect(aes(xmin= input$throttle_periodcustom[1],
+                    xmax=input$throttle_periodcustom[2],
+                    ymin=-Inf,
+                    ymax=Inf,
+                    fill = "Throttle"),
+                alpha=ifelse(input$throttlingcustom >0, 0.01,0)) + #this is the discount rectangle
+      
+      scale_x_continuous(limits = c(1,24),breaks = c(1:24), expand = c(0,0)) +
+      scale_y_continuous(expand = c(0,0)) +
+      #scale_fill_brewer("Interventions",palette = "Set2" , guide = guide_legend(override.aes = list(alpha = 0.5))) +
+      # scale_color_brewer("Demand", palette = "Dark2", direction = -1) +
+      scale_color_manual('Demand', values = c("Baseline Demand" = "#DE7808", "Intervention Demand" ="#2B4A6D")) +
+      scale_fill_manual('Interventions', values = c("Discount" = '#88A550',"Rebate" = '#6d50a5', "Throttle" = 'gray57'),  guide = guide_legend(override.aes = list(alpha = 0.4))) +
+      theme(legend.position = "bottom") +
+      theme_classic()
+    
+    
+    
+    
+    
+  })
+  
+  
+  
 }
 
 

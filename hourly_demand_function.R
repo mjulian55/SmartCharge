@@ -299,7 +299,10 @@ n_tou <- 2018 #new tou year (options are 2019 or 2018)
 pk <- c(17:21) #target window to shift out off (this is only used in the output calculations below, not for the function)
 
 
+
 hourly_demand <- function(method = mthd,
+                          custom_or_not = FALSE,
+                          custom_matrix = NA,
                           avg_elasticity = avg_elst,
                           seg = sg, 
                           month = mth,
@@ -507,15 +510,28 @@ Xi <- Xi_choose_weekends %>%
   #uses a for loop to call files rather than individually
   #NOTE this matrix has each COLUMN to be used for each hour. Our excel used each ROW if trying to compare.
   
-  matrix <- data.frame(Hr = c(1:24))
-  for (i in x) {
-    El <- eval(parse(text = sub("YY", i, "Elasticities.YY")))
-    El <- El[-1,]
-    El <- El[order(El$HR24),]
-    matrix <- cbind(matrix, El$ELAST)
+  if(custom_or_not == TRUE){
+    
+    matrix <- custom_matrix
+    matrix<-matrix[,-1]
+    colnames(matrix) <- c(1:24)
+    
+    
+  }else{
+    
+    matrix <- data.frame(Hr = c(1:24))
+    for (i in x) {
+      El <- eval(parse(text = sub("YY", i, "Elasticities.YY")))
+      El <- El[-1,]
+      El <- El[order(El$HR24),]
+      matrix <- cbind(matrix, El$ELAST)
+    }
+    matrix<-matrix[,-1]
+    colnames(matrix) <- c(1:24)
+    
   }
-  matrix<-matrix[,-1]
-  colnames(matrix) <- c(1:24)
+  
+  
   ####
   
   ###set matrix to no cross_elasticitities

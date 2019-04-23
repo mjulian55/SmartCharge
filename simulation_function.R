@@ -4,6 +4,8 @@ source("hourly_demand_function.R")
 
 
 simulation <- function(simulations = 100, 
+                       sim_custom_or_not = FALSE,
+                       sim_matrix = NA,
                        sim_method = mthd,
                        sim_avg_elasticity = avg_elst,
                        sim_seg = sg,
@@ -63,6 +65,8 @@ simulation <- function(simulations = 100,
   
   for(i in seq(simulations)){
     run_i <- hourly_demand(method = method_draws[i],
+                           custom_or_not = sim_custom_or_not,
+                           custom_matrix = sim_matrix,
                            avg_elasticity = avg_elasticity_draws[i],
                            seg = sim_seg,
                            month = sim_month, 

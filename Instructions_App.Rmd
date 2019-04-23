@@ -17,7 +17,7 @@ That's a great question!  Follow this flow chart to understand how the widgets w
 
 #### **First, choose how many simulations you want to run**
 
-This will how many times the model is run to create your charging demand simulation.  The more times the model is run, the more robust the simulation.  However, since each model run is randomized, the variance in outcomes would be greater.  
+This will decide how many times the model is run to create your charging demand simulation.  The more times the model is run, the more robust the simulation.  However, since each model run is randomized, the variance in outcomes would be greater.  
 
 The top graph is the **mean** of the amount of simulations.  The bottom graph displays all of the model simulations so you can see the **range** between the 4 methods used to create the simulation.
 
