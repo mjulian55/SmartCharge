@@ -17,7 +17,7 @@ CUT: Below are details on how the widgets work, what some of the inputs are, and
 
 ## Tab 1. Simulation Graphs
 
-On the first tab, you can run our model with any set of interventions. To do so, **hoose your inputs in the sidebar** as described below. 
+On the first tab, you can run our model with any set of interventions. To do so, **choose your inputs in the sidebar** as described below. 
 
 &nbsp;
 
