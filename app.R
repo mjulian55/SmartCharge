@@ -211,7 +211,7 @@ tabPanel("Modeling Methods",
              br(), br(),
              
              
-             withSpinner(plotOutput("method1_heat_map"), type = 6)
+             withSpinner(plotOutput("method4_heat_map"), type = 6)
              
            )
          )
@@ -344,10 +344,9 @@ server <- function(input, output) {
     
     
     output$MethodsDescription <- renderText({
-      "Method 1 uses both self and cross elasticities to calculate a change in demand at all hours of the day.
-      Method 2 assumes that users only respond to a price change in the hour that the price changes (the intervention hours) and do not change their behavior in the other hours (non-intervention hours).
-      Method 3 assumes that users only shift their load based on a price signal, and thus there is no net increase in load.
-      Method 4 assumes that users change their behavior in response to price changes in the intervention hours and how that changes the average price over the day."})
+      "Method 1 assumes that users only respond to a price change in the hour that the price changes (the intervention hours) and do not change their behavior in the other hours (non-intervention hours).
+      Method 2 assumes that users only shift their load based on a price signal, and thus there is no net increase in load.
+      Method 3 assumes that users change their behavior in response to price changes in the intervention hours and how that changes the average price over the day. Method 4 uses both self and cross elasticities to calculate a change in demand at all hours of the day."})
     
     month <- month(as.Date(input$datemethod, "%Y/%m/%d"))
     year <- year(as.Date(input$datemethod, "%Y/%m/%d"))
@@ -458,16 +457,16 @@ server <- function(input, output) {
                                        throttle_hours = throttling_period)
     
     output$ElasticityDescription <- renderText({
-      "The figure below displays a heat map of elasticities used in Method 1.  
+      "The figure below displays a heat map of elasticities used in Method 4.  
   The self elasticities are displayed along the diagonal axis of this elasticity matrix.  
-        For methods 2-4, everything outside the diagonal has a zero value because there aren't any cross price elasticities factored into these models."})
+        For Methods 1-3, everything outside the diagonal has a zero value because there aren't any cross price elasticities factored into these models."})
     
     
     coul<- colorRampPalette(brewer.pal(4,"PRGn"))(100)
     
     
-    output$method1_heat_map <- renderPlot({matrix1 <- stack(method1_model_run$matrix) %>%
-        mutate( x = rep(1:24,24)) %>% 
+    output$method4_heat_map <- renderPlot({matrix1 <- stack(method4_model_run$matrix) %>%
+        mutate(x = rep(1:24,24)) %>% 
         select(x = x, y = ind, elasticity = values)
       ggplot(matrix1, aes(y, x, z= elasticity)) + 
         geom_tile(aes(fill = elasticity)) + 
@@ -724,7 +723,7 @@ The simulated demand (the blue line) is compared to the baseline demand that you
     
     
     output$OutputTableDescription <- renderText({
-      "This table displays various economic and greenhouse gas emission changes that occur that result from your simulation."})
+      "This table displays various economic and greenhouse gas emission changes that result from your simulation."})
     
     
     output$Emissions_Table <- renderTable({
