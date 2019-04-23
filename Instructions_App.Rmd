@@ -5,19 +5,26 @@ date: "3/6/2019"
 output: html_document
 ---
 
-# How does the model work? 
-
-Our economic model is fundamentally based on price elasticities, a numeric measure of how demand responds to price changes in any hour. Self-, cross-, and average elasticities represent how individuals’ electricity demand changes in response to price changes at any point in the day. To account for uncertainty in these elasticities, our model uses 4 methods to determine the change in demand. We then run the model multiple times and average the results. The simulated demand represents an average of all model runs.
-
 # How do I use this application?
 
 That's a great question! This application is broken into three parts, as indicated on the tabs above. The first tab, **simulation graphs**, allows you to run our model, by selecting a series of interventions and then viewing the projected change in demand. On the second tab, **modeling methods**, you can explore the four underlying methods that feed into our model. The third tab, **custom elasticities**, allows you to upload your own set of price elasticities to run one of the model methods. 
 
+&nbsp;
+
+# How does the model work? 
+
+Our economic model is fundamentally based on price elasticities, a numeric measure of how demand responds to price changes in any hour. Self-, cross-, and average elasticities represent how individuals’ electricity demand changes in response to price changes at any point in the day. To account for uncertainty in these elasticities, our model uses 4 methods to determine the change in demand. We then run the model multiple times and average the results. The simulated demand represents an average of all model runs. 
+
+Method 1 assumes that users only respond to a price change in the hour that the price changes (the intervention hours) and do not change their behavior in the other hours (non-intervention hours). Method 2 assumes that users only shift their load based on a price signal, and thus there is no net increase in load. Method 3 assumes that users change their behavior in response to price changes in the intervention hours and how that changes the average price over the day. Method 4 uses both self- and cross- elasticities to calculate a change in demand at all hours of the day. Method 4 is not used to produce the results described in our [final report](https://smartchargeproject.weebly.com/) due to the uncertainty with available data, but it is used in this exploratory application. For more details on Methods 1-3, see our project report on our [website](https://smartchargeproject.weebly.com/). For more details on Method 4, see the details on Tab 3 below. 
+
+&nbsp;
+
+# Tab by Tab Instructions and Details
 Each tab follows a similar format: Inputs can be selected in the sidebar, while the modeled outputs are displayed in the center of the page. Below are instructions for how to select a set of interventions on each tab. 
 
 &nbsp;
 
-## Tab 1. Simulation Graphs
+##Tab 1. Simulation Graphs
 
 On the first tab, you can run our model with any set of interventions. To do so, **choose your inputs in the sidebar** as described below. 
 
@@ -64,20 +71,17 @@ To determine how demand changes, we need to know what our baseline daily demand 
 
 #### 5. Choose what type of price intervention you might want to offer
 
-A pricing intervention is one type of incentive that is offered to EV drivers in order to induce a change in behavior.  A **discount** is a cheaper price of electricity to encourage consumers to use more electricity. This is typically applied in the middle of the day to encourage the use of electricity that is powered with solar energy.  A **rebate** is a bill credit given to consumers in order to use less electricity. This is typically offered in the evenings when demand is high.
+A pricing intervention is one type of incentive that is offered to EV drivers to induce a change in behavior.  A **discount** is a cheaper price of electricity to encourage consumers to use more electricity. This is typically applied in the middle of the day to encourage the use of electricity that is powered with solar energy.  A **rebate** is a bill credit given to consumers to use less electricity. This is typically offered in the evenings when demand is high.
 
 These financial incentives can be applied in 4 ways:
 
-1) Not at all, where no pricing intervention is selected.  
+1) Only a discount. To do this, check the discount box. Then, **choose the amount** on the slider bar. Next, specify the **amount of time** you want the discount to be applied
 
-2) Only a discount.  
-To do this, check the discount box. Then, **choose the amount** on the slider bar. Next, specify the **amount of time** you want the discount to be applied
+2) Only a rebate. Repeat the same process as described in step 2.
 
-3) Only a rebate.
-Repeat the same process as described in step 2.
+3) A discount and a rebate. Repeat the same process as described in step 2 for both pricing interventions.
 
-4) A discount and a rebate.
-Repeat the same process as described in step 2 for both pricing interventions.
+You can also run the model with no price intervention but selecting neither a discount nor a rebate. 
 
 &nbsp;
 &nbsp;
@@ -99,7 +103,7 @@ The graphs and tables are reactive, so you don't need to push any buttons. The m
 &nbsp;
 
 ## Tab 2. Modeling Methods
-On the second tab, **modeling methods**, you can explore the four underlying methods that feed into our model. Select inputs on the sidebar as you would on the Simulation Graphs tab. But, on the right, instead of seeing one new demand line, representing an average of the 4 methods used here, you will see one line representing one run with each individual method. This allows you to explore the 4 methods averaged to create the new demand change on the Simulation Graphs tab.
+On the second tab, **modeling methods**, you can explore the 4 underlying methods that feed into our model. Select inputs on the sidebar as you would on the Simulation Graphs tab. But, on the right, instead of seeing one new demand line, representing an average of the 4 methods used here, you will see one line representing one run with each individual method. This allows you to explore the 4 methods averaged to create the new demand change on the Simulation Graphs tab.
 
 &nbsp;
 &nbsp;
