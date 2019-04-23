@@ -5,13 +5,15 @@ date: "3/6/2019"
 output: html_document
 ---
 
+# How does the model work? 
+
+Our economic model is fundamentally based on price elasticities, a numeric measure of how demand responds to price changes in any hour. Self-, cross-, and average elasticities represent how individuals’ electricity demand changes in response to price changes at any point in the day. To account for uncertainty in these elasticities, our model uses 4 methods to determine the change in demand. We then run the model multiple times and average the results. The simulated demand represents an average of all model runs.
+
 # How do I use this application?
 
 That's a great question! This application is broken into three parts, as indicated on the tabs above. The first tab, **simulation graphs**, allows you to run our model, by selecting a series of interventions and then viewing the projected change in demand. On the second tab, **modeling methods**, you can explore the four underlying methods that feed into our model. The third tab, **custom elasticities**, allows you to upload your own set of price elasticities to run one of the model methods. 
 
 Each tab follows a similar format: Inputs can be selected in the sidebar, while the modeled outputs are displayed in the center of the page. Below are instructions for how to select a set of interventions on each tab. 
-
-CUT: Below are details on how the widgets work, what some of the inputs are, and how you can change them in order to create some outputs. The widgets are on the left in the **sidebar.**
 
 &nbsp;
 

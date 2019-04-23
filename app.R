@@ -562,9 +562,7 @@ server <- function(input, output) {
   output$Demand_Graph <- renderPlot({
     
     output$DemandGraphDescription <- renderText({
-      "This graph displays the simulated electricity demand of EV charging based on the inputs that you choose on the sidebar.  
-The simulated demand (the blue line) is compared to the baseline demand that you start with (the orange line).  
-    Shaded areas will appear for the time periods of any intervention you choose."})
+      "The graph below displays the simulated electricity demand of EV charging based on the inputs that you choose on the sidebar. The simulated new demand appears in blue, while the baseline demand is in orange. Shaded areas will appear to indicate the time periods of any intervention you choose. To account for uncertainty, our model uses 4 methods to determine the change in demand. Each method also allows for variations in the economic elasticities. The amount of times the model is run is chosen in the sidebar. The more times the model is run, the more robust the results, but the longer the graph will take to load. The simulated demand line represents an average of all model runs."})
     
     
 
@@ -723,7 +721,7 @@ The simulated demand (the blue line) is compared to the baseline demand that you
     
     
     output$OutputTableDescription <- renderText({
-      "This table displays various economic and greenhouse gas emission changes that result from your simulation."})
+      "The table below displays the economic and greenhouse gas emission changes that result from your simulation."})
     
     
     output$Emissions_Table <- renderTable({
@@ -744,10 +742,7 @@ The simulated demand (the blue line) is compared to the baseline demand that you
     )
     
     output$MonteCarloDescription <- renderText({
-      "This graph is similar to the top graph, only it takes the same model used to create the first graph and runs it many times (this amount is chosen on the sidebar).
-        This process is called a Monte Carlo simulation.  
-        It's used to randomly use the same model to repeatedly simulate your results so any uncertainty and range can be displayed.  
-        There are 4 methods (see the 4 Methods for Modeling Tab) being used within our computer model to simulate demand, and as each one is randomly drawn, you can see which one is being used and how that one is displayed."})
+      "The graph below displays all of the individual model runs that are averaged to create the final simulated demand line in the graph above. There are 4 methods (see the 4 Methods for Modeling Tab) being used within our computer model to simulate demand, and as each one is randomly drawn, you can see which one is being used and how that one is displayed."})
     
     
     ggplot(app_model_run$sim_result_summary) +
