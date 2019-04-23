@@ -7,7 +7,7 @@ output: html_document
 
 # How do I use this application?
 
-That's a great question! This application is broken into three parts, as indicated on the tabs above. The first tab, **simulation graphs**, allows you to run a selection of interventions and model the projected change in demand. On the second tab, **modeling methods**, you can explore the four underlying methods that feed into our model. The third tab, "custom elasticities", allows you to upload your own set of price elasticities to run one of the model methods. 
+That's a great question! This application is broken into three parts, as indicated on the tabs above. The first tab, **simulation graphs**, allows you to run our model, by selecting a series of interventions and then viewing the projected change in demand. On the second tab, **modeling methods**, you can explore the four underlying methods that feed into our model. The third tab, **custom elasticities**, allows you to upload your own set of price elasticities to run one of the model methods. 
 
 Each tab follows a similar format: Inputs can be selected in the sidebar, while the modeled outputs are displayed in the center of the page. Below are instructions for how to select a set of interventions on each tab. 
 
@@ -32,14 +32,14 @@ Choose from the dropdown how many times you want the model to run (1, 10, 100 or
 &nbsp;
 &nbsp;
 
-#### **2. Choose how many chargers you want in your simulation**
+#### 2. Choose how many chargers you want in your simulation
 
 The amount of chargers will affect the amount of charging demand that you're trying to simulate. You might want to see how much charging demand your place of employment might have with something low like 20 chargers. Or you might want to simulate an entire metropolitan area with a value closer to 1,500 chargers. Type in the number you want in the top box labeled "Number of Chargers" or use the up/down arrows to increase/decrease the value.
 
 &nbsp;
 &nbsp;
 
-#### **3. Choose your market segment**
+#### 3. Choose your market segment
 
 A market segment refers to the place where EVs charge. The four market segments evaluated for our project and thus available in this application are:
 
@@ -53,14 +53,14 @@ Choose your market segment by selecting 1 of the 4 from the drop down menu label
 &nbsp;
 &nbsp;
 
-#### **4. Choose the date that you want to represent**
+#### 4. Choose the date that you want to represent
 
 To determine how demand changes, we need to know what our baseline daily demand looks like. This application has baseline data from some chargers in Southern California from 2017 and 2018. Select the date (month and year) you would want to set your baseline at. If nothing is selected, the model will default to November of 2018, the final month of data we received for this project, and thus the most recent data available to us. 
 
 &nbsp;
 &nbsp;
 
-#### **5. Choose what type of price intervention you might want to offer**
+#### 5. Choose what type of price intervention you might want to offer
 
 A pricing intervention is one type of incentive that is offered to EV drivers in order to induce a change in behavior.  A **discount** is a cheaper price of electricity to encourage consumers to use more electricity. This is typically applied in the middle of the day to encourage the use of electricity that is powered with solar energy.  A **rebate** is a bill credit given to consumers in order to use less electricity. This is typically offered in the evenings when demand is high.
 
@@ -80,7 +80,7 @@ Repeat the same process as described in step 2 for both pricing interventions.
 &nbsp;
 &nbsp;
 
-#### **6. Apply a throttling rate to the chargers**
+#### 6. Apply a throttling rate to the chargers
 
 Throttling is when the power draw of the EV charger is manually reduced. For example, if a 6.6 kilowatt (kW) rated EV charger charges an EV for an hour, that EV would have used 6.6 kilowatt *hours* (kWh). But if 50% throttling was applied to that charger, only 3.3 kWh of electricity would have been used. In essence, this increases the amount of time it takes for an EV to fully charge.
 
@@ -89,7 +89,7 @@ In the model, the default for throttling is set at zero. To apply throttling, us
 &nbsp;
 &nbsp;
 
-#### **What next?**
+#### What next?
 
 The graphs and tables are reactive, so you don't need to push any buttons. The more simulations you run, the longer the app will take to load.
 
@@ -97,14 +97,17 @@ The graphs and tables are reactive, so you don't need to push any buttons. The m
 &nbsp;
 
 ## Tab 2. Modeling Methods
-On the second tab, **modeling methods**, you can explore the four underlying methods that feed into our model. Select inputs on the sidebar as you would on Tab 1. Simulation Graphs. But, on the right, instead of seeing one new demand line, representing an average of the 4 methods used here, you see one run of the model with each method. This allows you to explore the 4 methods for determining how demand changes. 
+On the second tab, **modeling methods**, you can explore the four underlying methods that feed into our model. Select inputs on the sidebar as you would on the Simulation Graphs tab. But, on the right, instead of seeing one new demand line, representing an average of the 4 methods used here, you will see one line representing one run with each individual method. This allows you to explore the 4 methods averaged to create the new demand change on the Simulation Graphs tab.
 
 &nbsp;
 &nbsp;
 
 ## Tab 3. Custom Elasticities
 
-FILL IN. 
+Our economic model is fundamentally based on price elasticities, a numeric measure of how demand responds to price changes in any hour. Self-, cross-, and average elasticities represent how individuals’ electricity demand changes in response to price changes at any point in the day. As of Spring 2019, few studies had tackled these challenges for EV charging, so carefully-estimated self- and cross-price elasticities for all 24 hours of the day for our 4 EV charging locations do not yet exist in the literature. Until they are estimated empirically, elasticities from other segments provide a reasonable proxy for estimating how changes in price over the course of the day impact demand. The current self- and cross-price elasticities used in our model are from a study of EV charging at single-family homes in San Diego. In principle using just self- and cross-price elasticities should be sufficient to estimate the change in demand over the course of the day. However, we're applying elasticities from other EV charging market segments, so there is uncertainty in these values. Thus, we use 4 methods that use a range of elasticities and average the results. "Method 4" uses just the self- and cross-price elasticities. Our other methods use the self-elasticities and make assumptions about how load my shift or not shift (See our report on our website for more detail). On the custom elasticities tab, you can upload your own set of self- and cross- price elasticities and run Method 4. This is intended to create space for running our model once self- and cross-price elasticities have been empirically derived for our 4 market segments.
+
+To use this tab, first download the template for uploading your elasticities. This is a template for a self- and cross-price elasticity matrix for all 24 hours. The model pulls by column, so each cell should indicate how that row hour affects the column hour. For example, how a change in hour 4 affects hour 1 would be represented in B5. 
+After you've uploaded your own spreadsheet, select your interventions in the sidebar as you did with tab 1 and tab 2. 
 
 &nbsp;
 &nbsp;
