@@ -70,7 +70,7 @@ theme = shinytheme("united"),
                                                "November 2018" = "2018/11/01"),
                                              selected = "2018/11/01"),
                                  
-                                 checkboxGroupInput("price_intervention", h4("Choose a Price Intevention"),
+                                 checkboxGroupInput("price_intervention", h4("Price Intervention"),
                                                     choices = c("Discount", "Rebate"),
                                                     selected = "Discount"),
                                  conditionalPanel(condition = "input.price_intervention.includes('Discount')",
@@ -160,7 +160,7 @@ tabPanel("Modeling Methods",
               
              
              
-             checkboxGroupInput("price_interventionmethod", h4("Choose a Price Intevention"),
+             checkboxGroupInput("price_interventionmethod", h4("Price Intervention"),
                                 choices = c("Discount", "Rebate"),
                                 selected = "Discount"),
              conditionalPanel(condition = "input.price_interventionmethod.includes('Discount')",
@@ -265,7 +265,7 @@ tabPanel("Custom Elasticities",
                               
                               downloadButton("downloadData", "Download Template")),
              
-             checkboxGroupInput("price_interventioncustom", h4("Choose a Price Intevention"),
+             checkboxGroupInput("price_interventioncustom", h4("Price Intervention"),
                                 choices = c("Discount", "Rebate"),
                                 selected = "Discount"),
              conditionalPanel(condition = "input.price_interventioncustom.includes('Discount')",
@@ -284,7 +284,7 @@ tabPanel("Custom Elasticities",
              
              sliderInput("throttlingcustom", label = h4("Throttling Amount (%)"), min = 0, max = 100, value = 0.0),
              #Throttling hours
-             sliderInput("throttle_periodcustom", label = h4("Throttling Period"),
+             sliderInput("throttle_periodcustom", label = h4("Throttling Period (Hour Ending)"),
                          min = 0, max = 24, value = c(6, 11))
              
            ),
@@ -651,7 +651,7 @@ server <- function(input, output) {
                       size = 1, 
                       alpha = 0.25) +
         
-        ggtitle("Monte Carlo Simulation Displaying EV Charging Demand \nWith the Simulation Run a Selected Amount of Times") +
+        ggtitle("Individual Model Runs for EV Charging Demand") +
         theme(plot.title = element_text(size = 40, face = "bold")) +
         xlab("Hour") +
         ylab("Electricity Demand (kilowatts)") +
@@ -742,7 +742,7 @@ server <- function(input, output) {
     )
     
     output$MonteCarloDescription <- renderText({
-      "The graph below displays all of the individual model runs that are averaged to create the final simulated demand line in the graph above. There are 4 methods (see the 4 Methods for Modeling Tab) being used within our computer model to simulate demand, and as each one is randomly drawn, you can see which one is being used and how that one is displayed."})
+      "The graph below displays all of the individual model runs that are averaged to create the final simulated demand line in the graph above. The number of lines reflects the number of model runs you select in the sidebar. The method used for each model run is also indicated."})
     
     
     ggplot(app_model_run$sim_result_summary) +
