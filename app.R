@@ -94,6 +94,7 @@ theme = shinytheme("united"),
                                  
                                  ),
                             mainPanel(
+                              br(), 
                               
                               textOutput("DemandGraphDescription", container = span),
                               
@@ -101,18 +102,17 @@ theme = shinytheme("united"),
                               
                               withSpinner(plotOutput("Demand_Graph"), type = 6),
                               
-                              br(),  br(), br(),  br(),
+                              br(),  br(), br(),
                              
                               textOutput("OutputTableDescription", container = span),
                               
                               br(), br(),
                               
-                              
                               withSpinner(tableOutput("Emissions_Table"), type = 6),
                               
-                              br(), br(), br(), br(),
+                              br(), br(), br(),
                               
-                              textOutput("MonteCarloDescription", container = span), br(), br(), br(), br(),
+                              textOutput("MonteCarloDescription", container = span), br(), br(),  
                               
                               withSpinner(plotOutput("Monte_Carlo"), type = 6)
                               
@@ -185,6 +185,7 @@ tabPanel("Modeling Methods",
            ),
            mainPanel(
              
+             br(), 
              
              
              
@@ -289,6 +290,7 @@ tabPanel("Custom Elasticities",
              
            ),
            mainPanel(
+             br(), 
              
              textOutput("DemandGraphDescriptioncustom", container = span),
              
@@ -296,7 +298,7 @@ tabPanel("Custom Elasticities",
              
              withSpinner(plotOutput("custom_graph"), type = 6),
              
-             br(),  br(), br(),  br(),
+             br(),  br(), br(),
              
              textOutput("OutputTableDescriptioncustom", container = span),
              
@@ -337,16 +339,17 @@ server <- function(input, output) {
     output$ModelDescription <- renderText({
       "How Does it Actually Work?
 
-      These types of interventions have an affect on how responsive consumers might be and that responsiveness is measured by the change in electricity that's demanded.  
+These types of interventions have an affect on how responsive consumers might be and that responsiveness is measured by the change in electricity that's demanded.  
   That demand is represented by a line that shows energy (in Kilowatts or kW) over the 24 hours of the day.  That responsiveness is modelled in this application using price elasticities - the change in quantity demanded given a change in price.  
-  These elasticity values, along with other values, are built into our model to show how demand might change at any given hour.
-  For more information on how we built this model, visit https://smartchargeproject.weebly.com/ and look for a copy of our Master's Project report."})
+  These elasticity values, along with other values, are built into our model to show how demand might change at any given hour. The graph below displays a single model run for each method, so you can explore how each method works."
+      })
     
     
     output$MethodsDescription <- renderText({
       "Method 1 assumes that users only respond to a price change in the hour that the price changes (the intervention hours) and do not change their behavior in the other hours (non-intervention hours).
       Method 2 assumes that users only shift their load based on a price signal, and thus there is no net increase in load.
-      Method 3 assumes that users change their behavior in response to price changes in the intervention hours and how that changes the average price over the day. Method 4 uses both self and cross elasticities to calculate a change in demand at all hours of the day."})
+      Method 3 assumes that users change their behavior in response to price changes in the intervention hours and how that changes the average price over the day. Method 4 uses both self- and cross- elasticities to calculate a change in demand at all hours of the day.
+        For more information on how we built this model, visit the instructions tab."})
     
     month <- month(as.Date(input$datemethod, "%Y/%m/%d"))
     year <- year(as.Date(input$datemethod, "%Y/%m/%d"))
@@ -457,7 +460,7 @@ server <- function(input, output) {
                                        throttle_hours = throttling_period)
     
     output$ElasticityDescription <- renderText({
-      "The figure below displays a heat map of elasticities used in Method 4.  
+      "The figure below displays a heat map of elasticities used in Method 4, for your reference.  
   The self elasticities are displayed along the diagonal axis of this elasticity matrix.  
         For Methods 1-3, everything outside the diagonal has a zero value because there aren't any cross price elasticities factored into these models."})
     
@@ -548,6 +551,7 @@ server <- function(input, output) {
       scale_color_brewer("Methods", palette = "Dark2", direction = -1) +
       scale_fill_manual('Interventions', values = c("Discount" = '#88A550',"Rebate" = '#6d50a5', "Throttle" = 'gray57'),  guide = guide_legend(override.aes = list(alpha = 0.4))) +
       theme(legend.position = "bottom") +
+    
       theme_classic()
     
     
@@ -562,7 +566,9 @@ server <- function(input, output) {
   output$Demand_Graph <- renderPlot({
     
     output$DemandGraphDescription <- renderText({
-      "The graph below displays the simulated electricity demand of EV charging based on the inputs that you choose on the sidebar. The simulated new demand appears in blue, while the baseline demand is in orange. Shaded areas will appear to indicate the time periods of any intervention you choose. To account for uncertainty, our model uses 4 methods to determine the change in demand. Each method also allows for variations in the economic elasticities. The amount of times the model is run is chosen in the sidebar. The more times the model is run, the more robust the results, but the longer the graph will take to load. The simulated demand line represents an average of all model runs."})
+      "The graph below displays the simulated electricity demand of EV charging based on the inputs that you choose on the sidebar. The simulated new demand appears in blue, while the baseline demand is in orange. Shaded areas indicate the time periods for any intervention you choose. 
+
+      To account for uncertainty, our model uses 4 methods to determine the change in demand. Each method also allows for variations in the economic elasticities. The amount of times the model is run is chosen in the sidebar. The more times the model is run, the more robust the results, but the longer the graph will take to load. The simulated demand line represents an average of all model runs."})
     
     
 
@@ -795,8 +801,11 @@ server <- function(input, output) {
   
   output$custom_graph <- renderPlot({
     
-    output$GraphDescriptioncustom <- renderText({
-      "FILL IN LATER"})
+    output$DemandGraphDescriptioncustom <- renderText({
+      "In principle using just self- and cross-price elasticities, as Method 4 does, should be sufficient to estimate the change in demand over the course of the day. However, to account for the uncertainty in current available elasticity values, we use 4 methods and average the result. Method 4 uses just the self- and cross-price elasticities. Here, you can use your own self- and cross- price elasticities and run Method 4. Once you upload your own elasticities on the sidebar, you'll see how these in combination with any selected interventions change demand on the graph below. For more information on how to use this feature, visit the instructions tab." 
+      
+      
+      })
     
     
     
@@ -911,7 +920,7 @@ server <- function(input, output) {
     
     
     output$OutputTableDescriptioncustom <- renderText({
-      "This table displays various economic and greenhouse gas emission changes that occur that result from your simulation."})
+      "The table below displays the economic and greenhouse gas emission changes that result from your simulation."})
     
     
     output$Emissions_Tablecustom <- renderTable({
