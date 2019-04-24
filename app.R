@@ -667,14 +667,14 @@ These types of interventions have an affect on how responsive consumers might be
                       ymin=-Inf,
                       ymax=Inf,
                       fill = "Discount"),
-                  alpha=ifelse("Discount" %in% input$price_intervention & input$discount >0, 0.03*as.numeric(input$sim),0)) + #this is the discount rectangle
+                  alpha=ifelse("Discount" %in% input$price_intervention & input$discount >0, 0.3,0)) + #this is the discount rectangle
 
         geom_rect(aes(xmin=input$rebate_period[1],
                       xmax=input$rebate_period[2],
                       ymin=-Inf,
                       ymax=Inf,
                       fill="Rebate"),
-                  alpha=ifelse("Rebate" %in% input$price_intervention & input$rebate >0, 0.02*as.numeric(input$sim),0)) + #This is the rebate rectangle
+                  alpha=ifelse("Rebate" %in% input$price_intervention & input$rebate >0, 0.2,0)) + #This is the rebate rectangle
         
 
         geom_rect(aes(xmin= input$throttle_period[1],
@@ -682,7 +682,7 @@ These types of interventions have an affect on how responsive consumers might be
                       ymin=-Inf,
                       ymax=Inf,
                       fill = "Throttle"),
-                  alpha=ifelse(input$throttling >0, 0.03*as.numeric(input$sim),0)) + #this is the discount rectangle
+                  alpha=ifelse(input$throttling >0, 0.3, 0)) + #0.03*as.numeric(input$sim),0)) + #this is the discount rectangle
         
         scale_x_continuous(limits = c(1,24),breaks = c(1:24), expand = c(0,0)) +
         scale_y_continuous(expand = c(0,0)) +
