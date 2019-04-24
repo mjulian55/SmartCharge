@@ -52,10 +52,8 @@ emissions_fcn <- function(EVDemand, peak_hours = pk, emissions_year = yr) {
     mutate(Xcurt = ifelse(Xcurtpot<curt,ifelse(curt == 0,0,Xcurtpot),curt)) %>% #sum and run percentages on Xcurt 
     mutate(Xextra = ifelse(Xcurtpot>curt, ifelse(Xcurt-Xcurtpot< 0,0, Xcurt-Xcurtpot),0))
   
-  #Calculate emissions for baseline demand (scaled and not)
+  #Calculate emissions for baseline demand (scaled)
   Emissions <- Emissions %>%
-    #mutate (CO2Xi = Xi*CO2Baseline) %>% 
-    #mutate (NOXXi = Xi*NOXBaseline) %>% 
     mutate (CO2X0 = X0*CO2Baseline) %>% 
     mutate (NOXX0 = X0*NOXBaseline)
   
@@ -63,6 +61,10 @@ emissions_fcn <- function(EVDemand, peak_hours = pk, emissions_year = yr) {
   Emissions <- Emissions %>%
     mutate (CO2Xdelta = Xdelta*CO2Marginal) %>% 
     mutate (NOXXdelta= Xdelta*NOXMarginal)
+  
+  Emissions <- Emissions %>%
+    mutate(CO2Xdelta = ifelse(-CO2Xdelta > CO2X0, -CO2X0, CO2Xdelta)) %>% 
+    mutate (NOXXdelta = ifelse(-NOXXdelta > NOXX0, -NOXX0, NOXXdelta))
   
   #calculate emissions for final
   Emissions <- Emissions %>%
@@ -153,7 +155,7 @@ emissions_fcn <- function(EVDemand, peak_hours = pk, emissions_year = yr) {
   
   #Put into new df
   Emissions_Table <- data.frame(Time= c("intervention hours", "peak period", "other", "Total"), Xinitial = c(X0_i_h, X0_pk, X0_o_h, X0_sum), Xfinal = c(Xf_i_h, Xf_pk, Xf_o_h, Xf_sum), Xchange = c(Xdelta_i_h, Xdelta_pk, Xdelta_o_h, Xdelta_sum), CustCostInitial = c(P0_i_h, P0_pk, P0_o_h, P0_sum), CustCostFinal = c(Pf_i_h, Pf_pk, Pf_o_h, Pf_sum), CustCostChange = c(Pdelta_i_h, Pdelta_pk, Pdelta_o_h, Pdelta_sum), CO2Initial = c(CO2X0_i_h, CO2X0_pk, CO2X0_o_h, CO2X0_sum), CO2Final = c(CO2Xf_i_h, CO2Xf_pk, CO2Xf_o_h, CO2Xf_sum), CO2Change = c(CO2Xdelta_i_h, CO2Xdelta_pk, CO2Xdelta_o_h, CO2Xdelta_sum), NOXInitial = c(NOXX0_i_h, NOXX0_pk, NOXX0_o_h, NOXX0_sum), NOXFinal = c(NOXXf_i_h, NOXXf_pk, NOXXf_o_h, NOXXf_sum), NOXChange = c(NOXXdelta_i_h, NOXXdelta_pk, NOXXdelta_o_h, NOXXdelta_sum), NOXChangeDAC = c(0, NOxDACXdelta_pk, 0, 0))
-  #Note: there's got to be a cleaner way to calculate these totals.  
+
   
   #Calculate cost reduction from NOX reduction (only doing it for the change)
   Emissions_Table <- Emissions_Table %>% 
@@ -169,6 +171,12 @@ emissions_fcn <- function(EVDemand, peak_hours = pk, emissions_year = yr) {
   #add to output table
   Emissions_Table <- Emissions_Table %>% 
     mutate(RedCurtProp = c("NA", "NA", "NA", Xcurtproportion), SolarNonCurt= c("NA", "NA", "NA", Xcurtextra), ChangeCurtCost = c("NA", "NA", "NA", Curtailmentcost))
+  
+  Emissions_Table <- Emissions_Table %>% 
+    mutate(PropDemandChange = Xchange/Xinitial) %>% 
+    mutate(PropCO2Change = CO2Change/CO2Initial) %>% 
+    mutate(PropNOXChange = NOXChange/NOXInitial) %>% 
+    mutate(PropCustCostChange = CustCostChange/CustCostInitial)
   
   return(list(Emissions=Emissions, Emissions_Table=Emissions_Table))
 }
