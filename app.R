@@ -522,7 +522,7 @@ These types of interventions have an affect on how responsive consumers might be
                     ymin=-Inf,
                     ymax=Inf,
                     fill = "Discount"),
-                alpha=ifelse("Discount" %in% input$price_interventionmethod & input$discountmethod >0, 0.02*24,0)) + #this is the discount rectangle
+                alpha=ifelse("Discount" %in% input$price_interventionmethod & input$discountmethod >0, 0.3,0)) + #this is the discount rectangle
       
       
       
@@ -532,26 +532,22 @@ These types of interventions have an affect on how responsive consumers might be
                     ymin=-Inf,
                     ymax=Inf,
                     fill="Rebate"),
-                alpha=ifelse("Rebate" %in% input$price_interventionmethod & input$rebatemethod >0, 0.02*24,0)) + #This is the rebate rectangle
+                alpha=ifelse("Rebate" %in% input$price_interventionmethod & input$rebatemethod >0, 0.3,0)) + #This is the rebate rectangle
       
       
-      
-      
+  
       geom_rect(aes(xmin= input$throttle_periodmethod[1],
                     xmax=input$throttle_periodmethod[2],
                     ymin=-Inf,
                     ymax=Inf,
                     fill = "Throttle"),
-                alpha=ifelse(input$throttlingmethod >0, 0.02*24,0)) + #this is the discount rectangle
-      
+                alpha=ifelse(input$throttlingmethod >0, 0.2,0)) + #this is the discount rectangle
       
       scale_x_continuous(limits = c(1,24),breaks = c(1:24), expand = c(0,0)) +
       scale_y_continuous(expand = c(0,0)) +
-     # scale_fill_brewer("Interventions",palette = "Set2" , guide = guide_legend(override.aes = list(alpha = 0.5))) +
-      scale_color_brewer("Methods", palette = "Dark2", direction = -1) +
+       scale_color_manual('Methods', values = c("Method 1" = '#1B9E77', "Method 2" = '#D95F02', "Method 3" = '#7570B3', "Method 4" = '#E7298A', "Baseline Demand" = 'gray20')) +
       scale_fill_manual('Interventions', values = c("Discount" = '#88A550',"Rebate" = '#6d50a5', "Throttle" = 'gray57'),  guide = guide_legend(override.aes = list(alpha = 0.4))) +
       theme(legend.position = "bottom") +
-    
       theme_classic()
     
     
