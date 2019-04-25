@@ -514,8 +514,7 @@ Xi <- Xi_choose_weekends %>%
     
     matrix <- custom_matrix
     matrix<-matrix[,-1]
-    colnames(matrix) <- c(1:24)
-    
+
     
   }else{
     

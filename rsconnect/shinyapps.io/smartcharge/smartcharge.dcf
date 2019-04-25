@@ -1,0 +1,10 @@
+name: smartcharge
+title:
+username:
+account: smartcharge
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 882844
+bundleId: 2039093
+url: https://smartcharge.shinyapps.io/smartcharge/
+when: 1556215103.93063
