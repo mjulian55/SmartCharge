@@ -6114,7 +6114,7 @@ Demand_Graph_MUDs_SCE <- ggplot(data = graph_tableFM1, aes(x = Hr)) +
                 ymin=-Inf,
                 ymax=Inf,
                 fill = "Rebate"),
-                alpha=0.005) +
+                alpha=0.013) +
   scale_x_continuous(limits = c(0,24),breaks = c(0:24), expand = c(0,0)) +
   scale_y_continuous(expand = c(0,0), labels = scales::unit_format(unit = "k", accuracy = 0.5, scale =1e-3), breaks = c(500, 1000), limits = c(0,1000)) +
       scale_fill_manual('Interventions', values = c("Discount" = "#88A550","Throttle" = 'gray57', "Rebate" = "#88A550"),  guide = guide_legend(override.aes = list(alpha = 0.1))) +
